@@ -1,99 +1,135 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase.js'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import Button from '../../components/Button.jsx'
-import Card from '../../components/Card.jsx'
 
 export default function Login() {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
+  const navigate  = useNavigate()
+  const { signIn } = useAuth()
+
+  const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [loading,  setLoading]  = useState(false)
+  const [error,    setError]    = useState('')
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-      if (authError) throw authError
-      navigate('/')
+      const { role } = await signIn(email.trim(), password)
+      navigate(role === 'coach' ? '/coach' : '/dashboard', { replace: true })
     } catch (err) {
-      setError(err.message ?? 'Sign-in failed.')
+      setError(err.message ?? 'Connexion échouée.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={styles.page}>
-      <Card style={styles.card}>
-        <h1 style={styles.heading}>Sign in</h1>
-        <p style={styles.sub}>Welcome back — enter your credentials.</p>
+    <div style={s.page}>
+      <div style={s.card}>
+        {/* Logo */}
+        <div style={s.logoBlock}>
+          <span style={s.logoTitle}>Lysa Andréa</span>
+          <span style={s.logoSub}>Programme 8 semaines</span>
+        </div>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <label style={styles.label}>
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={s.form}>
+          <label style={s.label}>
             Email
             <input
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              style={styles.input}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="ton@email.fr"
+              style={s.input}
+              onFocus={e => { e.target.style.borderColor = 'var(--stone)'; e.target.style.outline = 'none' }}
+              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
             />
           </label>
 
-          <label style={styles.label}>
-            Password
+          <label style={s.label}>
+            Mot de passe
             <input
               type="password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
-              style={styles.input}
+              style={s.input}
+              onFocus={e => { e.target.style.borderColor = 'var(--stone)'; e.target.style.outline = 'none' }}
+              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
             />
           </label>
 
-          {error && <p style={styles.error}>{error}</p>}
+          {error && (
+            <p style={s.error}>{error}</p>
+          )}
 
           <Button type="submit" fullWidth loading={loading}>
-            Sign in
+            Se connecter
           </Button>
         </form>
-      </Card>
+
+        {/* Footer */}
+        <p style={s.footer}>
+          Première connexion ?{' '}
+          <a href="#" style={s.link}>Créer mon compte</a>
+        </p>
+
+        {/* Dev hint */}
+        {!import.meta.env.VITE_SUPABASE_URL && (
+          <div style={s.hint}>
+            <strong>Mode démo</strong><br />
+            coach@lysa.fr / lysa2024<br />
+            cliente@lysa.fr / lysa2024
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
-const styles = {
+const s = {
   page: {
     minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'var(--bg-base)',
+    background: 'var(--cream)',
     padding: 'var(--space-4)',
   },
   card: {
     width: '100%',
-    maxWidth: 400,
+    maxWidth: 420,
+    background: 'var(--white)',
+    border: '1px solid var(--sand)',
+    borderRadius: 'var(--border-radius-xl)',
+    padding: 'var(--space-10) var(--space-8)',
+    boxShadow: 'var(--shadow-md)',
   },
-  heading: {
-    fontSize: 'var(--text-2xl)',
-    fontWeight: 700,
-    color: 'var(--text-primary)',
-    marginBottom: 'var(--space-1)',
+  logoBlock: {
+    textAlign: 'center',
+    marginBottom: 'var(--space-8)',
   },
-  sub: {
-    fontSize: 'var(--text-sm)',
-    color: 'var(--text-secondary)',
-    marginBottom: 'var(--space-6)',
+  logoTitle: {
+    display: 'block',
+    fontFamily: 'var(--font-serif)',
+    fontSize: 28,
+    fontWeight: 400,
+    color: 'var(--earth)',
+    letterSpacing: '-0.01em',
+  },
+  logoSub: {
+    display: 'block',
+    fontSize: 'var(--text-xs)',
+    color: 'var(--sage)',
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+    marginTop: 4,
   },
   form: {
     display: 'flex',
@@ -103,23 +139,48 @@ const styles = {
   label: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 'var(--space-1)',
+    gap: 6,
     fontSize: 'var(--text-sm)',
     fontWeight: 500,
-    color: 'var(--text-primary)',
+    color: 'var(--earth)',
   },
   input: {
-    padding: '10px var(--space-3)',
+    padding: '11px var(--space-4)',
     borderRadius: 'var(--border-radius-sm)',
-    border: '1px solid var(--border-color)',
+    border: '1px solid var(--sand)',
+    background: 'var(--cream)',
+    color: 'var(--earth)',
     fontSize: 'var(--text-sm)',
-    color: 'var(--text-primary)',
-    background: 'var(--bg-surface)',
-    outline: 'none',
     transition: 'border-color var(--transition-fast)',
   },
   error: {
     fontSize: 'var(--text-sm)',
-    color: 'var(--color-danger)',
+    color: 'var(--terracotta)',
+    padding: '10px var(--space-4)',
+    background: 'rgba(192,120,96,0.08)',
+    borderRadius: 'var(--border-radius-sm)',
+    border: '1px solid rgba(192,120,96,0.2)',
+  },
+  footer: {
+    textAlign: 'center',
+    fontSize: 'var(--text-sm)',
+    color: 'var(--stone)',
+    marginTop: 'var(--space-5)',
+  },
+  link: {
+    color: 'var(--bark)',
+    textDecoration: 'underline',
+    textUnderlineOffset: 3,
+  },
+  hint: {
+    marginTop: 'var(--space-5)',
+    padding: 'var(--space-4)',
+    background: 'rgba(168,184,154,0.1)',
+    borderRadius: 'var(--border-radius-sm)',
+    border: '1px dashed var(--sage)',
+    fontSize: 'var(--text-xs)',
+    color: 'var(--bark)',
+    lineHeight: 1.8,
+    textAlign: 'center',
   },
 }

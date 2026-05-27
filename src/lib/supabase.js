@@ -5,11 +5,12 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
-    'Supabase env vars missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env'
+    '[Supabase] Missing env vars — using mock mode.\n' +
+    'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env to connect.'
   )
 }
 
 export const supabase = createClient(
   supabaseUrl ?? 'https://placeholder.supabase.co',
-  supabaseAnonKey ?? 'placeholder'
+  supabaseAnonKey ?? 'placeholder_anon_key'
 )

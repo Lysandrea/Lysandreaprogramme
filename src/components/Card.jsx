@@ -1,24 +1,42 @@
-export default function Card({ children, title, style: extraStyle }) {
+export default function Card({
+  children,
+  title,
+  subtitle,
+  style: extra,
+  padding,
+  shadow = true,
+  border = true,
+}) {
   return (
-    <div style={{ ...styles.card, ...extraStyle }}>
-      {title && <h3 style={styles.title}>{title}</h3>}
+    <div style={{
+      background: 'var(--white)',
+      border: border ? '1px solid var(--sand)' : 'none',
+      borderRadius: 'var(--border-radius-lg)',
+      padding: padding ?? 'var(--space-6)',
+      boxShadow: shadow ? 'var(--shadow-sm)' : 'none',
+      ...extra,
+    }}>
+      {(title || subtitle) && (
+        <div style={{ marginBottom: 'var(--space-5)' }}>
+          {title && (
+            <h3 style={{
+              fontFamily: 'var(--font-serif)',
+              fontSize: 'var(--text-xl)',
+              fontWeight: 400,
+              color: 'var(--earth)',
+              letterSpacing: '-0.01em',
+            }}>{title}</h3>
+          )}
+          {subtitle && (
+            <p style={{
+              fontSize: 'var(--text-sm)',
+              color: 'var(--bark)',
+              marginTop: 'var(--space-1)',
+            }}>{subtitle}</p>
+          )}
+        </div>
+      )}
       {children}
     </div>
   )
-}
-
-const styles = {
-  card: {
-    background: 'var(--bg-surface)',
-    border: '1px solid var(--border-color)',
-    borderRadius: 'var(--border-radius-md)',
-    padding: 'var(--space-6)',
-    boxShadow: 'var(--shadow-sm)',
-  },
-  title: {
-    fontSize: 'var(--text-base)',
-    fontWeight: 600,
-    color: 'var(--text-primary)',
-    marginBottom: 'var(--space-4)',
-  },
 }
