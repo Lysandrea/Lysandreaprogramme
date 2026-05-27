@@ -69,7 +69,7 @@ export default function Login() {
             <p style={s.error}>{error}</p>
           )}
 
-          <Button type="submit" fullWidth loading={loading}>
+          <Button type="submit" fullWidth size="lg" loading={loading}>
             Se connecter
           </Button>
         </form>
@@ -117,9 +117,10 @@ const s = {
   },
   logoTitle: {
     display: 'block',
-    fontFamily: 'var(--font-serif)',
-    fontSize: 28,
+    fontFamily: 'var(--serif)',
+    fontSize: 32,
     fontWeight: 400,
+    fontStyle: 'italic',
     color: 'var(--earth)',
     letterSpacing: '-0.01em',
   },
@@ -145,13 +146,13 @@ const s = {
     color: 'var(--earth)',
   },
   input: {
-    padding: '11px var(--space-4)',
-    borderRadius: 'var(--border-radius-sm)',
+    padding: '14px var(--s4)',
+    borderRadius: 8,
     border: '1px solid var(--sand)',
     background: 'var(--cream)',
     color: 'var(--earth)',
-    fontSize: 'var(--text-sm)',
-    transition: 'border-color var(--transition-fast)',
+    fontSize: 'var(--tx-sm)',
+    transition: 'border-color var(--ease-fast)',
   },
   error: {
     fontSize: 'var(--text-sm)',

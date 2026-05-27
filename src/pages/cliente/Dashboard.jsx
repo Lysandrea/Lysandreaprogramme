@@ -1,123 +1,143 @@
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../../contexts/AuthContext.jsx'
-import Sidebar from '../../components/Sidebar.jsx'
-import Topbar  from '../../components/Topbar.jsx'
-import Card    from '../../components/Card.jsx'
-import Badge   from '../../components/Badge.jsx'
-import Button  from '../../components/Button.jsx'
-import LysaQuote from '../../components/LysaQuote.jsx'
+import { useAuth }     from '../../contexts/AuthContext.jsx'
+import Sidebar     from '../../components/Sidebar.jsx'
+import Topbar      from '../../components/Topbar.jsx'
+import Card        from '../../components/Card.jsx'
+import Button      from '../../components/Button.jsx'
+import LysaQuote   from '../../components/LysaQuote.jsx'
 import { MOCK_DAYS, MOCK_CURRENT_DAY, MOTIVATIONAL_MESSAGES } from '../../lib/mockData.js'
 
 export default function ClienteDashboard() {
   const { profile } = useAuth()
   const navigate    = useNavigate()
-  const prenom      = profile?.prenom ?? 'toi'
+  const prenom      = profile?.prenom ?? 'Camille'
   const today       = MOCK_DAYS.find(d => d.status === 'current')
-  const motivation  = MOTIVATIONAL_MESSAGES[new Date().getDate() % MOTIVATIONAL_MESSAGES.length]
+  const motivation  = MOTIVATIONAL_MESSAGES[new Date().getDay() % MOTIVATIONAL_MESSAGES.length]
 
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
+    <div className="shell">
       <Sidebar />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--cream)' }}>
-        <Topbar title="Tableau de bord" subtitle={`Jour ${MOCK_CURRENT_DAY} · Semaine ${today?.semaine ?? 1}`} />
+      <div className="shell-main">
+        <Topbar
+          title={`Bonjour ${prenom} ✦`}
+          subtitle={`Jour ${MOCK_CURRENT_DAY} · Semaine ${today?.semaine ?? 1}`}
+        />
+        <div className="shell-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s6)' }}>
 
-        <main style={s.content}>
-          {/* Welcome banner */}
+          {/* ── Welcome banner ── */}
           <div style={s.banner}>
-            <div>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <p style={s.bannerEye}>Ton programme · Semaine {today?.semaine ?? 1}</p>
               <h2 style={s.bannerTitle}>Bonjour {prenom} ✦</h2>
               <p style={s.bannerMsg}>{motivation}</p>
             </div>
-            <div style={s.bannerSemaine}>
-              <span style={s.bannerSemanineLabel}>Semaine</span>
-              <span style={s.bannerSemanineNum}>{today?.semaine ?? 1}</span>
+            <div style={s.bannerWeek}>
+              <span style={s.bannerWeekLabel}>Sem.</span>
+              <span style={s.bannerWeekNum}>{today?.semaine ?? 1}</span>
+              <span style={s.bannerWeekLabel}>/ 8</span>
             </div>
           </div>
 
-          {/* Today card */}
+          {/* ── Today card ── */}
           {today && (
-            <Card style={s.todayCard}>
-              <div style={s.todayHeader}>
+            <Card style={{ borderLeft: '3px solid var(--terracotta)' }}>
+              <div style={s.todayRow}>
                 <div>
-                  <p style={s.todayLabel}>Séance du jour — J{today.jour}</p>
+                  <p style={s.todayEye}>Séance d'aujourd'hui — J{today.jour}</p>
                   <h3 style={s.todayTitle}>{today.titre}</h3>
-                  <p style={s.todayDuree}>{today.duree} min</p>
+                  <p style={s.todayDuree}>⏱ {today.duree} min</p>
                 </div>
-                <div style={s.todayActions}>
-                  <Button onClick={() => navigate(`/programme/${today.jour}`)}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-end' }}>
+                  <Button onClick={() => navigate(`/jour/${today.jour}`)}>
                     Commencer →
                   </Button>
-                  <Badge variant={today.bilanFait ? 'done' : 'current'}>
-                    {today.bilanFait ? 'Bilan fait ✓' : 'Bilan à remplir'}
-                  </Badge>
+                  <Button
+                    variant="secondary" size="sm"
+                    onClick={() => navigate(`/bilan/${today.jour}`)}
+                  >
+                    Bilan du soir ✦
+                  </Button>
                 </div>
               </div>
             </Card>
           )}
 
-          {/* Days list */}
+          {/* ── 56-day grid ── */}
           <div>
-            <h3 style={s.sectionTitle}>Mon programme</h3>
-            <div style={s.daysGrid}>
+            <h3 style={s.sectionTitle}>Mon programme — 56 jours</h3>
+            <div style={s.grid}>
               {MOCK_DAYS.map(day => (
-                <DayTile key={day.jour} day={day} onClick={() => {
-                  if (day.status !== 'locked') navigate(`/programme/${day.jour}`)
-                }} />
+                <DayCell
+                  key={day.jour}
+                  day={day}
+                  onSelect={id => navigate(`/jour/${id}`)}
+                />
               ))}
             </div>
           </div>
 
           {/* Quote */}
-          <LysaQuote index={today?.jour ?? 0} style={{ marginTop: 'var(--space-6)' }} />
-        </main>
+          <LysaQuote index={today?.jour ?? 0} />
+        </div>
       </div>
     </div>
   )
 }
 
-function DayTile({ day, onClick }) {
-  const isLocked  = day.status === 'locked'
-  const isCurrent = day.status === 'current'
-  const isDone    = day.status === 'done'
+/* ── Day cell ── */
+function DayCell({ day, onSelect }) {
+  const done    = day.status === 'done'
+  const current = day.status === 'current'
+  const locked  = day.status === 'locked'
 
   return (
     <div
-      onClick={onClick}
+      onClick={() => !locked && onSelect(day.jour)}
+      title={locked ? `J${day.jour} — verrouillé` : `J${day.jour} — ${day.titre}`}
       style={{
-        background: isCurrent ? 'var(--forest)' : isDone ? 'var(--white)' : 'rgba(196,181,160,0.15)',
-        border: `1px solid ${isCurrent ? 'var(--forest)' : isDone ? 'var(--sage)' : 'var(--sand)'}`,
-        borderRadius: 'var(--border-radius-md)',
-        padding: '10px 12px',
-        cursor: isLocked ? 'default' : 'pointer',
-        opacity: isLocked ? 0.5 : 1,
-        transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 4,
+        background: current ? 'var(--terracotta)'
+                  : done    ? 'rgba(107,127,94,.12)'
+                  :           'rgba(196,181,160,.15)',
+        border: `1px solid ${current ? 'var(--terracotta)'
+                             : done   ? 'var(--sage)'
+                             :          'var(--sand)'}`,
+        borderRadius: 'var(--r-md)',
+        padding: '10px 8px',
+        cursor: locked ? 'default' : 'pointer',
+        opacity: locked ? .45 : 1,
+        display: 'flex', flexDirection: 'column', gap: 3,
+        transition: 'transform var(--ease-fast), box-shadow var(--ease-fast)',
       }}
-      onMouseEnter={e => { if (!isLocked) e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = isLocked ? '' : 'var(--shadow-sm)' }}
-      onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '' }}
+      onMouseEnter={e => {
+        if (!locked) {
+          e.currentTarget.style.transform = 'translateY(-2px)'
+          e.currentTarget.style.boxShadow = 'var(--sh-sm)'
+        }
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.transform = ''
+        e.currentTarget.style.boxShadow = ''
+      }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{
-          fontSize: 'var(--text-xs)',
-          fontWeight: 600,
-          color: isCurrent ? 'var(--sage)' : isDone ? 'var(--moss)' : 'var(--stone)',
-          letterSpacing: '0.06em',
+          fontSize: 10, fontWeight: 700, letterSpacing: '.06em',
+          color: current ? 'rgba(253,250,246,.85)'
+               : done    ? 'var(--moss)'
+               :           'var(--stone)',
         }}>
           J{day.jour}
         </span>
         <span style={{ fontSize: 11 }}>
-          {isDone ? '✓' : isLocked ? '🔒' : '→'}
+          {done ? '✓' : locked ? '🔒' : '→'}
         </span>
       </div>
       <p style={{
-        fontSize: 'var(--text-xs)',
-        color: isCurrent ? 'var(--white)' : isDone ? 'var(--earth)' : 'var(--stone)',
-        lineHeight: 1.3,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
+        fontSize: 10, lineHeight: 1.3,
+        color: current ? 'var(--white)'
+             : done    ? 'var(--earth)'
+             :           'var(--stone)',
+        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
       }}>
         {day.titre}
       </p>
@@ -125,104 +145,65 @@ function DayTile({ day, onClick }) {
   )
 }
 
+/* ── Styles ── */
 const s = {
-  content: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: 'var(--space-8)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 'var(--space-6)',
-  },
   banner: {
     background: 'linear-gradient(135deg, var(--forest) 0%, #2e3c2d 100%)',
-    borderRadius: 'var(--border-radius-xl)',
-    padding: 'var(--space-8) var(--space-8)',
-    display: 'flex',
-    alignItems: 'center',
+    borderRadius: 'var(--r-xl)',
+    padding: 'var(--s8)',
+    display: 'flex', alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 'var(--space-4)',
+    gap: 'var(--s4)',
+    position: 'relative', overflow: 'hidden',
+  },
+  bannerEye: {
+    fontSize: 'var(--tx-xs)', color: 'var(--sage)',
+    letterSpacing: '.1em', textTransform: 'uppercase',
+    marginBottom: 'var(--s2)',
   },
   bannerTitle: {
-    fontFamily: 'var(--font-serif)',
-    fontSize: 'var(--text-3xl)',
-    fontWeight: 400,
-    color: 'var(--white)',
-    letterSpacing: '-0.01em',
+    fontFamily: 'var(--serif)', fontSize: 'var(--tx-4xl)',
+    fontWeight: 300, color: 'var(--white)', letterSpacing: '-.01em',
   },
   bannerMsg: {
-    fontSize: 'var(--text-sm)',
-    color: 'var(--sage)',
-    marginTop: 'var(--space-2)',
-    maxWidth: 400,
+    fontSize: 'var(--tx-sm)', color: 'rgba(245,240,232,.7)',
+    marginTop: 'var(--s2)', maxWidth: 380,
   },
-  bannerSemaine: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    background: 'rgba(255,255,255,0.08)',
-    borderRadius: 'var(--border-radius-md)',
-    padding: 'var(--space-4) var(--space-6)',
-    flexShrink: 0,
+  bannerWeek: {
+    display: 'flex', flexDirection: 'column', alignItems: 'center',
+    background: 'rgba(255,255,255,.08)', borderRadius: 'var(--r-md)',
+    padding: 'var(--s4) var(--s6)', flexShrink: 0,
   },
-  bannerSemanineLabel: {
-    fontSize: 'var(--text-xs)',
-    color: 'var(--sage)',
-    letterSpacing: '0.1em',
-    textTransform: 'uppercase',
+  bannerWeekLabel: {
+    fontSize: 'var(--tx-xs)', color: 'var(--sage)',
+    letterSpacing: '.1em', textTransform: 'uppercase',
   },
-  bannerSemanineNum: {
-    fontFamily: 'var(--font-serif)',
-    fontSize: 'var(--text-4xl)',
-    fontWeight: 300,
-    color: 'var(--white)',
-    lineHeight: 1,
-    marginTop: 2,
+  bannerWeekNum: {
+    fontFamily: 'var(--serif)', fontSize: 48,
+    fontWeight: 300, color: 'var(--white)', lineHeight: 1,
   },
-  todayCard: {
-    borderLeft: '3px solid var(--forest)',
-  },
-  todayHeader: {
-    display: 'flex',
-    alignItems: 'center',
+  todayRow: {
+    display: 'flex', alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 'var(--space-4)',
-    flexWrap: 'wrap',
+    gap: 'var(--s4)', flexWrap: 'wrap',
   },
-  todayLabel: {
-    fontSize: 'var(--text-xs)',
-    color: 'var(--stone)',
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase',
-    marginBottom: 6,
+  todayEye: {
+    fontSize: 'var(--tx-xs)', color: 'var(--stone)',
+    letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 6,
   },
   todayTitle: {
-    fontFamily: 'var(--font-serif)',
-    fontSize: 'var(--text-2xl)',
-    fontWeight: 400,
-    color: 'var(--earth)',
+    fontFamily: 'var(--serif)', fontSize: 'var(--tx-2xl)',
+    fontWeight: 400, color: 'var(--earth)',
   },
-  todayDuree: {
-    fontSize: 'var(--text-sm)',
-    color: 'var(--bark)',
-    marginTop: 4,
-  },
-  todayActions: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    gap: 'var(--space-2)',
-  },
+  todayDuree: { fontSize: 'var(--tx-sm)', color: 'var(--bark)', marginTop: 4 },
   sectionTitle: {
-    fontFamily: 'var(--font-serif)',
-    fontSize: 'var(--text-xl)',
-    fontWeight: 400,
-    color: 'var(--earth)',
-    marginBottom: 'var(--space-4)',
+    fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)',
+    fontWeight: 400, color: 'var(--earth)',
+    marginBottom: 'var(--s4)',
   },
-  daysGrid: {
+  grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
-    gap: 'var(--space-2)',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(92px, 1fr))',
+    gap: 'var(--s2)',
   },
 }

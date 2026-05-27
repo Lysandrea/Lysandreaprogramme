@@ -3,41 +3,39 @@ import { useAuth } from './contexts/AuthContext.jsx'
 
 import Login          from './pages/auth/Login.jsx'
 import ClienteDash    from './pages/cliente/Dashboard.jsx'
-import CoachDash      from './pages/coach/Dashboard.jsx'
 import JourDetail     from './pages/cliente/JourDetail.jsx'
-import Programme      from './pages/cliente/Programme.jsx'
 import BilanSoir      from './pages/cliente/BilanSoir.jsx'
+import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
 
-/* ── Route guard ── */
-function Protected({ children, allow }) {
+/* ── Loading screen ── */
+function Spinner() {
+  return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', alignItems: 'center',
+      justifyContent: 'center', background: 'var(--cream)',
+    }}>
+      <span style={{
+        fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)',
+        color: 'var(--stone)', letterSpacing: '.06em',
+      }}>
+        Lysa Andréa…
+      </span>
+    </div>
+  )
+}
+
+/* ── ProtectedRoute ── */
+function ProtectedRoute({ children, allow }) {
   const { user, role, loading } = useAuth()
   const location = useLocation()
 
-  if (loading) return <LoadingScreen />
+  if (loading) return <Spinner />
   if (!user)   return <Navigate to="/" state={{ from: location }} replace />
   if (allow && role !== allow) {
     return <Navigate to={role === 'coach' ? '/coach' : '/dashboard'} replace />
   }
   return children
-}
-
-function LoadingScreen() {
-  return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'var(--cream)',
-      fontFamily: 'var(--font-serif)',
-      fontSize: 'var(--text-xl)',
-      color: 'var(--stone)',
-      letterSpacing: '0.05em',
-    }}>
-      Lysa Andréa…
-    </div>
-  )
 }
 
 export default function App() {
@@ -46,26 +44,23 @@ export default function App() {
       {/* Public */}
       <Route path="/" element={<Login />} />
 
-      {/* Cliente */}
+      {/* Cliente (protected) */}
       <Route path="/dashboard" element={
-        <Protected allow="cliente"><ClienteDash /></Protected>
+        <ProtectedRoute allow="cliente"><ClienteDash /></ProtectedRoute>
       } />
-      <Route path="/programme" element={
-        <Protected allow="cliente"><Programme /></Protected>
+      <Route path="/jour/:id" element={
+        <ProtectedRoute allow="cliente"><JourDetail /></ProtectedRoute>
       } />
-      <Route path="/programme/:jour" element={
-        <Protected allow="cliente"><JourDetail /></Protected>
-      } />
-      <Route path="/bilan/:jour" element={
-        <Protected allow="cliente"><BilanSoir /></Protected>
+      <Route path="/bilan/:id" element={
+        <ProtectedRoute allow="cliente"><BilanSoir /></ProtectedRoute>
       } />
 
-      {/* Coach */}
+      {/* Coach (protected) */}
       <Route path="/coach" element={
-        <Protected allow="coach"><CoachDash /></Protected>
+        <ProtectedRoute allow="coach"><CoachDash /></ProtectedRoute>
       } />
       <Route path="/coach/cliente/:id" element={
-        <Protected allow="coach"><ClienteDetail /></Protected>
+        <ProtectedRoute allow="coach"><ClienteDetail /></ProtectedRoute>
       } />
 
       {/* Fallback */}

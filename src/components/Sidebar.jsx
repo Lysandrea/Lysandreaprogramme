@@ -1,14 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import { MOCK_CURRENT_DAY } from '../lib/mockData.js'
 
-/* ── Nav configs ── */
 const CLIENTE_NAV = [
-  { label: 'Tableau de bord', to: '/dashboard',  icon: '◈' },
-  { label: 'Mon programme',   to: '/programme',  icon: '◉' },
+  { label: 'Tableau de bord', to: '/dashboard', icon: '🏠' },
 ]
-
 const COACH_NAV = [
-  { label: 'Tableau de bord', to: '/coach',      icon: '◈' },
+  { label: 'Vue Coach', to: '/coach', icon: '📋' },
 ]
 
 export default function Sidebar() {
@@ -23,25 +21,20 @@ export default function Sidebar() {
 
   return (
     <aside style={s.sidebar}>
-      {/* Logo */}
-      <div style={s.logoBlock}>
-        <span style={s.logoTitle}>Lysa Andréa</span>
-        <span style={s.logoSub}>Programme 8 semaines</span>
+      {/* Brand */}
+      <div style={s.brand}>
+        <span style={s.brandName}>Lysa Andréa</span>
+        <span style={s.brandSub}>Programme 8 semaines</span>
       </div>
 
       {/* Nav */}
       <nav style={s.nav}>
         {navItems.map(({ label, to, icon }) => (
           <NavLink
-            key={to}
-            to={to}
-            end
-            style={({ isActive }) => ({
-              ...s.item,
-              ...(isActive ? s.itemActive : {}),
-            })}
+            key={to} to={to} end
+            style={({ isActive }) => ({ ...s.item, ...(isActive ? s.itemActive : {}) })}
           >
-            <span style={s.icon}>{icon}</span>
+            <span style={{ fontSize: '1rem', flexShrink: 0 }}>{icon}</span>
             <span>{label}</span>
           </NavLink>
         ))}
@@ -49,10 +42,10 @@ export default function Sidebar() {
 
       {/* Bottom */}
       <div style={s.bottom}>
-        {role === 'cliente' && <ProgressDots profile={profile} />}
+        {role === 'cliente' && <WeekDots />}
         {role === 'coach'   && <CoachStats />}
 
-        {/* User + sign out */}
+        {/* User row */}
         <div style={s.userRow}>
           <div style={s.avatar}>
             {(profile?.prenom?.[0] ?? '?').toUpperCase()}
@@ -61,7 +54,13 @@ export default function Sidebar() {
             <p style={s.userName}>{profile?.prenom ?? 'Utilisateur'}</p>
             <p style={s.userRole}>{role ?? '—'}</p>
           </div>
-          <button style={s.signOutBtn} onClick={handleSignOut} title="Déconnexion">
+          <button
+            style={s.signOutBtn}
+            onClick={handleSignOut}
+            title="Déconnexion"
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--stone)' }}
+          >
             ⏻
           </button>
         </div>
@@ -70,29 +69,41 @@ export default function Sidebar() {
   )
 }
 
-/* ── Sub-components ── */
-function ProgressDots({ profile }) {
-  const currentWeek = profile?.current_week ?? 1
+/* ── 8-week progress dots ──
+   done  = --moss (all 7 days of that week complete)
+   current = --terracotta
+   locked  = gray
+*/
+function WeekDots() {
+  const currentSemaine = Math.ceil(MOCK_CURRENT_DAY / 7)  // semaine 1 for J3
+
   return (
-    <div style={{ marginBottom: 'var(--space-5)' }}>
-      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--sage)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 'var(--space-3)' }}>
-        Progression
-      </p>
+    <div style={{ marginBottom: 'var(--s5)' }}>
+      <p style={s.dotLabel}>Progression</p>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-        {Array.from({ length: 8 }, (_, i) => (
-          <div key={i} style={{
-            width: 20, height: 20,
-            borderRadius: '50%',
-            border: '1.5px solid',
-            borderColor: i < currentWeek ? 'var(--sage)' : 'rgba(168,184,154,0.3)',
-            background: i < currentWeek ? 'var(--sage)' : 'transparent',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 9, color: i < currentWeek ? 'var(--forest)' : 'rgba(168,184,154,0.4)',
-            fontWeight: 600,
-          }}>
-            {i + 1}
-          </div>
-        ))}
+        {Array.from({ length: 8 }, (_, i) => {
+          const sem = i + 1
+          const done    = sem < currentSemaine
+          const current = sem === currentSemaine
+          return (
+            <div key={sem} style={{
+              width: 24, height: 24, borderRadius: '50%',
+              border: '1.5px solid',
+              borderColor: done    ? 'var(--moss)'
+                         : current ? 'var(--terracotta)'
+                         :           'rgba(168,184,154,.3)',
+              background:  done    ? 'var(--moss)'
+                         : current ? 'var(--terracotta)'
+                         :           'transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 9, fontWeight: 600,
+              color: (done || current) ? 'var(--white)' : 'rgba(168,184,154,.45)',
+              title: `Semaine ${sem}`,
+            }}>
+              {sem}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -100,18 +111,14 @@ function ProgressDots({ profile }) {
 
 function CoachStats() {
   return (
-    <div style={{ marginBottom: 'var(--space-5)' }}>
-      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--sage)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 'var(--space-3)' }}>
-        Aperçu
-      </p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {[['Clientes actives', '4'], ['Check-ins en attente', '2']].map(([label, val]) => (
-          <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-sidebar)' }}>{label}</span>
-            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 500, color: 'var(--white)' }}>{val}</span>
-          </div>
-        ))}
-      </div>
+    <div style={{ marginBottom: 'var(--s5)' }}>
+      <p style={s.dotLabel}>Aperçu rapide</p>
+      {[['Clientes actives', '2'], ['Bilans en attente', '1'], ['Onboardings', '1']].map(([label, val]) => (
+        <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+          <span style={{ fontSize: 'var(--tx-xs)', color: 'rgba(253,250,246,.65)' }}>{label}</span>
+          <span style={{ fontSize: 'var(--tx-sm)', fontWeight: 500, color: 'var(--white)' }}>{val}</span>
+        </div>
+      ))}
     </div>
   )
 }
@@ -119,109 +126,70 @@ function CoachStats() {
 /* ── Styles ── */
 const s = {
   sidebar: {
-    width: 'var(--sidebar-width)',
-    background: 'var(--bg-sidebar)',
-    display: 'flex',
-    flexDirection: 'column',
-    flexShrink: 0,
-    height: '100vh',
-    overflowY: 'auto',
-    overflowX: 'hidden',
+    width: 'var(--sidebar-w)', background: 'var(--forest)',
+    display: 'flex', flexDirection: 'column',
+    flexShrink: 0, height: '100vh',
+    overflowY: 'auto', overflowX: 'hidden',
   },
-  logoBlock: {
-    padding: 'var(--space-8) var(--space-6) var(--space-6)',
-    borderBottom: '1px solid rgba(168,184,154,0.15)',
-    marginBottom: 'var(--space-4)',
+  brand: {
+    padding: 'var(--s8) var(--s6) var(--s6)',
+    borderBottom: '1px solid rgba(168,184,154,.15)',
+    marginBottom: 'var(--s4)',
   },
-  logoTitle: {
+  brandName: {
     display: 'block',
-    fontFamily: 'var(--font-serif)',
-    fontSize: '22px',
-    fontWeight: 400,
-    color: 'var(--white)',
-    letterSpacing: '-0.01em',
+    fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 400,
+    color: 'var(--white)', letterSpacing: '-.01em',
   },
-  logoSub: {
+  brandSub: {
     display: 'block',
-    fontSize: 'var(--text-xs)',
-    color: 'var(--sage)',
-    letterSpacing: '0.1em',
-    textTransform: 'uppercase',
-    marginTop: 4,
+    fontSize: 'var(--tx-xs)', color: 'var(--sage)',
+    letterSpacing: '.1em', textTransform: 'uppercase', marginTop: 4,
   },
   nav: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 2,
-    padding: '0 var(--space-3)',
+    flex: 1, display: 'flex', flexDirection: 'column', gap: 2,
+    padding: '0 var(--s3)',
   },
   item: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'var(--space-3)',
-    padding: '10px var(--space-4)',
-    borderRadius: 'var(--border-radius-sm)',
-    color: 'var(--text-sidebar)',
-    fontSize: 'var(--text-sm)',
-    fontWeight: 400,
+    display: 'flex', alignItems: 'center', gap: 'var(--s3)',
+    padding: '10px var(--s4)',
+    borderRadius: 'var(--r-sm)',
+    color: 'rgba(253,250,246,.72)',
+    fontSize: 'var(--tx-sm)', fontWeight: 400,
     textDecoration: 'none',
-    transition: 'background var(--transition-fast), color var(--transition-fast)',
+    transition: 'background var(--ease-fast), color var(--ease-fast)',
     borderLeft: '2px solid transparent',
   },
   itemActive: {
-    background: 'var(--bg-sidebar-active)',
+    background: 'rgba(168,184,154,.1)',
     color: 'var(--white)',
-    borderLeftColor: 'var(--sage)',
-  },
-  icon: {
-    fontSize: '1rem',
-    lineHeight: 1,
-    flexShrink: 0,
-    color: 'var(--sage)',
+    borderLeftColor: 'var(--terracotta)',   /* spec: active = terracotta border */
   },
   bottom: {
-    padding: 'var(--space-5) var(--space-4)',
-    borderTop: '1px solid rgba(168,184,154,0.15)',
+    padding: 'var(--s5) var(--s4)',
+    borderTop: '1px solid rgba(168,184,154,.15)',
     marginTop: 'auto',
   },
-  userRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'var(--space-3)',
+  dotLabel: {
+    fontSize: 'var(--tx-xs)', color: 'var(--sage)',
+    letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 'var(--s3)',
   },
+  userRow: { display: 'flex', alignItems: 'center', gap: 'var(--s3)' },
   avatar: {
-    width: 32, height: 32,
-    borderRadius: '50%',
-    background: 'var(--sage)',
-    color: 'var(--forest)',
+    width: 32, height: 32, borderRadius: '50%',
+    background: 'var(--sage)', color: 'var(--forest)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 'var(--text-sm)',
-    fontWeight: 600,
-    flexShrink: 0,
+    fontSize: 'var(--tx-sm)', fontWeight: 600, flexShrink: 0,
   },
   userName: {
-    fontSize: 'var(--text-sm)',
-    fontWeight: 500,
-    color: 'var(--white)',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    fontSize: 'var(--tx-sm)', fontWeight: 500, color: 'var(--white)',
+    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
   },
-  userRole: {
-    fontSize: 'var(--text-xs)',
-    color: 'var(--sage)',
-    textTransform: 'capitalize',
-  },
+  userRole: { fontSize: 'var(--tx-xs)', color: 'var(--sage)', textTransform: 'capitalize' },
   signOutBtn: {
-    background: 'none',
-    border: 'none',
-    color: 'var(--stone)',
-    fontSize: '1rem',
-    cursor: 'pointer',
-    padding: 4,
-    borderRadius: 4,
-    flexShrink: 0,
-    transition: 'color var(--transition-fast)',
+    background: 'none', border: 'none', color: 'var(--stone)',
+    fontSize: '1rem', cursor: 'pointer',
+    padding: 4, borderRadius: 4, flexShrink: 0,
+    transition: 'color var(--ease-fast)',
   },
 }
