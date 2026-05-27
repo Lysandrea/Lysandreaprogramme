@@ -1,34 +1,47 @@
-import { useState }        from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import Sidebar     from '../../components/Sidebar.jsx'
-import Topbar      from '../../components/Topbar.jsx'
-import Card        from '../../components/Card.jsx'
-import Button      from '../../components/Button.jsx'
-import LysaQuote   from '../../components/LysaQuote.jsx'
+import { useState, useEffect }      from 'react'
+import { useParams, useNavigate }   from 'react-router-dom'
+import { useAuth }                  from '../../contexts/AuthContext.jsx'
+import { IS_MOCK, marquerSeance }   from '../../lib/supabase.js'
+import Sidebar   from '../../components/Sidebar.jsx'
+import Topbar    from '../../components/Topbar.jsx'
+import Card      from '../../components/Card.jsx'
+import Button    from '../../components/Button.jsx'
+import LysaQuote from '../../components/LysaQuote.jsx'
 import { MOCK_DAYS, MOCK_EXERCICES } from '../../lib/mockData.js'
 
 export default function JourDetail() {
-  const { id }    = useParams()
-  const navigate  = useNavigate()
-  const day       = MOCK_DAYS.find(d => d.jour === Number(id))
+  const { id }   = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const day      = MOCK_DAYS.find(d => d.jour === Number(id))
 
-  // Checkbox state: { [exerciceId]: boolean }
-  const [checked, setChecked] = useState({})
+  const [checked,  setChecked]  = useState({})
+  const [saving,   setSaving]   = useState(false)
+  const [saved,    setSaved]    = useState(false)
 
   if (!day) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 'var(--s4)', background: 'var(--cream)' }}>
-        <p style={{ color: 'var(--stone)', fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)' }}>Jour introuvable.</p>
+        <p style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)', color: 'var(--stone)' }}>Jour introuvable.</p>
         <Button variant="ghost" onClick={() => navigate('/dashboard')}>← Retour</Button>
       </div>
     )
   }
 
-  const allDone  = MOCK_EXERCICES.every(ex => checked[ex.id])
-  const doneCnt  = Object.values(checked).filter(Boolean).length
+  const doneCnt = Object.values(checked).filter(Boolean).length
+  const allDone = MOCK_EXERCICES.every(ex => checked[ex.id])
 
-  function toggle(id) {
-    setChecked(prev => ({ ...prev, [id]: !prev[id] }))
+  async function handleSeanceDone() {
+    if (IS_MOCK || !user) { setSaved(true); return }
+    setSaving(true)
+    try {
+      await marquerSeance(user.id, Number(id))
+      setSaved(true)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -41,24 +54,22 @@ export default function JourDetail() {
         />
         <div className="shell-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s6)', maxWidth: 720 }}>
 
-          {/* Back */}
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} style={{ alignSelf: 'flex-start' }}>
             ← Retour
           </Button>
 
-          {/* Header card */}
+          {/* Header */}
           <Card style={{ background: 'linear-gradient(135deg, var(--forest) 0%, #2e3c2d 100%)', border: 'none' }}>
             <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--sage)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 'var(--s2)' }}>
               Séance du matin
             </p>
-            <h2 style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-3xl)', fontWeight: 300, color: 'var(--white)', letterSpacing: '-.01em' }}>
+            <h2 style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-3xl)', fontWeight: 300, color: 'var(--white)' }}>
               {day.titre}
             </h2>
             <p style={{ fontSize: 'var(--tx-sm)', color: 'rgba(245,240,232,.65)', marginTop: 'var(--s2)' }}>
               Semaine {day.semaine} · {day.duree} minutes
             </p>
-
-            {/* Progress bar */}
+            {/* Barre de progression */}
             <div style={{ marginTop: 'var(--s5)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                 <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--sage)' }}>Progression</span>
@@ -66,40 +77,32 @@ export default function JourDetail() {
               </div>
               <div style={{ height: 4, background: 'rgba(255,255,255,.15)', borderRadius: 99, overflow: 'hidden' }}>
                 <div style={{
-                  height: '100%', borderRadius: 99,
-                  background: 'var(--sage)',
-                  width: `${MOCK_EXERCICES.length ? (doneCnt / MOCK_EXERCICES.length) * 100 : 0}%`,
+                  height: '100%', background: 'var(--sage)', borderRadius: 99,
+                  width: `${(doneCnt / MOCK_EXERCICES.length) * 100}%`,
                   transition: 'width .4s ease',
                 }} />
               </div>
             </div>
           </Card>
 
-          {/* Exercises */}
+          {/* Exercices */}
           <Card title="Exercices de la séance">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
-              {MOCK_EXERCICES.map((ex, i) => (
+              {MOCK_EXERCICES.map(ex => (
                 <ExerciceRow
                   key={ex.id}
                   ex={ex}
-                  index={i}
                   done={!!checked[ex.id]}
-                  onToggle={() => toggle(ex.id)}
+                  onToggle={() => setChecked(p => ({ ...p, [ex.id]: !p[ex.id] }))}
                 />
               ))}
             </div>
           </Card>
 
-          {/* Quote */}
           <LysaQuote index={day.jour} />
 
           {/* CTA bilan */}
-          <Card style={{
-            background: allDone
-              ? 'linear-gradient(135deg, rgba(61,79,60,.06) 0%, rgba(168,184,154,.1) 100%)'
-              : 'var(--white)',
-            borderColor: allDone ? 'var(--sage)' : 'var(--sand)',
-          }}>
+          <Card style={{ borderColor: allDone ? 'var(--sage)' : 'var(--sand)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--s4)' }}>
               <div>
                 <h3 style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)', fontWeight: 400, color: 'var(--earth)' }}>
@@ -107,16 +110,21 @@ export default function JourDetail() {
                 </h3>
                 <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--bark)', marginTop: 4 }}>
                   {allDone
-                    ? 'Séance terminée ! Prends quelques minutes pour ton bilan.'
-                    : "Complète tes exercices puis remplis ton bilan de fin de journée."}
+                    ? 'Séance terminée 💪 Passe au bilan du soir.'
+                    : 'Coche tes exercices, puis remplis ton bilan.'}
                 </p>
               </div>
-              <Button
-                variant={allDone ? 'primary' : 'secondary'}
-                onClick={() => navigate(`/bilan/${day.jour}`)}
-              >
-                Bilan du soir ✦
-              </Button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s2)' }}>
+                {allDone && !saved && (
+                  <Button variant="sage" size="sm" loading={saving} onClick={handleSeanceDone}>
+                    ✓ Marquer la séance
+                  </Button>
+                )}
+                {saved && <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--moss)' }}>Séance enregistrée ✓</span>}
+                <Button onClick={() => navigate(`/bilan/${day.jour}`)}>
+                  Bilan du soir ✦
+                </Button>
+              </div>
             </div>
           </Card>
         </div>
@@ -125,8 +133,7 @@ export default function JourDetail() {
   )
 }
 
-/* ── Exercise row with checkbox ── */
-function ExerciceRow({ ex, index, done, onToggle }) {
+function ExerciceRow({ ex, done, onToggle }) {
   return (
     <div
       onClick={onToggle}
@@ -140,43 +147,27 @@ function ExerciceRow({ ex, index, done, onToggle }) {
         transition: 'background var(--ease-fast), border-color var(--ease-fast)',
       }}
     >
-      {/* Checkbox */}
       <div style={{
-        width: 22, height: 22, borderRadius: '50%',
+        width: 22, height: 22, borderRadius: '50%', flexShrink: 0, marginTop: 2,
         border: `2px solid ${done ? 'var(--moss)' : 'var(--stone)'}`,
         background: done ? 'var(--moss)' : 'transparent',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0, marginTop: 2,
         transition: 'all var(--ease-fast)',
       }}>
         {done && <span style={{ fontSize: 11, color: 'var(--white)', fontWeight: 700 }}>✓</span>}
       </div>
-
-      {/* Info */}
       <div style={{ flex: 1 }}>
-        <p style={{
-          fontSize: 'var(--tx-sm)', fontWeight: 500,
-          color: done ? 'var(--moss)' : 'var(--earth)',
-          textDecoration: done ? 'line-through' : 'none',
-          transition: 'color var(--ease-fast)',
-        }}>
+        <p style={{ fontSize: 'var(--tx-sm)', fontWeight: 500, color: done ? 'var(--moss)' : 'var(--earth)', textDecoration: done ? 'line-through' : 'none' }}>
           {ex.nom}
         </p>
         <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--bark)', marginTop: 2 }}>{ex.detail}</p>
         {ex.conseil && (
-          <p style={{
-            fontSize: 'var(--tx-xs)', color: 'var(--sage)',
-            marginTop: 4, fontStyle: 'italic',
-          }}>
+          <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--sage)', marginTop: 4, fontStyle: 'italic' }}>
             💡 {ex.conseil}
           </p>
         )}
       </div>
-
-      {/* Duration */}
-      <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', whiteSpace: 'nowrap', marginTop: 4 }}>
-        {ex.duree}
-      </span>
+      <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', whiteSpace: 'nowrap', marginTop: 4 }}>{ex.duree}</span>
     </div>
   )
 }
