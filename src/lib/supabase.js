@@ -128,3 +128,69 @@ export async function desbloquerSemaine(clienteId, currentDay) {
   if (error) throw error
   return nextDay
 }
+
+/* ════════════════════════════════════════════════
+   Helpers — Onboarding
+   ════════════════════════════════════════════════ */
+
+export async function fetchOnboardingProgress(clienteId) {
+  const { data, error } = await supabase
+    .from('onboarding_progress')
+    .select('*')
+    .eq('cliente_id', clienteId)
+    .single()
+  if (error && error.code !== 'PGRST116') throw error
+  return data ?? null
+}
+
+export async function saveOnboardingStep(clienteId, etape, checklist) {
+  const { error } = await supabase
+    .from('onboarding_progress')
+    .upsert(
+      { cliente_id: clienteId, etape_actuelle: etape, checklist, updated_at: new Date().toISOString() },
+      { onConflict: 'cliente_id' }
+    )
+  if (error) throw error
+}
+
+export async function saveIntakeResponses(clienteId, reponses) {
+  const { error } = await supabase
+    .from('intake_responses')
+    .upsert(
+      { cliente_id: clienteId, reponses, updated_at: new Date().toISOString() },
+      { onConflict: 'cliente_id' }
+    )
+  if (error) throw error
+}
+
+export async function fetchIntakeResponses(clienteId) {
+  const { data, error } = await supabase
+    .from('intake_responses')
+    .select('reponses')
+    .eq('cliente_id', clienteId)
+    .single()
+  if (error && error.code !== 'PGRST116') throw error
+  return data?.reponses ?? {}
+}
+
+export async function completeOnboarding(clienteId, signature) {
+  const { error } = await supabase
+    .from('onboarding_progress')
+    .upsert(
+      {
+        cliente_id: clienteId,
+        completed: true,
+        completed_at: new Date().toISOString(),
+        signature,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'cliente_id' }
+    )
+  if (error) throw error
+}
+
+export async function createCoachNotification(coachId, clienteId, message) {
+  await supabase
+    .from('notifications')
+    .insert({ coach_id: coachId, cliente_id: clienteId, message, type: 'onboarding_complete' })
+}

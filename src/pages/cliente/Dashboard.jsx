@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate }         from 'react-router-dom'
 import { useAuth }             from '../../contexts/AuthContext.jsx'
-import { IS_MOCK, fetchJours } from '../../lib/supabase.js'
+import { IS_MOCK, fetchJours, fetchOnboardingProgress } from '../../lib/supabase.js'
 import Sidebar   from '../../components/Sidebar.jsx'
 import Topbar    from '../../components/Topbar.jsx'
 import Card      from '../../components/Card.jsx'
@@ -46,18 +46,31 @@ export default function ClienteDashboard() {
   const [currentDay, setCurrentDay] = useState(MOCK_CURRENT_DAY)
   const [loading,    setLoading]    = useState(!IS_MOCK)
 
-  /* ── Fetch jours depuis Supabase ── */
+  /* ── Vérification onboarding + fetch jours ── */
   useEffect(() => {
-    if (IS_MOCK || !user) return
-    fetchJours(user.id)
+    if (IS_MOCK) {
+      try {
+        const saved = JSON.parse(localStorage.getItem('lysa_onboarding') || '{}')
+        if (!saved.completed) { navigate('/onboarding'); return }
+      } catch {}
+      return
+    }
+    if (!user) return
+
+    fetchOnboardingProgress(user.id)
+      .then(prog => {
+        if (!prog || !prog.completed) { navigate('/onboarding'); return }
+        return fetchJours(user.id)
+      })
       .then(joursData => {
+        if (!joursData) return
         const cd = profile?.current_day ?? 1
         setCurrentDay(cd)
         setDays(buildDays(cd, joursData))
       })
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [user, profile])
+  }, [user, profile]) // eslint-disable-line
 
   const today = days.find(d => d.status === 'current')
 

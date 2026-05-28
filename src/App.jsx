@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext.jsx'
 
 import Login          from './pages/auth/Login.jsx'
+import Onboarding     from './pages/cliente/Onboarding.jsx'
 import ClienteDash    from './pages/cliente/Dashboard.jsx'
 import JourDetail     from './pages/cliente/JourDetail.jsx'
 import BilanSoir      from './pages/cliente/BilanSoir.jsx'
@@ -44,7 +45,12 @@ export default function App() {
       {/* Public */}
       <Route path="/" element={<Login />} />
 
-      {/* Cliente (protected) */}
+      {/* Onboarding (cliente only, no onboarding check — this IS the onboarding) */}
+      <Route path="/onboarding" element={
+        <ProtectedRoute allow="cliente"><Onboarding /></ProtectedRoute>
+      } />
+
+      {/* Cliente (protected — Dashboard handles onboarding redirect internally) */}
       <Route path="/dashboard" element={
         <ProtectedRoute allow="cliente"><ClienteDash /></ProtectedRoute>
       } />
