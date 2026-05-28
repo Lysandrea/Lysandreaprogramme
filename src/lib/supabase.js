@@ -139,6 +139,7 @@ export async function fetchOnboardingProgress(clienteId) {
     .select('*')
     .eq('cliente_id', clienteId)
     .single()
+  console.log('[fetchOnboardingProgress] data :', data, '| error :', error?.code, error?.message)
   if (error && error.code !== 'PGRST116') throw error
   return data ?? null
 }
