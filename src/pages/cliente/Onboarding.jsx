@@ -88,18 +88,10 @@ export default function Onboarding() {
   const [submitting, setSubmitting] = useState(false)
   const [done,       setDone]       = useState(false)
 
-  /* ── Load progress ── */
+  /* ── Load progress — Supabase en premier, localStorage en fallback ── */
   useEffect(() => {
-    if (IS_MOCK) {
-      const saved = lsGet()
-      if (saved.completed) { navigate('/dashboard'); return }
-      setEtape(saved.etape ?? 1)
-      setChecklist(saved.checklist ?? {})
-      setIntake(saved.intake ?? {})
-      setLoading(false)
-      return
-    }
     if (!user) return
+
     Promise.all([
       fetchOnboardingProgress(user.id),
       fetchIntakeResponses(user.id),
@@ -111,7 +103,15 @@ export default function Onboarding() {
         setIntake(rep ?? {})
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => {
+        // Supabase inaccessible (pas de credentials) → fallback localStorage
+        const saved = lsGet()
+        if (saved.completed) { navigate('/dashboard'); return }
+        setEtape(saved.etape ?? 1)
+        setChecklist(saved.checklist ?? {})
+        setIntake(saved.intake ?? {})
+        setLoading(false)
+      })
   }, [user]) // eslint-disable-line
 
   /* ── Auto-save intake every 30s ── */
@@ -124,15 +124,15 @@ export default function Onboarding() {
   }, [etape, user]) // eslint-disable-line
 
   async function persistIntake(data) {
-    if (IS_MOCK) { lsSave({ intake: data }); return }
+    lsSave({ intake: data })                                   // backup local systématique
     if (!user) return
-    try { await saveIntakeResponses(user.id, data) } catch {}
+    try { await saveIntakeResponses(user.id, data) } catch {} // Supabase, erreurs silencieuses
   }
 
   async function goToStep(next) {
     window.scrollTo(0, 0)
     setEtape(next)
-    if (IS_MOCK) { lsSave({ etape: next, checklist }); return }
+    lsSave({ etape: next, checklist })
     if (!user) return
     try { await saveOnboardingStep(user.id, next, checklist) } catch {}
   }
@@ -140,7 +140,7 @@ export default function Onboarding() {
   function toggleCheck(key) {
     const next = { ...checklist, [key]: !checklist[key] }
     setChecklist(next)
-    if (IS_MOCK) { lsSave({ checklist: next }); return }
+    lsSave({ checklist: next })
     if (user) saveOnboardingStep(user.id, etape, next).catch(() => {})
   }
 
@@ -149,16 +149,17 @@ export default function Onboarding() {
     setSubmitting(true)
     try {
       await persistIntake(intake)
-      if (IS_MOCK) {
-        lsSave({ completed: true })
-      } else if (user) {
-        await completeOnboarding(user.id, signature)
-        if (profile?.coach_id) {
-          await createCoachNotification(
-            profile.coach_id, user.id,
-            `${prenom} a terminé son onboarding.`
-          )
-        }
+      lsSave({ completed: true })        // backup local avant tout
+      if (user) {
+        try {
+          await completeOnboarding(user.id, signature)
+          if (profile?.coach_id) {
+            await createCoachNotification(
+              profile.coach_id, user.id,
+              `${prenom} a terminé son onboarding.`
+            )
+          }
+        } catch {}                       // erreur Supabase → on continue quand même
       }
       setDone(true)
       setTimeout(() => navigate('/dashboard'), 3000)

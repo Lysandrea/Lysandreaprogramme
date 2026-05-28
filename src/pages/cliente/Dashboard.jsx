@@ -49,33 +49,25 @@ export default function ClienteDashboard() {
 
   /* ── Vérification onboarding + fetch jours ── */
   useEffect(() => {
-    if (!user) return  // attendre que l'auth soit prête
+    if (!user) return
 
-    if (IS_MOCK) {
-      try {
-        const saved = JSON.parse(localStorage.getItem('lysa_onboarding') || '{}')
-        if (!saved.completed) { navigate('/onboarding'); return }
-      } catch {
-        navigate('/onboarding'); return  // erreur de parsing → onboarding
-      }
-      // Onboarding complété — afficher le dashboard avec les données mock
-      setLoading(false)
-      return
-    }
-
+    // Toujours interroger Supabase pour l'onboarding — IS_MOCK ne court-circuite pas ce check.
+    // Si Supabase est inaccessible (pas de .env.local) la catch redirige vers /onboarding.
     fetchOnboardingProgress(user.id)
       .then(prog => {
         if (!prog?.completed) { navigate('/onboarding'); return null }
+        // Jours : Supabase si dispo, sinon données mock suffisent
+        if (IS_MOCK) { setLoading(false); return null }
         return fetchJours(user.id)
       })
       .then(joursData => {
-        if (joursData == null) return  // redirect en cours, ne pas toucher au state
+        if (joursData == null) return
         const cd = profile?.current_day ?? 1
         setCurrentDay(cd)
         setDays(buildDays(cd, joursData))
         setLoading(false)
       })
-      .catch(() => navigate('/onboarding'))  // erreur Supabase → onboarding
+      .catch(() => navigate('/onboarding'))
   }, [user, profile]) // eslint-disable-line
 
   const today = days.find(d => d.status === 'current')
