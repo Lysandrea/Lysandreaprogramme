@@ -12,7 +12,7 @@ const COACH_NAV = [
 
 export default function Sidebar() {
   const { role, profile, signOut } = useAuth()
-  const { open, isMobile, close }  = useSidebar()
+  const { open, close }            = useSidebar()
   const navigate  = useNavigate()
   const navItems  = role === 'coach' ? COACH_NAV : CLIENTE_NAV
 
@@ -21,40 +21,24 @@ export default function Sidebar() {
     navigate('/')
   }
 
-  /* ── Ne rien rendre sur mobile quand fermée ── */
-  if (isMobile && !open) return null
-
   return (
     <>
-      {/* Backdrop mobile */}
-      {isMobile && open && (
+      {/* Backdrop — rendu via JS, caché sur desktop via CSS */}
+      {open && (
         <div
+          className="sidebar-backdrop"
           onClick={close}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 199,
-            background: 'rgba(0,0,0,.45)',
-            backdropFilter: 'blur(2px)',
-            WebkitBackdropFilter: 'blur(2px)',
-            animation: 'fadeIn .18s ease',
-          }}
+          aria-hidden="true"
         />
       )}
 
-      <aside style={{
-        ...s.sidebar,
-        ...(isMobile ? s.sidebarMobile : {}),
-      }}>
+      {/* La sidebar est TOUJOURS dans le DOM.
+          Desktop : CSS visible normalement (pas de transform).
+          Mobile  : CSS la cache (-100%) ; .sidebar-open = visible. */}
+      <aside className={`shell-sidebar${open ? ' sidebar-open' : ''}`}>
 
-        {/* Bouton fermer (mobile seulement) */}
-        {isMobile && (
-          <button
-            onClick={close}
-            style={s.closeBtn}
-            aria-label="Fermer le menu"
-          >
-            ✕
-          </button>
-        )}
+        {/* Bouton fermer — visible sur mobile via CSS seulement */}
+        <button className="sidebar-close-btn" onClick={close} aria-label="Fermer">✕</button>
 
         {/* Brand */}
         <div style={s.brand}>
@@ -67,7 +51,7 @@ export default function Sidebar() {
           {navItems.map(({ label, to, icon }) => (
             <NavLink
               key={to} to={to} end
-              onClick={isMobile ? close : undefined}
+              onClick={close}
               style={({ isActive }) => ({ ...s.item, ...(isActive ? s.itemActive : {}) })}
             >
               <span style={{ fontSize: '1rem', flexShrink: 0 }}>{icon}</span>
@@ -81,24 +65,17 @@ export default function Sidebar() {
           {role === 'cliente' && <WeekDots />}
           {role === 'coach'   && <CoachStats />}
 
-          {/* User row */}
           <div style={s.userRow}>
-            <div style={s.avatar}>
-              {(profile?.prenom?.[0] ?? '?').toUpperCase()}
-            </div>
+            <div style={s.avatar}>{(profile?.prenom?.[0] ?? '?').toUpperCase()}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={s.userName}>{profile?.prenom ?? 'Utilisateur'}</p>
               <p style={s.userRole}>{role ?? '—'}</p>
             </div>
             <button
-              style={s.signOutBtn}
-              onClick={handleSignOut}
-              title="Déconnexion"
+              style={s.signOutBtn} onClick={handleSignOut} title="Déconnexion"
               onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)' }}
               onMouseLeave={e => { e.currentTarget.style.color = 'var(--stone)' }}
-            >
-              ⏻
-            </button>
+            >⏻</button>
           </div>
         </div>
 
@@ -107,34 +84,25 @@ export default function Sidebar() {
   )
 }
 
-/* ── Progress dots ── */
 function WeekDots() {
   const currentSemaine = Math.ceil(MOCK_CURRENT_DAY / 7)
-
   return (
     <div style={{ marginBottom: 'var(--s5)' }}>
       <p style={s.dotLabel}>Progression</p>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
         {Array.from({ length: 8 }, (_, i) => {
-          const sem     = i + 1
-          const done    = sem < currentSemaine
+          const sem = i + 1
+          const done = sem < currentSemaine
           const current = sem === currentSemaine
           return (
             <div key={sem} style={{
-              width: 24, height: 24, borderRadius: '50%',
-              border: '1.5px solid',
-              borderColor: done    ? 'var(--moss)'
-                         : current ? 'var(--terracotta)'
-                         :           'rgba(168,184,154,.3)',
-              background:  done    ? 'var(--moss)'
-                         : current ? 'var(--terracotta)'
-                         :           'transparent',
+              width: 24, height: 24, borderRadius: '50%', border: '1.5px solid',
+              borderColor: done ? 'var(--moss)' : current ? 'var(--terracotta)' : 'rgba(168,184,154,.3)',
+              background:  done ? 'var(--moss)' : current ? 'var(--terracotta)' : 'transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 9, fontWeight: 600,
               color: (done || current) ? 'var(--white)' : 'rgba(168,184,154,.45)',
-            }}>
-              {sem}
-            </div>
+            }}>{sem}</div>
           )
         })}
       </div>
@@ -147,7 +115,7 @@ function CoachStats() {
     <div style={{ marginBottom: 'var(--s5)' }}>
       <p style={s.dotLabel}>Aperçu rapide</p>
       {[['Clientes actives', '2'], ['Bilans en attente', '1'], ['Onboardings', '1']].map(([label, val]) => (
-        <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+        <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
           <span style={{ fontSize: 'var(--tx-xs)', color: 'rgba(253,250,246,.65)' }}>{label}</span>
           <span style={{ fontSize: 'var(--tx-sm)', fontWeight: 500, color: 'var(--white)' }}>{val}</span>
         </div>
@@ -156,92 +124,18 @@ function CoachStats() {
   )
 }
 
-/* ── Styles ── */
 const s = {
-  sidebar: {
-    width: 'var(--sidebar-w)',
-    background: 'var(--forest)',
-    display: 'flex', flexDirection: 'column',
-    flexShrink: 0,
-    height: '100vh',
-    overflowY: 'auto', overflowX: 'hidden',
-  },
-  /* Mobile : overlay fixe, slide depuis la gauche */
-  sidebarMobile: {
-    position: 'fixed',
-    top: 0, left: 0, bottom: 0,
-    zIndex: 200,
-    height: '100%',
-    boxShadow: '4px 0 24px rgba(0,0,0,.25)',
-    animation: 'slideInLeft .22s cubic-bezier(.4,0,.2,1)',
-  },
-  closeBtn: {
-    position: 'absolute', top: 12, right: 12,
-    background: 'rgba(255,255,255,.1)', border: 'none',
-    color: 'var(--white)', fontSize: 14, fontWeight: 600,
-    width: 28, height: 28, borderRadius: '50%',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    cursor: 'pointer',
-  },
-  brand: {
-    padding: 'var(--s8) var(--s6) var(--s6)',
-    borderBottom: '1px solid rgba(168,184,154,.15)',
-    marginBottom: 'var(--s4)',
-  },
-  brandName: {
-    display: 'block',
-    fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 400,
-    color: 'var(--white)', letterSpacing: '-.01em',
-  },
-  brandSub: {
-    display: 'block',
-    fontSize: 'var(--tx-xs)', color: 'var(--sage)',
-    letterSpacing: '.1em', textTransform: 'uppercase', marginTop: 4,
-  },
-  nav: {
-    flex: 1, display: 'flex', flexDirection: 'column', gap: 2,
-    padding: '0 var(--s3)',
-  },
-  item: {
-    display: 'flex', alignItems: 'center', gap: 'var(--s3)',
-    padding: '10px var(--s4)',
-    borderRadius: 'var(--r-sm)',
-    color: 'rgba(253,250,246,.72)',
-    fontSize: 'var(--tx-sm)', fontWeight: 400,
-    textDecoration: 'none',
-    transition: 'background var(--ease-fast), color var(--ease-fast)',
-    borderLeft: '2px solid transparent',
-  },
-  itemActive: {
-    background: 'rgba(168,184,154,.1)',
-    color: 'var(--white)',
-    borderLeftColor: 'var(--terracotta)',
-  },
-  bottom: {
-    padding: 'var(--s5) var(--s4)',
-    borderTop: '1px solid rgba(168,184,154,.15)',
-    marginTop: 'auto',
-  },
-  dotLabel: {
-    fontSize: 'var(--tx-xs)', color: 'var(--sage)',
-    letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 'var(--s3)',
-  },
+  brand: { padding: 'var(--s8) var(--s6) var(--s6)', borderBottom: '1px solid rgba(168,184,154,.15)', marginBottom: 'var(--s4)' },
+  brandName: { display: 'block', fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 400, color: 'var(--white)', letterSpacing: '-.01em' },
+  brandSub: { display: 'block', fontSize: 'var(--tx-xs)', color: 'var(--sage)', letterSpacing: '.1em', textTransform: 'uppercase', marginTop: 4 },
+  nav: { flex: 1, display: 'flex', flexDirection: 'column', gap: 2, padding: '0 var(--s3)' },
+  item: { display: 'flex', alignItems: 'center', gap: 'var(--s3)', padding: '10px var(--s4)', borderRadius: 'var(--r-sm)', color: 'rgba(253,250,246,.72)', fontSize: 'var(--tx-sm)', textDecoration: 'none', transition: 'background var(--ease-fast)', borderLeft: '2px solid transparent' },
+  itemActive: { background: 'rgba(168,184,154,.1)', color: 'var(--white)', borderLeftColor: 'var(--terracotta)' },
+  bottom: { padding: 'var(--s5) var(--s4)', borderTop: '1px solid rgba(168,184,154,.15)', marginTop: 'auto' },
+  dotLabel: { fontSize: 'var(--tx-xs)', color: 'var(--sage)', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 'var(--s3)' },
   userRow: { display: 'flex', alignItems: 'center', gap: 'var(--s3)' },
-  avatar: {
-    width: 32, height: 32, borderRadius: '50%',
-    background: 'var(--sage)', color: 'var(--forest)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 'var(--tx-sm)', fontWeight: 600, flexShrink: 0,
-  },
-  userName: {
-    fontSize: 'var(--tx-sm)', fontWeight: 500, color: 'var(--white)',
-    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-  },
+  avatar: { width: 32, height: 32, borderRadius: '50%', background: 'var(--sage)', color: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--tx-sm)', fontWeight: 600, flexShrink: 0 },
+  userName: { fontSize: 'var(--tx-sm)', fontWeight: 500, color: 'var(--white)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   userRole: { fontSize: 'var(--tx-xs)', color: 'var(--sage)', textTransform: 'capitalize' },
-  signOutBtn: {
-    background: 'none', border: 'none', color: 'var(--stone)',
-    fontSize: '1rem', cursor: 'pointer',
-    padding: 4, borderRadius: 4, flexShrink: 0,
-    transition: 'color var(--ease-fast)',
-  },
+  signOutBtn: { background: 'none', border: 'none', color: 'var(--stone)', fontSize: '1rem', cursor: 'pointer', padding: 4, borderRadius: 4, flexShrink: 0, transition: 'color var(--ease-fast)' },
 }

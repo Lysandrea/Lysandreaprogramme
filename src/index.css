@@ -132,14 +132,109 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
 .shell-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .shell-body { flex: 1; overflow-y: auto; padding: var(--s8); }
 
-/* ── Mobile responsive ── */
-@media (max-width: 767px) {
-  .shell-body { padding: var(--s4); }
+/* ── Sidebar (desktop — toujours visible dans le flex flow) ── */
+.shell-sidebar {
+  width: var(--sidebar-w);
+  background: var(--forest);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative; /* nécessaire pour le bouton close absolu */
+}
+
+/* ── Hamburger (desktop : caché) ── */
+.topbar-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 8px 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  transition: background var(--ease-fast);
+}
+.topbar-hamburger:hover { background: rgba(196,181,160,.25); }
+
+/* ── Bouton fermer sidebar (desktop : caché) ── */
+.sidebar-close-btn {
+  display: none;
+  position: absolute;
+  top: 12px; right: 12px;
+  background: rgba(255,255,255,.12);
+  border: none;
+  color: var(--white);
+  font-size: 13px; font-weight: 600;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  align-items: center; justify-content: center;
+  cursor: pointer;
+}
+
+/* ── Backdrop (desktop : caché) ── */
+.sidebar-backdrop {
+  display: none;
 }
 
 /* ── Animations ── */
-@keyframes fadeIn       { from { opacity: 0 } to { opacity: 1 } }
-@keyframes slideInLeft  { from { transform: translateX(-100%) } to { transform: translateX(0) } }
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+/* ════════════════════════════════════════
+   MOBILE ≤ 767px
+   ════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* Shell : pas de décalage latéral, sidebar hors du flux */
+  .shell-body { padding: var(--s4); }
+
+  /* Sidebar : overlay fixe, cachée par défaut */
+  .shell-sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    height: 100%;
+    height: 100dvh;
+    z-index: 200;
+    width: min(var(--sidebar-w), 85vw);
+    transform: translateX(-100%);
+    transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: none;
+  }
+
+  /* Sidebar ouverte */
+  .shell-sidebar.sidebar-open {
+    transform: translateX(0);
+    box-shadow: 6px 0 32px rgba(0, 0, 0, .3);
+  }
+
+  /* Hamburger visible */
+  .topbar-hamburger { display: flex; }
+
+  /* Bouton fermer visible */
+  .sidebar-close-btn { display: flex; }
+
+  /* Backdrop visible */
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 199;
+    background: rgba(0, 0, 0, .5);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    animation: fadeIn .18s ease;
+  }
+
+  /* Textes plus petits */
+  :root {
+    --tx-3xl: 1.375rem;
+    --tx-4xl: 1.625rem;
+  }
+}
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 5px; }
