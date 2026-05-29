@@ -128,9 +128,18 @@ button { cursor: pointer; font-family: inherit; }
 input, textarea, select { font-family: inherit; font-size: inherit; }
 
 /* ── Shell layout ── */
-.shell { display: flex; height: 100vh; overflow: hidden; }
+.shell { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
 .shell-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .shell-body { flex: 1; overflow-y: auto; padding: var(--s8); }
+
+/* ── Mobile responsive ── */
+@media (max-width: 767px) {
+  .shell-body { padding: var(--s4); }
+}
+
+/* ── Animations ── */
+@keyframes fadeIn       { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slideInLeft  { from { transform: translateX(-100%) } to { transform: translateX(0) } }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 5px; }

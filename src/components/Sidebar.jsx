@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext.jsx'
-import { MOCK_CURRENT_DAY } from '../lib/mockData.js'
+import { useAuth }              from '../contexts/AuthContext.jsx'
+import { useSidebar }           from '../contexts/SidebarContext.jsx'
+import { MOCK_CURRENT_DAY }     from '../lib/mockData.js'
 
 const CLIENTE_NAV = [
   { label: 'Tableau de bord', to: '/dashboard', icon: '🏠' },
@@ -11,78 +12,111 @@ const COACH_NAV = [
 
 export default function Sidebar() {
   const { role, profile, signOut } = useAuth()
-  const navigate = useNavigate()
-  const navItems = role === 'coach' ? COACH_NAV : CLIENTE_NAV
+  const { open, isMobile, close }  = useSidebar()
+  const navigate  = useNavigate()
+  const navItems  = role === 'coach' ? COACH_NAV : CLIENTE_NAV
 
   async function handleSignOut() {
     await signOut()
     navigate('/')
   }
 
+  /* ── Ne rien rendre sur mobile quand fermée ── */
+  if (isMobile && !open) return null
+
   return (
-    <aside style={s.sidebar}>
-      {/* Brand */}
-      <div style={s.brand}>
-        <span style={s.brandName}>Lysa Andréa</span>
-        <span style={s.brandSub}>Programme 8 semaines</span>
-      </div>
+    <>
+      {/* Backdrop mobile */}
+      {isMobile && open && (
+        <div
+          onClick={close}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 199,
+            background: 'rgba(0,0,0,.45)',
+            backdropFilter: 'blur(2px)',
+            WebkitBackdropFilter: 'blur(2px)',
+            animation: 'fadeIn .18s ease',
+          }}
+        />
+      )}
 
-      {/* Nav */}
-      <nav style={s.nav}>
-        {navItems.map(({ label, to, icon }) => (
-          <NavLink
-            key={to} to={to} end
-            style={({ isActive }) => ({ ...s.item, ...(isActive ? s.itemActive : {}) })}
-          >
-            <span style={{ fontSize: '1rem', flexShrink: 0 }}>{icon}</span>
-            <span>{label}</span>
-          </NavLink>
-        ))}
-      </nav>
+      <aside style={{
+        ...s.sidebar,
+        ...(isMobile ? s.sidebarMobile : {}),
+      }}>
 
-      {/* Bottom */}
-      <div style={s.bottom}>
-        {role === 'cliente' && <WeekDots />}
-        {role === 'coach'   && <CoachStats />}
-
-        {/* User row */}
-        <div style={s.userRow}>
-          <div style={s.avatar}>
-            {(profile?.prenom?.[0] ?? '?').toUpperCase()}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={s.userName}>{profile?.prenom ?? 'Utilisateur'}</p>
-            <p style={s.userRole}>{role ?? '—'}</p>
-          </div>
+        {/* Bouton fermer (mobile seulement) */}
+        {isMobile && (
           <button
-            style={s.signOutBtn}
-            onClick={handleSignOut}
-            title="Déconnexion"
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--stone)' }}
+            onClick={close}
+            style={s.closeBtn}
+            aria-label="Fermer le menu"
           >
-            ⏻
+            ✕
           </button>
+        )}
+
+        {/* Brand */}
+        <div style={s.brand}>
+          <span style={s.brandName}>Lysa Andréa</span>
+          <span style={s.brandSub}>Programme 8 semaines</span>
         </div>
-      </div>
-    </aside>
+
+        {/* Nav */}
+        <nav style={s.nav}>
+          {navItems.map(({ label, to, icon }) => (
+            <NavLink
+              key={to} to={to} end
+              onClick={isMobile ? close : undefined}
+              style={({ isActive }) => ({ ...s.item, ...(isActive ? s.itemActive : {}) })}
+            >
+              <span style={{ fontSize: '1rem', flexShrink: 0 }}>{icon}</span>
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Bottom */}
+        <div style={s.bottom}>
+          {role === 'cliente' && <WeekDots />}
+          {role === 'coach'   && <CoachStats />}
+
+          {/* User row */}
+          <div style={s.userRow}>
+            <div style={s.avatar}>
+              {(profile?.prenom?.[0] ?? '?').toUpperCase()}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={s.userName}>{profile?.prenom ?? 'Utilisateur'}</p>
+              <p style={s.userRole}>{role ?? '—'}</p>
+            </div>
+            <button
+              style={s.signOutBtn}
+              onClick={handleSignOut}
+              title="Déconnexion"
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--stone)' }}
+            >
+              ⏻
+            </button>
+          </div>
+        </div>
+
+      </aside>
+    </>
   )
 }
 
-/* ── 8-week progress dots ──
-   done  = --moss (all 7 days of that week complete)
-   current = --terracotta
-   locked  = gray
-*/
+/* ── Progress dots ── */
 function WeekDots() {
-  const currentSemaine = Math.ceil(MOCK_CURRENT_DAY / 7)  // semaine 1 for J3
+  const currentSemaine = Math.ceil(MOCK_CURRENT_DAY / 7)
 
   return (
     <div style={{ marginBottom: 'var(--s5)' }}>
       <p style={s.dotLabel}>Progression</p>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
         {Array.from({ length: 8 }, (_, i) => {
-          const sem = i + 1
+          const sem     = i + 1
           const done    = sem < currentSemaine
           const current = sem === currentSemaine
           return (
@@ -98,7 +132,6 @@ function WeekDots() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 9, fontWeight: 600,
               color: (done || current) ? 'var(--white)' : 'rgba(168,184,154,.45)',
-              title: `Semaine ${sem}`,
             }}>
               {sem}
             </div>
@@ -126,10 +159,29 @@ function CoachStats() {
 /* ── Styles ── */
 const s = {
   sidebar: {
-    width: 'var(--sidebar-w)', background: 'var(--forest)',
+    width: 'var(--sidebar-w)',
+    background: 'var(--forest)',
     display: 'flex', flexDirection: 'column',
-    flexShrink: 0, height: '100vh',
+    flexShrink: 0,
+    height: '100vh',
     overflowY: 'auto', overflowX: 'hidden',
+  },
+  /* Mobile : overlay fixe, slide depuis la gauche */
+  sidebarMobile: {
+    position: 'fixed',
+    top: 0, left: 0, bottom: 0,
+    zIndex: 200,
+    height: '100%',
+    boxShadow: '4px 0 24px rgba(0,0,0,.25)',
+    animation: 'slideInLeft .22s cubic-bezier(.4,0,.2,1)',
+  },
+  closeBtn: {
+    position: 'absolute', top: 12, right: 12,
+    background: 'rgba(255,255,255,.1)', border: 'none',
+    color: 'var(--white)', fontSize: 14, fontWeight: 600,
+    width: 28, height: 28, borderRadius: '50%',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    cursor: 'pointer',
   },
   brand: {
     padding: 'var(--s8) var(--s6) var(--s6)',
@@ -163,7 +215,7 @@ const s = {
   itemActive: {
     background: 'rgba(168,184,154,.1)',
     color: 'var(--white)',
-    borderLeftColor: 'var(--terracotta)',   /* spec: active = terracotta border */
+    borderLeftColor: 'var(--terracotta)',
   },
   bottom: {
     padding: 'var(--s5) var(--s4)',
