@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useAuth }    from '../../contexts/AuthContext.jsx'
+import { useSidebar } from '../../contexts/SidebarContext.jsx'
 import {
   IS_MOCK,
   fetchOnboardingProgress,
@@ -177,16 +178,28 @@ export default function Onboarding() {
 
   if (done) return <SuccessScreen prenom={prenom} />
 
-  return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-      <OnboardingSidebar etape={etape} profile={profile} />
+  const { open, toggle, close } = useSidebar()
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--cream)' }}>
+  return (
+    <div className="shell">
+      {/* Backdrop mobile */}
+      {open && <div className="sidebar-backdrop" onClick={close} aria-hidden="true" />}
+
+      <OnboardingSidebar etape={etape} profile={profile} open={open} close={close} />
+
+      <div className="shell-main">
         {/* Topbar */}
-        <header style={s.topbar}>
-          <div>
-            <h1 style={s.topTitle}>Bienvenue {prenom} ✦</h1>
-            <p style={s.topSub}>Étape {etape} / 5</p>
+        <header className="topbar" style={s.topbar}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s3)' }}>
+            <button className="topbar-hamburger" onClick={toggle} aria-label="Menu">
+              <span style={{ display: 'block', width: 22, height: 2, background: 'var(--earth)', borderRadius: 2 }} />
+              <span style={{ display: 'block', width: 22, height: 2, background: 'var(--earth)', borderRadius: 2 }} />
+              <span style={{ display: 'block', width: 22, height: 2, background: 'var(--earth)', borderRadius: 2 }} />
+            </button>
+            <div>
+              <h1 style={s.topTitle}>Bienvenue {prenom} ✦</h1>
+              <p style={s.topSub}>Étape {etape} / 5</p>
+            </div>
           </div>
           <div style={s.topAvatar}>
             {(profile?.prenom?.[0] ?? '?').toUpperCase()}
@@ -241,9 +254,10 @@ export default function Onboarding() {
 /* ════════════════════════════════════════════════
    Sidebar
    ════════════════════════════════════════════════ */
-function OnboardingSidebar({ etape, profile }) {
+function OnboardingSidebar({ etape, profile, open, close }) {
   return (
-    <aside style={s.sidebar}>
+    <aside className={`shell-sidebar${open ? ' sidebar-open' : ''}`}>
+      <button className="sidebar-close-btn" onClick={close} aria-label="Fermer">✕</button>
       <div style={s.sidebarBrand}>
         <span style={s.brandName}>Lysa Andréa</span>
         <span style={s.brandSub}>Programme 8 semaines</span>
@@ -602,11 +616,7 @@ function SuccessScreen({ prenom }) {
    ════════════════════════════════════════════════ */
 const s = {
   /* Sidebar */
-  sidebar: {
-    width: 'var(--sidebar-w)', background: 'var(--forest)',
-    display: 'flex', flexDirection: 'column', flexShrink: 0,
-    height: '100vh', overflowY: 'auto',
-  },
+  /* sidebar géré par .shell-sidebar en CSS */
   sidebarBrand: {
     padding: 'var(--s8) var(--s6) var(--s6)',
     borderBottom: '1px solid rgba(168,184,154,.15)',
