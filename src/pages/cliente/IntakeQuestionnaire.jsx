@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import Button from '../../components/Button.jsx'
+import RadarChart, { ROUE_KEYS, ROUE_FULL } from '../../components/RadarChart.jsx'
 
 /* ════════════════════════════════════════════════
    Defaults
@@ -189,69 +190,6 @@ function SliderRow({ label, value, onChange }) {
         <span style={{ fontSize: 9, color: 'var(--stone)' }}>10</span>
       </div>
     </div>
-  )
-}
-
-/* ════════════════════════════════════════════════
-   Radar chart
-   ════════════════════════════════════════════════ */
-const ROUE_LABELS = ['Corps', 'Énergie', 'Émotions', 'Relations', 'Pro', 'Espace', 'Confiance', 'Sommeil']
-const ROUE_KEYS   = ['corps_mouvement','energie_vitalite','emotions','relations','vie_pro','environnement','rapport_soi','sommeil_recuperation']
-const ROUE_FULL   = ['Corps & mouvement','Énergie & vitalité','Émotions','Relations & liens','Vie professionnelle','Environnement','Rapport à soi','Sommeil & récupération']
-
-function RadarChart({ values }) {
-  const CX = 200, CY = 200, MAX_R = 130, N = 8
-
-  function pt(angleDeg, r) {
-    const rad = (angleDeg - 90) * Math.PI / 180
-    return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)]
-  }
-
-  const angles = Array.from({ length: N }, (_, i) => (i * 360) / N)
-  const vals   = ROUE_KEYS.map(k => values[k] ?? 5)
-
-  function gridPath(level) {
-    const pts = angles.map(a => pt(a, (level / 10) * MAX_R))
-    return pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x},${y}`).join('') + 'Z'
-  }
-
-  const dataPts = angles.map((a, i) => pt(a, (vals[i] / 10) * MAX_R))
-  const dataPath = dataPts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x},${y}`).join('') + 'Z'
-
-  return (
-    <svg viewBox="0 0 400 400" style={{ width: '100%', maxWidth: 340, display: 'block', margin: '0 auto' }}>
-      {/* Grid rings */}
-      {[2,4,6,8,10].map(lvl => (
-        <path key={lvl} d={gridPath(lvl)} fill="none" stroke="#E8DDD0" strokeWidth="0.8" />
-      ))}
-      {/* Axis spokes */}
-      {angles.map((a, i) => {
-        const [x, y] = pt(a, MAX_R)
-        return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke="rgba(196,181,160,.5)" strokeWidth="0.8" />
-      })}
-      {/* Data fill */}
-      <path d={dataPath} style={{ fill: '#3D4F3C', fillOpacity: 0.28, stroke: '#6B7F5E', strokeWidth: 2 }} />
-      {/* Data dots */}
-      {dataPts.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="3.5" fill="#6B7F5E" />
-      ))}
-      {/* Labels */}
-      {angles.map((a, i) => {
-        const LR     = MAX_R + 28
-        const [lx, ly] = pt(a, LR)
-        const anchor = lx < CX - 8 ? 'end' : lx > CX + 8 ? 'start' : 'middle'
-        return (
-          <g key={i}>
-            <text x={lx} y={ly - 4} textAnchor={anchor} style={{ fontSize: 10, fill: '#5C4A35', fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>
-              {ROUE_LABELS[i]}
-            </text>
-            <text x={lx} y={ly + 11} textAnchor={anchor} style={{ fontSize: 9, fill: '#C07860', fontFamily: 'DM Sans, sans-serif' }}>
-              {vals[i]}/10
-            </text>
-          </g>
-        )
-      })}
-    </svg>
   )
 }
 

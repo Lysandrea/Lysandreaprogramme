@@ -6,6 +6,7 @@ import Onboarding     from './pages/cliente/Onboarding.jsx'
 import ClienteDash    from './pages/cliente/Dashboard.jsx'
 import JourDetail     from './pages/cliente/JourDetail.jsx'
 import BilanSoir      from './pages/cliente/BilanSoir.jsx'
+import RoueDeLaVie    from './pages/cliente/RoueDeLaVie.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
 
@@ -59,6 +60,9 @@ export default function App() {
       } />
       <Route path="/bilan/:id" element={
         <ProtectedRoute allow="cliente"><BilanSoir /></ProtectedRoute>
+      } />
+      <Route path="/roue-de-la-vie" element={
+        <ProtectedRoute allow="cliente"><RoueDeLaVie /></ProtectedRoute>
       } />
 
       {/* Coach (protected) */}

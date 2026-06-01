@@ -3,7 +3,8 @@ import { useAuth }              from '../contexts/AuthContext.jsx'
 import { useSidebar }           from '../contexts/SidebarContext.jsx'
 
 const CLIENTE_NAV = [
-  { label: 'Tableau de bord', to: '/dashboard', icon: '🏠' },
+  { label: 'Tableau de bord',    to: '/dashboard',       icon: '🏠' },
+  { label: 'Ma Roue de la Vie',  to: '/roue-de-la-vie',  icon: '🌀' },
 ]
 const COACH_NAV = [
   { label: 'Vue Coach', to: '/coach', icon: '📋' },
