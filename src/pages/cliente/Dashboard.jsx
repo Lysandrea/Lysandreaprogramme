@@ -55,15 +55,10 @@ export default function ClienteDashboard() {
     // Si Supabase est inaccessible (pas de .env.local) la catch redirige vers /onboarding.
     fetchOnboardingProgress(user.id)
       .then(prog => {
-        console.log('[Dashboard] user.id :', user.id)
-        console.log('[Dashboard] onboarding_progress reçu :', prog)
-        console.log('[Dashboard] prog?.completed :', prog?.completed)
         if (!prog?.completed) {
-          console.log('[Dashboard] → redirect /onboarding (completed = false ou null)')
           navigate('/onboarding')
           return null
         }
-        console.log('[Dashboard] → onboarding OK, chargement des jours')
         // Jours : Supabase si dispo, sinon données mock suffisent
         if (IS_MOCK) { setLoading(false); return null }
         return fetchJours(user.id)

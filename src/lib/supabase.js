@@ -50,7 +50,7 @@ export async function marquerSeance(clienteId, jourNum) {
    ════════════════════════════════════════════════ */
 
 /** Sauvegarde un bilan + avance le current_day du profil */
-export async function saveBilan(clienteId, jourNum, answers) {
+export async function saveBilan(clienteId, jourNum, answers, seanceFaite = true) {
   // 1. Upsert bilan
   const { error: e1 } = await supabase
     .from('bilans')
@@ -60,8 +60,10 @@ export async function saveBilan(clienteId, jourNum, answers) {
     )
   if (e1) throw e1
 
-  // 2. Marquer la séance comme faite (si pas déjà fait)
-  await marquerSeance(clienteId, jourNum)
+  // 2. Marquer la séance comme faite seulement si elle a été faite
+  if (seanceFaite) {
+    await marquerSeance(clienteId, jourNum)
+  }
 
   // 3. Avancer current_day si nécessaire
   const { data: prof } = await supabase
@@ -139,7 +141,6 @@ export async function fetchOnboardingProgress(clienteId) {
     .select('*')
     .eq('cliente_id', clienteId)
     .single()
-  console.log('[fetchOnboardingProgress] data :', data, '| error :', error?.code, error?.message)
   if (error && error.code !== 'PGRST116') throw error
   return data ?? null
 }
