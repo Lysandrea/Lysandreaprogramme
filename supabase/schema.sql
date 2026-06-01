@@ -29,17 +29,23 @@ create table if not exists public.jours (
 
 -- ── 3. Table bilans ────────────────────────────
 create table if not exists public.bilans (
-  id           uuid        default gen_random_uuid() primary key,
-  cliente_id   uuid        not null references public.profiles(id) on delete cascade,
-  jour_num     int         not null check (jour_num between 1 and 56),
-  gratitude    text        not null default '',
-  lecon        text        not null default '',
-  corps        int         check (corps between 0 and 4),
-  emotion      text        not null default '',
-  lacher       text        not null default '',
-  created_at   timestamptz not null default now(),
+  id                  uuid        default gen_random_uuid() primary key,
+  cliente_id          uuid        not null references public.profiles(id) on delete cascade,
+  jour_num            int         not null check (jour_num between 1 and 56),
+  seance_faite_bilan  boolean     not null default false,
+  raison_non_seance   text,
+  gratitude           text        not null default '',
+  lecon               text        not null default '',
+  corps               int         check (corps between 0 and 4),
+  emotion             text        not null default '',
+  lacher              text        not null default '',
+  created_at          timestamptz not null default now(),
   unique (cliente_id, jour_num)
 );
+
+-- Migration si la table existe déjà sans ces colonnes :
+-- ALTER TABLE bilans ADD COLUMN IF NOT EXISTS seance_faite_bilan boolean DEFAULT false;
+-- ALTER TABLE bilans ADD COLUMN IF NOT EXISTS raison_non_seance text;
 
 -- ── 4. Table onboarding_progress ──────────────
 create table if not exists public.onboarding_progress (
