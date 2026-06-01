@@ -52,20 +52,23 @@ export async function marquerSeance(clienteId, jourNum) {
 /** Sauvegarde un bilan + avance le current_day du profil */
 export async function saveBilan(clienteId, jourNum, answers, seanceFaite = true) {
   // 1. Upsert bilan
+  console.log('[saveBilan] étape 1 — upsert bilans', { clienteId, jourNum, answers, seanceFaite })
   const { error: e1 } = await supabase
     .from('bilans')
     .upsert(
       { cliente_id: clienteId, jour_num: jourNum, ...answers },
       { onConflict: 'cliente_id,jour_num' }
     )
-  if (e1) throw e1
+  if (e1) { console.error('[saveBilan] erreur upsert bilans :', e1); throw e1 }
 
   // 2. Marquer la séance comme faite seulement si elle a été faite
   if (seanceFaite) {
+    console.log('[saveBilan] étape 2 — marquerSeance')
     await marquerSeance(clienteId, jourNum)
   }
 
   // 3. Avancer current_day si nécessaire
+  console.log('[saveBilan] étape 3 — update current_day')
   const { data: prof } = await supabase
     .from('profiles')
     .select('current_day')
@@ -77,8 +80,9 @@ export async function saveBilan(clienteId, jourNum, answers, seanceFaite = true)
       .from('profiles')
       .update({ current_day: jourNum + 1 })
       .eq('id', clienteId)
-    if (e3) throw e3
+    if (e3) { console.error('[saveBilan] erreur update current_day :', e3); throw e3 }
   }
+  console.log('[saveBilan] ✓ terminé')
 }
 
 /** Récupère les bilans d'une cliente (les + récents en premier) */

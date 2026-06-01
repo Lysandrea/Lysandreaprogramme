@@ -91,7 +91,8 @@ export default function BilanSoir() {
       setTimeout(() => navigate('/dashboard'), 2000)
     } catch (err) {
       setError("Erreur lors de l'enregistrement. Réessaie.")
-      console.error(err)
+      console.error('[BilanSoir] Erreur saveBilan :', err?.message ?? err)
+      console.error('[BilanSoir] Détails :', JSON.stringify(err, null, 2))
     } finally {
       setSaving(false)
     }
