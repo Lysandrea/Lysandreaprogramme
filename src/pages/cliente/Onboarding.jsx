@@ -11,8 +11,9 @@ import {
   completeOnboarding,
   createCoachNotification,
 } from '../../lib/supabase.js'
-import Button    from '../../components/Button.jsx'
-import LysaQuote from '../../components/LysaQuote.jsx'
+import Button               from '../../components/Button.jsx'
+import LysaQuote            from '../../components/LysaQuote.jsx'
+import IntakeQuestionnaire  from './IntakeQuestionnaire.jsx'
 
 /* ── Storage helpers (mock fallback) ── */
 const LS_KEY = 'lysa_onboarding'
@@ -26,23 +27,6 @@ const STEPS = [
   { num: 3, label: 'Checklist'     },
   { num: 4, label: 'Questionnaire' },
   { num: 5, label: 'Accord'        },
-]
-
-/* ── Intake questions ── */
-const QUESTIONS = [
-  "Comment tu t'appelles, et comment tu aimes qu'on t'appelle ?",
-  "En quelques mots, qu'est-ce qui t'a amenée ici, maintenant ?",
-  "Comment tu décrirais ta relation à ton corps aujourd'hui ?",
-  "Y a-t-il des chapitres de ton histoire avec ton corps dont tu voudrais que je sois au courant ?",
-  "Qu'est-ce que le mouvement représente pour toi en ce moment ?",
-  "As-tu déjà eu une pratique sportive régulière ? Si oui, comment ça s'est passé ?",
-  "Quand tu imagines ton corps en mouvement dans 8 semaines, qu'est-ce qui change — pas physiquement, mais dans ce que tu ressens ?",
-  "Qu'est-ce qui t'a déjà freinée quand tu as essayé de prendre soin de toi ?",
-  "Est-ce qu'il y a des mouvements ou environnements sportifs que tu évites ?",
-  "Comment sais-tu que tu vas bien ? Quels sont les signaux dans ton corps ?",
-  "Qu'est-ce que tu as besoin de sentir dans notre relation de coaching pour te sentir en sécurité ?",
-  "Y a-t-il quelque chose que tu redoutes dans ce programme ?",
-  "Si dans 8 semaines ce programme a vraiment marché pour toi — pas parfaitement, mais vraiment — qu'est-ce qui sera différent dans ta vie quotidienne ?",
 ]
 
 /* ── Checklist ── */
@@ -232,6 +216,7 @@ export default function Onboarding() {
             <Step4
               intake={intake}
               setIntake={setIntake}
+              userEmail={user?.email ?? ''}
               onBack={() => goToStep(3)}
               onNext={async () => { await persistIntake(intake); goToStep(5) }}
             />
@@ -443,52 +428,17 @@ function Step3({ checklist, toggle, onBack, onNext }) {
 }
 
 /* ════════════════════════════════════════════════
-   Étape 4 — Questionnaire d'intake
+   Étape 4 — Questionnaire d'intake (délégué)
    ════════════════════════════════════════════════ */
-function Step4({ intake, setIntake, onBack, onNext }) {
-  function update(i, val) {
-    setIntake(prev => ({ ...prev, [`q${i + 1}`]: val }))
-  }
-
+function Step4({ intake, setIntake, userEmail, onBack, onNext }) {
   return (
-    <div style={s.stepWrap}>
-      <div style={s.stepHeader}>
-        <h2 style={s.stepTitle}>Questionnaire d'intake</h2>
-        <p style={s.stepDesc}>
-          Prends le temps de répondre à ton rythme. Tes réponses sont sauvegardées automatiquement toutes les 30 secondes.
-        </p>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s5)' }}>
-        {QUESTIONS.map((q, i) => {
-          const isLast    = i === 12
-          const cardStyle = isLast
-            ? { ...s.intakeCard, border: '2px solid var(--terracotta)' }
-            : s.intakeCard
-
-          return (
-            <div key={i} style={cardStyle}>
-              <p style={s.intakeQ}>
-                <span style={s.intakeNum}>Q{i + 1}</span>
-                {q}
-              </p>
-              <textarea
-                value={intake[`q${i + 1}`] ?? ''}
-                onChange={e => update(i, e.target.value)}
-                placeholder="Ta réponse…"
-                rows={isLast ? 6 : 3}
-                style={s.intakeTextarea(isLast)}
-              />
-            </div>
-          )
-        })}
-      </div>
-
-      <div style={s.navRow}>
-        <Button variant="secondary" onClick={onBack}>← Précédent</Button>
-        <Button variant="terracotta" onClick={onNext}>Étape suivante →</Button>
-      </div>
-    </div>
+    <IntakeQuestionnaire
+      intake={intake}
+      setIntake={setIntake}
+      userEmail={userEmail}
+      onBack={onBack}
+      onNext={onNext}
+    />
   )
 }
 
@@ -722,23 +672,6 @@ const s = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontSize: 12, color: 'var(--white)', fontWeight: 700, flexShrink: 0,
     cursor: 'pointer', transition: 'background var(--ease-fast), border-color var(--ease-fast)',
-  }),
-
-  /* Step 4 */
-  intakeCard: {
-    background: 'var(--white)', borderRadius: 'var(--r-lg)', padding: 'var(--s6)',
-    border: '1px solid var(--sand)', display: 'flex', flexDirection: 'column', gap: 'var(--s3)',
-  },
-  intakeQ: { fontSize: 'var(--tx-base)', color: 'var(--earth)', lineHeight: 1.6, display: 'flex', gap: 'var(--s3)', alignItems: 'flex-start' },
-  intakeNum: {
-    fontSize: 'var(--tx-xs)', color: 'var(--terracotta)', fontWeight: 600,
-    letterSpacing: '.06em', textTransform: 'uppercase', flexShrink: 0, marginTop: 3,
-  },
-  intakeTextarea: isLast => ({
-    width: '100%', resize: 'vertical', border: '1px solid var(--sand)',
-    borderRadius: 'var(--r-sm)', padding: 'var(--s3)', background: 'var(--cream)',
-    color: 'var(--earth)', lineHeight: 1.65, minHeight: isLast ? 120 : 72,
-    outline: 'none', transition: 'border-color var(--ease-fast)',
   }),
 
   /* Step 5 */
