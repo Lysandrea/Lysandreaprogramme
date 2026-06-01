@@ -1,7 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth }              from '../contexts/AuthContext.jsx'
 import { useSidebar }           from '../contexts/SidebarContext.jsx'
-import { MOCK_CURRENT_DAY }     from '../lib/mockData.js'
 
 const CLIENTE_NAV = [
   { label: 'Tableau de bord', to: '/dashboard', icon: '🏠' },
@@ -85,7 +84,8 @@ export default function Sidebar() {
 }
 
 function WeekDots() {
-  const currentSemaine = Math.ceil(MOCK_CURRENT_DAY / 7)
+  const { profile }    = useAuth()
+  const currentSemaine = Math.ceil((profile?.current_day ?? 1) / 7)
   return (
     <div style={{ marginBottom: 'var(--s5)' }}>
       <p style={s.dotLabel}>Progression</p>

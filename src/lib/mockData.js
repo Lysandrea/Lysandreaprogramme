@@ -2,8 +2,9 @@
    Mock data — Lysa Andréa
    ════════════════════════════════ */
 
-/* Camille is on J3 — J1 and J2 are done */
-export const MOCK_CURRENT_DAY = 3
+/* Camille has J1 and J2 done (mock bilans) */
+export const MOCK_CURRENT_DAY    = 3
+export const MOCK_BILANS_JOUR_NUMS = [1, 2]
 
 const SEANCE_TITLES = [
   'Mobilité & respiration',
