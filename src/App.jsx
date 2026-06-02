@@ -8,6 +8,13 @@ import ClienteDash    from './pages/cliente/Dashboard.jsx'
 import JourDetail     from './pages/cliente/JourDetail.jsx'
 import BilanSoir      from './pages/cliente/BilanSoir.jsx'
 import RoueDeLaVie    from './pages/cliente/RoueDeLaVie.jsx'
+import Profil         from './pages/cliente/Profil.jsx'
+import Documents      from './pages/cliente/Documents.jsx'
+import Progression    from './pages/cliente/Progression.jsx'
+import Podcasts       from './pages/cliente/Podcasts.jsx'
+import Recettes       from './pages/cliente/Recettes.jsx'
+import LettreFin      from './pages/cliente/LettreFin.jsx'
+import Avis           from './pages/cliente/Avis.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
 
@@ -65,6 +72,27 @@ export default function App() {
       } />
       <Route path="/roue-de-la-vie" element={
         <ProtectedRoute allow="cliente"><RoueDeLaVie /></ProtectedRoute>
+      } />
+      <Route path="/profil" element={
+        <ProtectedRoute allow="cliente"><Profil /></ProtectedRoute>
+      } />
+      <Route path="/documents" element={
+        <ProtectedRoute allow="cliente"><Documents /></ProtectedRoute>
+      } />
+      <Route path="/progression" element={
+        <ProtectedRoute allow="cliente"><Progression /></ProtectedRoute>
+      } />
+      <Route path="/podcasts" element={
+        <ProtectedRoute allow="cliente"><Podcasts /></ProtectedRoute>
+      } />
+      <Route path="/recettes" element={
+        <ProtectedRoute allow="cliente"><Recettes /></ProtectedRoute>
+      } />
+      <Route path="/lettre-fin" element={
+        <ProtectedRoute allow="cliente"><LettreFin /></ProtectedRoute>
+      } />
+      <Route path="/avis" element={
+        <ProtectedRoute allow="cliente"><Avis /></ProtectedRoute>
       } />
 
       {/* Coach (protected) */}

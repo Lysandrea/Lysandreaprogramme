@@ -239,6 +239,66 @@ export async function fetchUnreadNotificationsCount(coachId) {
    Helpers — Bilans coach
    ════════════════════════════════════════════════ */
 
+/* ════════════════════════════════════════════════
+   Helpers — Profil (cliente)
+   ════════════════════════════════════════════════ */
+
+export async function updateProfile(userId, data) {
+  const { error } = await supabase
+    .from('profiles')
+    .update(data)
+    .eq('id', userId)
+  if (error) throw error
+}
+
+/* ════════════════════════════════════════════════
+   Helpers — Letters
+   ════════════════════════════════════════════════ */
+
+export async function fetchLetter(clienteId) {
+  const { data, error } = await supabase
+    .from('letters')
+    .select('contenu, created_at, updated_at')
+    .eq('cliente_id', clienteId)
+    .single()
+  if (error && error.code !== 'PGRST116') throw error
+  return data ?? null
+}
+
+export async function saveLetter(clienteId, contenu) {
+  const { error } = await supabase
+    .from('letters')
+    .upsert(
+      { cliente_id: clienteId, contenu, updated_at: new Date().toISOString() },
+      { onConflict: 'cliente_id' }
+    )
+  if (error) throw error
+}
+
+/* ════════════════════════════════════════════════
+   Helpers — Avis
+   ════════════════════════════════════════════════ */
+
+export async function fetchAvis(clienteId) {
+  const { data, error } = await supabase
+    .from('avis')
+    .select('note, commentaire, created_at')
+    .eq('cliente_id', clienteId)
+    .single()
+  if (error && error.code !== 'PGRST116') throw error
+  return data ?? null
+}
+
+export async function saveAvis(clienteId, note, commentaire) {
+  const { error } = await supabase
+    .from('avis')
+    .upsert(
+      { cliente_id: clienteId, note, commentaire, updated_at: new Date().toISOString() },
+      { onConflict: 'cliente_id' }
+    )
+  if (error) throw error
+}
+
 export async function saveReponseCoach(bilanId, reponse) {
   const { data, error } = await supabase
     .from('bilans')
