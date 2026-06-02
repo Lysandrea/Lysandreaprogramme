@@ -86,14 +86,15 @@ export async function fetchBilansJourNums(clienteId) {
   return (data ?? []).map(b => b.jour_num)
 }
 
-/** Récupère les bilans d'une cliente (les + récents en premier) */
-export async function fetchBilans(clienteId, limit = 10) {
-  const { data, error } = await supabase
+/** Récupère les bilans d'une cliente (les + récents en premier). Sans limit = tous. */
+export async function fetchBilans(clienteId, limit = null) {
+  let query = supabase
     .from('bilans')
     .select('*')
     .eq('cliente_id', clienteId)
     .order('jour_num', { ascending: false })
-    .limit(limit)
+  if (limit) query = query.limit(limit)
+  const { data, error } = await query
   if (error) throw error
   return data ?? []
 }
@@ -196,8 +197,52 @@ export async function completeOnboarding(clienteId, signature) {
   if (error) throw error
 }
 
-export async function createCoachNotification(coachId, clienteId, message) {
+export async function createCoachNotification(coachId, clienteId, message, type = 'onboarding_complete') {
   await supabase
     .from('notifications')
-    .insert({ coach_id: coachId, cliente_id: clienteId, message, type: 'onboarding_complete' })
+    .insert({ coach_id: coachId, cliente_id: clienteId, message, type })
+}
+
+/* ════════════════════════════════════════════════
+   Helpers — Notifications
+   ════════════════════════════════════════════════ */
+
+export async function fetchNotifications(coachId) {
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('coach_id', coachId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function markNotificationRead(notificationId) {
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read: true })
+    .eq('id', notificationId)
+  if (error) throw error
+}
+
+export async function fetchUnreadNotificationsCount(coachId) {
+  const { count, error } = await supabase
+    .from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('coach_id', coachId)
+    .eq('read', false)
+  if (error) throw error
+  return count ?? 0
+}
+
+/* ════════════════════════════════════════════════
+   Helpers — Bilans coach
+   ════════════════════════════════════════════════ */
+
+export async function saveReponseCoach(bilanId, reponse) {
+  const { error } = await supabase
+    .from('bilans')
+    .update({ reponse_coach: reponse, reponse_coach_at: new Date().toISOString() })
+    .eq('id', bilanId)
+  if (error) throw error
 }

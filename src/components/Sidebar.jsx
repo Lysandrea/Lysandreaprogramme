@@ -1,6 +1,8 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useState, useEffect }  from 'react'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth }              from '../contexts/AuthContext.jsx'
 import { useSidebar }           from '../contexts/SidebarContext.jsx'
+import { IS_MOCK, fetchUnreadNotificationsCount } from '../lib/supabase.js'
 
 const CLIENTE_NAV = [
   { label: 'Tableau de bord',    to: '/dashboard',       icon: '🏠' },
@@ -11,10 +13,19 @@ const COACH_NAV = [
 ]
 
 export default function Sidebar() {
-  const { role, profile, signOut } = useAuth()
-  const { open, close }            = useSidebar()
-  const navigate  = useNavigate()
-  const navItems  = role === 'coach' ? COACH_NAV : CLIENTE_NAV
+  const { user, role, profile, signOut } = useAuth()
+  const { open, close }                  = useSidebar()
+  const navigate   = useNavigate()
+  const location   = useLocation()
+  const navItems   = role === 'coach' ? COACH_NAV : CLIENTE_NAV
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (IS_MOCK || role !== 'coach' || !user) return
+    fetchUnreadNotificationsCount(user.id)
+      .then(setUnreadCount)
+      .catch(() => {})
+  }, [role, user, location.pathname])
 
   async function handleSignOut() {
     await signOut()
@@ -55,7 +66,10 @@ export default function Sidebar() {
               style={({ isActive }) => ({ ...s.item, ...(isActive ? s.itemActive : {}) })}
             >
               <span style={{ fontSize: '1rem', flexShrink: 0 }}>{icon}</span>
-              <span>{label}</span>
+              <span style={{ flex: 1 }}>{label}</span>
+              {role === 'coach' && to === '/coach' && unreadCount > 0 && (
+                <span style={s.badge}>{unreadCount}</span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -139,4 +153,11 @@ const s = {
   userName: { fontSize: 'var(--tx-sm)', fontWeight: 500, color: 'var(--white)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   userRole: { fontSize: 'var(--tx-xs)', color: 'var(--sage)', textTransform: 'capitalize' },
   signOutBtn: { background: 'none', border: 'none', color: 'var(--stone)', fontSize: '1rem', cursor: 'pointer', padding: 4, borderRadius: 4, flexShrink: 0, transition: 'color var(--ease-fast)' },
+  badge: {
+    minWidth: 18, height: 18, borderRadius: 99,
+    background: 'var(--terracotta)', color: 'var(--white)',
+    fontSize: 10, fontWeight: 700,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    padding: '0 5px', flexShrink: 0,
+  },
 }

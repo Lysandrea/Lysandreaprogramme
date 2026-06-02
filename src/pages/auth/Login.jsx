@@ -77,7 +77,7 @@ export default function Login() {
         {/* Footer */}
         <p style={s.footer}>
           Première connexion ?{' '}
-          <a href="#" style={s.link}>Créer mon compte</a>
+          <a href="/inscription" style={s.link}>Créer mon accès</a>
         </p>
 
         {/* Dev hint */}

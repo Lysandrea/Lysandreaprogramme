@@ -218,7 +218,20 @@ export default function Onboarding() {
               setIntake={setIntake}
               userEmail={user?.email ?? ''}
               onBack={() => goToStep(3)}
-              onNext={async () => { await persistIntake(intake); goToStep(5) }}
+              onNext={async () => {
+                await persistIntake(intake)
+                if (!IS_MOCK && user && profile?.coach_id) {
+                  try {
+                    await createCoachNotification(
+                      profile.coach_id,
+                      user.id,
+                      `${prenom} a soumis son questionnaire.`,
+                      'questionnaire_submitted'
+                    )
+                  } catch {}
+                }
+                goToStep(5)
+              }}
             />
           )}
           {etape === 5 && (

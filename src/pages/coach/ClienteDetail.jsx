@@ -1,7 +1,8 @@
-import { useState, useEffect }      from 'react'
-import { useParams, useNavigate }   from 'react-router-dom'
+import { useState, useEffect }                    from 'react'
+import { useParams, useNavigate, useLocation }    from 'react-router-dom'
 import {
-  IS_MOCK, fetchClienteProfile, fetchJours, fetchBilans, desbloquerSemaine, fetchIntakeResponses,
+  IS_MOCK, fetchClienteProfile, fetchJours, fetchBilans,
+  desbloquerSemaine, fetchIntakeResponses, saveReponseCoach,
 } from '../../lib/supabase.js'
 import Sidebar   from '../../components/Sidebar.jsx'
 import Topbar    from '../../components/Topbar.jsx'
@@ -14,10 +15,11 @@ import { MOCK_CLIENTES, MOCK_DAYS, MOCK_BILANS } from '../../lib/mockData.js'
 const BODY_EMOJIS = ['😫', '😕', '😐', '🙂', '💪']
 
 export default function ClienteDetail() {
-  const { id }   = useParams()
-  const navigate = useNavigate()
+  const { id }       = useParams()
+  const navigate     = useNavigate()
+  const { state: navState } = useLocation()
 
-  const [tab,        setTab]        = useState('progression')
+  const [tab,        setTab]        = useState(navState?.tab ?? 'progression')
   const [cliente,    setCliente]    = useState(null)
   const [jours,      setJours]      = useState([])
   const [bilans,     setBilans]     = useState([])
@@ -37,7 +39,7 @@ export default function ClienteDetail() {
     Promise.all([
       fetchClienteProfile(id),
       fetchJours(id),
-      fetchBilans(id, 5),
+      fetchBilans(id),
       fetchIntakeResponses(id),
     ])
       .then(([prof, j, b, rep]) => {
@@ -160,7 +162,7 @@ export default function ClienteDetail() {
 
           {/* Tabs */}
           <div style={s.tabs}>
-            {[['progression', '📋 Progression'], ['questionnaire', '📝 Questionnaire']].map(([key, label]) => (
+            {[['progression', '📋 Progression'], ['questionnaire', '📝 Questionnaire'], ['bilans', '💬 Bilans']].map(([key, label]) => (
               <button
                 key={key}
                 onClick={() => setTab(key)}
@@ -196,13 +198,13 @@ export default function ClienteDetail() {
                 </div>
               </Card>
 
-              {/* Bilans récents */}
+              {/* Bilans récents (5 derniers) */}
               <Card title="Bilans récents">
                 {bilans.length === 0 ? (
                   <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)' }}>Aucun bilan pour l'instant.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
-                    {bilans.map(b => <BilanCard key={`${b.jour_num ?? b.jour}`} b={b} />)}
+                    {bilans.slice(0, 5).map(b => <BilanCard key={`${b.jour_num ?? b.jour}`} b={b} />)}
                   </div>
                 )}
               </Card>
@@ -211,6 +213,20 @@ export default function ClienteDetail() {
 
           {tab === 'questionnaire' && (
             <QuestionnaireTab intake={intake} />
+          )}
+
+          {tab === 'bilans' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
+              {bilans.length === 0 ? (
+                <div style={{ background: 'var(--sand)', borderRadius: 'var(--r-lg)', padding: 'var(--s8)', textAlign: 'center' }}>
+                  <p style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-lg)', color: 'var(--stone)' }}>
+                    Aucun bilan soumis pour l'instant.
+                  </p>
+                </div>
+              ) : (
+                bilans.map(b => <BilanCoachCard key={b.id ?? `${b.jour_num ?? b.jour}`} b={b} />)
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -440,6 +456,117 @@ function QuestionnaireTab({ intake }) {
             })}
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function BilanCoachCard({ b }) {
+  const jourNum  = b.jour_num ?? b.jour
+  const date     = b.created_at ?? b.date
+  const dateStr  = date
+    ? new Date(date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+    : `Jour ${jourNum}`
+
+  const [draft,     setDraft]    = useState(b.reponse_coach ?? '')
+  const [savedResp, setSavedResp] = useState(b.reponse_coach ?? null)
+  const [savedAt,   setSavedAt]  = useState(b.reponse_coach_at ?? null)
+  const [saving,    setSaving]   = useState(false)
+
+  async function handleSave() {
+    if (!draft.trim() || !b.id) return
+    setSaving(true)
+    try {
+      await saveReponseCoach(b.id, draft.trim())
+      setSavedResp(draft.trim())
+      setSavedAt(new Date().toISOString())
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div style={{ background: 'var(--white)', border: '1px solid var(--sand)', borderRadius: 'var(--r-lg)', overflow: 'hidden', boxShadow: 'var(--sh-sm)' }}>
+      {/* Header */}
+      <div style={{ background: 'var(--cream)', padding: 'var(--s4) var(--s5)', borderBottom: '1px solid var(--sand)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--s3)', flexWrap: 'wrap' }}>
+        <div>
+          <span style={{ fontSize: 'var(--tx-sm)', fontWeight: 600, color: 'var(--earth)' }}>Jour {jourNum}</span>
+          <span style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)' }}> · {dateStr}</span>
+        </div>
+        {b.seance_faite_bilan !== undefined && b.seance_faite_bilan !== null && (
+          <span style={{
+            fontSize: 'var(--tx-xs)', fontWeight: 600, padding: '3px 10px', borderRadius: 99,
+            background: b.seance_faite_bilan ? 'rgba(107,127,94,.12)' : 'rgba(192,120,96,.1)',
+            color: b.seance_faite_bilan ? 'var(--moss)' : 'var(--terracotta)',
+          }}>
+            {b.seance_faite_bilan ? 'Séance faite ✓' : 'Séance non faite'}
+          </span>
+        )}
+      </div>
+
+      {/* Réponses */}
+      <div style={{ padding: 'var(--s5)', display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
+        {!b.seance_faite_bilan && b.raison_non_seance && (
+          <QRow label="Raison" value={b.raison_non_seance} />
+        )}
+        {b.corps !== undefined && b.corps !== null && (
+          <QRow
+            label="Corps"
+            value={`${BODY_EMOJIS[b.corps]}  ${['Épuisé', 'Fatigué', 'Neutre', 'Bien', 'En forme'][b.corps]}`}
+          />
+        )}
+        {[
+          { label: 'Gratitude', val: b.gratitude },
+          { label: 'Leçon',     val: b.lecon     },
+          { label: 'Émotion',   val: b.emotion   },
+          { label: 'Lâcher',    val: b.lacher    },
+        ].filter(r => r.val).map(({ label, val }) => (
+          <QRow key={label} label={label} value={val} />
+        ))}
+
+        {/* Réponse coach */}
+        {!IS_MOCK && (
+          <div style={{ borderTop: '1px dashed var(--sand)', paddingTop: 'var(--s4)', marginTop: 'var(--s2)' }}>
+            <p style={{ fontSize: 'var(--tx-xs)', fontWeight: 600, color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 'var(--s3)' }}>
+              Réponse de Lysa
+            </p>
+            {savedResp ? (
+              <div>
+                <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.65, whiteSpace: 'pre-wrap' }}>{savedResp}</p>
+                {savedAt && (
+                  <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', marginTop: 'var(--s2)' }}>
+                    Envoyé le {new Date(savedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
+                <textarea
+                  value={draft}
+                  onChange={e => setDraft(e.target.value)}
+                  placeholder="Écris ta réponse pour cette cliente…"
+                  rows={3}
+                  style={{
+                    width: '100%', padding: 'var(--s3) var(--s4)',
+                    border: '1px solid var(--sand)', borderRadius: 'var(--r-md)',
+                    background: 'var(--cream)', color: 'var(--earth)',
+                    fontSize: 'var(--tx-sm)', resize: 'vertical',
+                    outline: 'none', transition: 'border-color var(--ease-fast)',
+                  }}
+                  onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                  onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                />
+                <div>
+                  <Button size="sm" variant="secondary" loading={saving} onClick={handleSave} disabled={!draft.trim()}>
+                    Envoyer ma réponse →
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

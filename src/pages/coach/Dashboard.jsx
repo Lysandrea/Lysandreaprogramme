@@ -1,27 +1,45 @@
 import { useEffect, useState } from 'react'
 import { useNavigate }         from 'react-router-dom'
 import { useAuth }             from '../../contexts/AuthContext.jsx'
-import { IS_MOCK, fetchClientes } from '../../lib/supabase.js'
+import {
+  IS_MOCK, fetchClientes, fetchNotifications, markNotificationRead,
+} from '../../lib/supabase.js'
 import Sidebar from '../../components/Sidebar.jsx'
 import Topbar  from '../../components/Topbar.jsx'
 import Card    from '../../components/Card.jsx'
 import Badge   from '../../components/Badge.jsx'
+import Button  from '../../components/Button.jsx'
 import { MOCK_CLIENTES } from '../../lib/mockData.js'
 
 export default function CoachDashboard() {
   const { user }  = useAuth()
   const navigate  = useNavigate()
 
-  const [clientes, setClientes] = useState(MOCK_CLIENTES)
-  const [loading,  setLoading]  = useState(!IS_MOCK)
+  const [clientes,       setClientes]       = useState(MOCK_CLIENTES)
+  const [notifications,  setNotifications]  = useState([])
+  const [loading,        setLoading]        = useState(!IS_MOCK)
 
   useEffect(() => {
     if (IS_MOCK || !user) return
-    fetchClientes(user.id)
-      .then(data => setClientes(data))
+    Promise.all([
+      fetchClientes(user.id),
+      fetchNotifications(user.id),
+    ])
+      .then(([cl, notifs]) => {
+        setClientes(cl)
+        setNotifications(notifs)
+      })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [user])
+
+  const clienteMap  = Object.fromEntries(clientes.map(c => [c.id, c.prenom ?? 'Cliente']))
+  const unreadNotifs = notifications.filter(n => !n.read)
+
+  function handleMarkRead(notifId) {
+    markNotificationRead(notifId).catch(console.error)
+    setNotifications(prev => prev.map(n => n.id === notifId ? { ...n, read: true } : n))
+  }
 
   const actives    = clientes.filter(c => c.status === 'active').length
   const bilansEn   = clientes.reduce((a, c) => a + (c.bilansEnAttente ?? 0), 0)
@@ -33,6 +51,30 @@ export default function CoachDashboard() {
       <div className="shell-main">
         <Topbar title="Vue Coach" subtitle="Tableau de bord" />
         <div className="shell-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s6)' }}>
+
+          {/* Notifications */}
+          {!IS_MOCK && (
+            <Card title={`🔔 Notifications${unreadNotifs.length > 0 ? ` · ${unreadNotifs.length} non lue${unreadNotifs.length > 1 ? 's' : ''}` : ''}`}>
+              {notifications.length === 0 ? (
+                <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)', padding: 'var(--s2) 0' }}>
+                  Tout est à jour ✓
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  {notifications.map((n, i) => (
+                    <NotifRow
+                      key={n.id}
+                      n={n}
+                      prenom={clienteMap[n.cliente_id] ?? 'Cliente'}
+                      isLast={i === notifications.length - 1}
+                      onRead={handleMarkRead}
+                      onView={() => navigate(`/coach/cliente/${n.cliente_id}`, { state: { tab: 'questionnaire' } })}
+                    />
+                  ))}
+                </div>
+              )}
+            </Card>
+          )}
 
           {/* Stat cards */}
           <div style={s.statsRow}>
@@ -47,7 +89,7 @@ export default function CoachDashboard() {
               <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)', padding: 'var(--s4) 0' }}>Chargement…</p>
             ) : clientes.length === 0 ? (
               <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)', padding: 'var(--s4) 0' }}>
-                Aucune cliente pour l'instant. Invitez des clientes via Supabase Auth.
+                Aucune cliente pour l'instant.
               </p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -63,6 +105,43 @@ export default function CoachDashboard() {
             )}
           </Card>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function NotifRow({ n, prenom, isLast, onRead, onView }) {
+  const dateStr = new Date(n.created_at).toLocaleDateString('fr-FR', {
+    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+  })
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: 'var(--s4)',
+      padding: 'var(--s4) var(--s3)',
+      borderBottom: isLast ? 'none' : '1px solid var(--sand)',
+      background: n.read ? 'transparent' : 'rgba(192,120,96,.04)',
+    }}>
+      {!n.read && (
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--terracotta)', flexShrink: 0, marginTop: 6 }} />
+      )}
+      {n.read && <div style={{ width: 8, flexShrink: 0 }} />}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', fontWeight: n.read ? 400 : 500 }}>
+          <span style={{ fontWeight: 600 }}>{prenom}</span>
+          {' '}a soumis son questionnaire
+        </p>
+        <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', marginTop: 2 }}>{dateStr}</p>
+      </div>
+      <div style={{ display: 'flex', gap: 'var(--s2)', flexShrink: 0, flexWrap: 'wrap' }}>
+        <Button size="sm" variant="secondary" onClick={onView}>
+          Voir le questionnaire →
+        </Button>
+        {!n.read && (
+          <Button size="sm" variant="ghost" onClick={() => onRead(n.id)}>
+            Marquer comme lu
+          </Button>
+        )}
       </div>
     </div>
   )

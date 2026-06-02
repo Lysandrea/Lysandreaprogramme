@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext.jsx'
 
 import Login          from './pages/auth/Login.jsx'
+import Inscription    from './pages/auth/Inscription.jsx'
 import Onboarding     from './pages/cliente/Onboarding.jsx'
 import ClienteDash    from './pages/cliente/Dashboard.jsx'
 import JourDetail     from './pages/cliente/JourDetail.jsx'
@@ -45,6 +46,7 @@ export default function App() {
     <Routes>
       {/* Public */}
       <Route path="/" element={<Login />} />
+      <Route path="/inscription" element={<Inscription />} />
 
       {/* Onboarding (cliente only, no onboarding check — this IS the onboarding) */}
       <Route path="/onboarding" element={
