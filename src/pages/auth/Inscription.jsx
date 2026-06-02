@@ -10,9 +10,8 @@ export default function Inscription() {
   const [email,           setEmail]           = useState('')
   const [password,        setPassword]        = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [loading,         setLoading]         = useState(false)
-  const [error,           setError]           = useState('')
-  const [emailSent,       setEmailSent]       = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error,   setError]   = useState('')
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -30,17 +29,24 @@ export default function Inscription() {
     setLoading(true)
     try {
       const { data, error: signUpError } = await supabase.auth.signUp({
-        email:    email.trim(),
+        email:   email.trim(),
         password,
-        options:  { data: { prenom: prenom.trim() } },
+        options: { data: { prenom: prenom.trim() } },
       })
       if (signUpError) throw signUpError
 
       if (data.session) {
         navigate('/onboarding', { replace: true })
-      } else {
-        setEmailSent(true)
+        return
       }
+
+      // Confirmation désactivée mais pas de session retournée → signIn manuel
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email:    email.trim(),
+        password,
+      })
+      if (signInError) throw signInError
+      navigate('/onboarding', { replace: true })
     } catch (err) {
       if (err.message?.toLowerCase().includes('already registered')) {
         setError('Cet email est déjà utilisé. Connecte-toi via la page de connexion.')
@@ -50,29 +56,6 @@ export default function Inscription() {
     } finally {
       setLoading(false)
     }
-  }
-
-  if (emailSent) {
-    return (
-      <div style={s.page}>
-        <div style={s.card}>
-          <div style={s.logoBlock}>
-            <span style={s.logoTitle}>Lysa Andréa</span>
-            <span style={s.logoSub}>Programme 8 semaines</span>
-          </div>
-          <div style={{ textAlign: 'center', padding: 'var(--s4) 0' }}>
-            <p style={{ fontSize: 40, marginBottom: 'var(--s4)' }}>✉️</p>
-            <p style={{ fontFamily: 'var(--serif)', fontSize: 22, color: 'var(--earth)', marginBottom: 'var(--s3)' }}>
-              Vérifie tes emails
-            </p>
-            <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)', lineHeight: 1.7 }}>
-              Un email de confirmation a été envoyé à <strong>{email}</strong>.
-              Clique sur le lien pour activer ton compte et accéder à l'onboarding.
-            </p>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
