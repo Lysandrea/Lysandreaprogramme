@@ -468,20 +468,27 @@ function BilanCoachCard({ b }) {
     ? new Date(date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
     : `Jour ${jourNum}`
 
-  const [draft,     setDraft]    = useState(b.reponse_coach ?? '')
+  const [draft,     setDraft]     = useState(b.reponse_coach ?? '')
   const [savedResp, setSavedResp] = useState(b.reponse_coach ?? null)
-  const [savedAt,   setSavedAt]  = useState(b.reponse_coach_at ?? null)
-  const [saving,    setSaving]   = useState(false)
+  const [savedAt,   setSavedAt]   = useState(b.reponse_coach_at ?? null)
+  const [saving,    setSaving]    = useState(false)
+  const [saveError, setSaveError] = useState(null)
 
   async function handleSave() {
-    if (!draft.trim() || !b.id) return
+    if (!draft.trim()) return
+    if (!b.id) {
+      setSaveError('ID du bilan manquant.')
+      return
+    }
     setSaving(true)
+    setSaveError(null)
     try {
       await saveReponseCoach(b.id, draft.trim())
       setSavedResp(draft.trim())
       setSavedAt(new Date().toISOString())
     } catch (err) {
-      console.error(err)
+      console.error('[handleSave]', err)
+      setSaveError(err.message ?? 'Erreur lors de la sauvegarde.')
     } finally {
       setSaving(false)
     }
@@ -558,10 +565,17 @@ function BilanCoachCard({ b }) {
                   onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
                   onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
                 />
-                <div>
-                  <Button size="sm" variant="secondary" loading={saving} onClick={handleSave} disabled={!draft.trim()}>
-                    Envoyer ma réponse →
-                  </Button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s2)' }}>
+                  <div>
+                    <Button size="sm" variant="secondary" loading={saving} onClick={handleSave} disabled={!draft.trim()}>
+                      Envoyer ma réponse →
+                    </Button>
+                  </div>
+                  {saveError && (
+                    <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)', lineHeight: 1.5 }}>
+                      ⚠ {saveError}
+                    </p>
+                  )}
                 </div>
               </div>
             )}

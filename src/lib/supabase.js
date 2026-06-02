@@ -240,9 +240,18 @@ export async function fetchUnreadNotificationsCount(coachId) {
    ════════════════════════════════════════════════ */
 
 export async function saveReponseCoach(bilanId, reponse) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('bilans')
     .update({ reponse_coach: reponse, reponse_coach_at: new Date().toISOString() })
     .eq('id', bilanId)
-  if (error) throw error
+    .select('id')
+  if (error) {
+    console.error('[saveReponseCoach] Supabase error:', error)
+    throw error
+  }
+  if (!data || data.length === 0) {
+    const msg = 'Aucune ligne mise à jour — colonnes manquantes ou RLS bloque la requête. Lance le SQL coach_setup.sql dans Supabase.'
+    console.error('[saveReponseCoach]', msg, { bilanId })
+    throw new Error(msg)
+  }
 }

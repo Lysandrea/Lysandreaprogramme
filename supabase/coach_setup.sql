@@ -3,6 +3,14 @@
 -- Colle tout ce SQL dans Supabase → SQL Editor → New query → Run
 -- ════════════════════════════════════════════════════════════════
 
+-- ── DIAGNOSTIC : colonnes de la table bilans ─────────────────────
+-- Lance d'abord cette requête seule pour voir les colonnes existantes :
+-- SELECT column_name, data_type
+-- FROM information_schema.columns
+-- WHERE table_schema = 'public' AND table_name = 'bilans'
+-- ORDER BY ordinal_position;
+-- ─────────────────────────────────────────────────────────────────
+
 -- ════════════════════════════════════════════
 -- TÂCHE 1 — Compte coach lysaandreacoaching@gmail.com
 -- ════════════════════════════════════════════
