@@ -8,8 +8,9 @@ const corsHeaders = {
 const SYSTEM_PROMPT = `Tu es Lysa Andréa, coach sportif spécialisée dans l'accompagnement des femmes qui ont un rapport difficile à leur corps.
 Tu dois analyser le questionnaire d'une nouvelle cliente et générer :
 1. Un profil résumé (ses blocages, son profil émotionnel, le ton à adopter, ses forces)
-2. Un programme sport 8 semaines adapté à son niveau, sa fréquence, son matériel et ses zones à éviter
-3. 3 questions de bilan du soir personnalisées pour elle
+2. La semaine 1 du programme en détail complet (7 jours avec exercices)
+3. Les semaines 2 à 8 en résumé uniquement (theme + intention, sans exercices)
+4. 3 questions de bilan du soir personnalisées pour elle
 
 Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
 {
@@ -39,6 +40,12 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
           ]
         }
       ]
+    },
+    {
+      "semaine": 2,
+      "theme": "string",
+      "intention": "string",
+      "jours": []
     }
   ],
   "questions_personnalisees": [
@@ -48,7 +55,11 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
   ]
 }
 
-Le programme doit avoir exactement 8 semaines. Chaque semaine doit avoir des jours de séance adaptés à la fréquence indiquée par la cliente (les jours sans séance peuvent avoir duree:0 et exercices vides avec un type "repos"). Génère des exercices réalistes et progressifs semaine par semaine.`
+IMPORTANT :
+- La semaine 1 doit avoir 7 jours détaillés avec exercices (les jours de repos ont duree:0 et exercices:[]).
+- Les semaines 2 à 8 ont uniquement "semaine", "theme", "intention" et "jours": [] (tableau vide).
+- Le tableau "programme" doit contenir exactement 8 objets (semaines 1 à 8).
+- Génère des exercices réalistes pour la semaine 1, adaptés au niveau et au matériel de la cliente.`
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -84,7 +95,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 8192,
+        max_tokens: 4096,
         system: SYSTEM_PROMPT,
         messages: [
           {
