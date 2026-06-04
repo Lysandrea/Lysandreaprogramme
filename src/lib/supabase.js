@@ -299,6 +299,51 @@ export async function saveAvis(clienteId, note, commentaire) {
   if (error) throw error
 }
 
+/* ════════════════════════════════════════════════
+   Helpers — Programmes IA
+   ════════════════════════════════════════════════ */
+
+export async function fetchAiProgramme(clienteId) {
+  const { data, error } = await supabase
+    .from('ai_programmes')
+    .select('*')
+    .eq('cliente_id', clienteId)
+    .single()
+  if (error && error.code !== 'PGRST116') throw error
+  return data ?? null
+}
+
+export async function saveAiProgramme(clienteId, { profil_resume, programme, questions_personnalisees }) {
+  const { error } = await supabase
+    .from('ai_programmes')
+    .upsert(
+      {
+        cliente_id: clienteId,
+        profil_resume,
+        programme,
+        questions_personnalisees,
+        statut: 'en_attente',
+        generated_at: new Date().toISOString(),
+      },
+      { onConflict: 'cliente_id' }
+    )
+  if (error) throw error
+}
+
+export async function publishAiProgramme(programmeId, { profil_resume, programme, questions_personnalisees }) {
+  const { error } = await supabase
+    .from('ai_programmes')
+    .update({
+      profil_resume,
+      programme,
+      questions_personnalisees,
+      statut: 'publie',
+      publie_at: new Date().toISOString(),
+    })
+    .eq('id', programmeId)
+  if (error) throw error
+}
+
 export async function saveReponseCoach(bilanId, reponse) {
   const { data, error } = await supabase
     .from('bilans')

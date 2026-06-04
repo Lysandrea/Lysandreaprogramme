@@ -1,7 +1,7 @@
-import { useState }               from 'react'
+import { useState, useEffect }    from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth }                from '../../contexts/AuthContext.jsx'
-import { IS_MOCK, saveBilan }     from '../../lib/supabase.js'
+import { IS_MOCK, saveBilan, fetchAiProgramme } from '../../lib/supabase.js'
 import Sidebar from '../../components/Sidebar.jsx'
 import Topbar  from '../../components/Topbar.jsx'
 import Button  from '../../components/Button.jsx'
@@ -49,12 +49,25 @@ export default function BilanSoir() {
   const navigate = useNavigate()
   const { user } = useAuth()
 
-  const [seanceFaite,     setSeanceFaite]     = useState(null)   // 'faite' | 'pas-faite'
-  const [raisonNonSeance, setRaisonNonSeance] = useState('')
-  const [answers,         setAnswers]         = useState({})
-  const [saving,          setSaving]          = useState(false)
-  const [saved,           setSaved]           = useState(false)
-  const [error,           setError]           = useState('')
+  const [seanceFaite,       setSeanceFaite]       = useState(null)   // 'faite' | 'pas-faite'
+  const [raisonNonSeance,   setRaisonNonSeance]   = useState('')
+  const [answers,           setAnswers]           = useState({})
+  const [customAnswers,     setCustomAnswers]     = useState({})
+  const [customQuestions,   setCustomQuestions]   = useState([])
+  const [saving,            setSaving]            = useState(false)
+  const [saved,             setSaved]             = useState(false)
+  const [error,             setError]             = useState('')
+
+  useEffect(() => {
+    if (!user || IS_MOCK) return
+    fetchAiProgramme(user.id)
+      .then(prog => {
+        if (prog?.statut === 'publie' && Array.isArray(prog.questions_personnalisees)) {
+          setCustomQuestions(prog.questions_personnalisees)
+        }
+      })
+      .catch(() => {})
+  }, [user]) // eslint-disable-line
 
   const isComplete = (
     seanceFaite !== null &&
@@ -70,17 +83,24 @@ export default function BilanSoir() {
     setError('')
     try {
       if (!IS_MOCK && user) {
+        const repersonnalisees = customQuestions.length > 0
+          ? customQuestions.map((q, i) => ({
+              question: q.question,
+              reponse:  customAnswers[i] ?? '',
+            }))
+          : null
         await saveBilan(
           user.id,
           Number(id),
           {
-            seance_faite_bilan: seanceFaite === 'faite',
-            raison_non_seance:  seanceFaite !== 'faite' ? (raisonNonSeance || null) : null,
-            gratitude:          answers.gratitude ?? '',
-            lecon:              answers.lecon     ?? '',
-            corps:              answers.corps     ?? null,
-            emotion:            answers.emotion   ?? '',
-            lacher:             answers.lacher    ?? '',
+            seance_faite_bilan:      seanceFaite === 'faite',
+            raison_non_seance:       seanceFaite !== 'faite' ? (raisonNonSeance || null) : null,
+            gratitude:               answers.gratitude ?? '',
+            lecon:                   answers.lecon     ?? '',
+            corps:                   answers.corps     ?? null,
+            emotion:                 answers.emotion   ?? '',
+            lacher:                  answers.lacher    ?? '',
+            reponses_personnalisees: repersonnalisees,
           },
           seanceFaite === 'faite'
         )
@@ -163,7 +183,7 @@ export default function BilanSoir() {
             )}
           </div>
 
-          {/* SECTION 2 — 5 Questions */}
+          {/* SECTION 2 — 5 Questions fixes */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
             {QUESTIONS.map((q, i) => (
               <QuestionCard
@@ -175,6 +195,32 @@ export default function BilanSoir() {
               />
             ))}
           </div>
+
+          {/* SECTION 3 — Questions personnalisées (si programme publié) */}
+          {customQuestions.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
+              <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', letterSpacing: '.08em', textTransform: 'uppercase' }}>
+                Questions de Lysa pour toi
+              </p>
+              {customQuestions.map((q, i) => (
+                <div key={i} style={s.qCard}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--s3)' }}>
+                    <span style={s.qNum}>{QUESTIONS.length + i + 1}</span>
+                    <h3 style={s.qTitle}>{q.question}</h3>
+                  </div>
+                  <textarea
+                    value={customAnswers[i] ?? ''}
+                    onChange={e => setCustomAnswers(prev => ({ ...prev, [i]: e.target.value }))}
+                    placeholder={q.placeholder ?? 'Ta réponse…'}
+                    rows={3}
+                    style={s.textarea}
+                    onFocus={e => { e.target.style.borderColor = 'var(--stone)'; e.target.style.outline = 'none' }}
+                    onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
           {error && (
             <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--terracotta)', textAlign: 'center' }}>{error}</p>

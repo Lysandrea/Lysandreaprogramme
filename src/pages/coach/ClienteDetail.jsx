@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation }    from 'react-router-dom'
 import {
   IS_MOCK, fetchClienteProfile, fetchJours, fetchBilans,
   desbloquerSemaine, fetchIntakeResponses, saveReponseCoach,
+  fetchAiProgramme, publishAiProgramme,
 } from '../../lib/supabase.js'
 import Sidebar   from '../../components/Sidebar.jsx'
 import Topbar    from '../../components/Topbar.jsx'
@@ -19,14 +20,15 @@ export default function ClienteDetail() {
   const navigate     = useNavigate()
   const { state: navState } = useLocation()
 
-  const [tab,        setTab]        = useState(navState?.tab ?? 'progression')
-  const [cliente,    setCliente]    = useState(null)
-  const [jours,      setJours]      = useState([])
-  const [bilans,     setBilans]     = useState([])
-  const [intake,     setIntake]     = useState(null)
-  const [loading,    setLoading]    = useState(true)
-  const [unlocking,  setUnlocking]  = useState(false)
-  const [unlocked,   setUnlocked]   = useState(false)
+  const [tab,           setTab]           = useState(navState?.tab ?? 'progression')
+  const [cliente,       setCliente]       = useState(null)
+  const [jours,         setJours]         = useState([])
+  const [bilans,        setBilans]        = useState([])
+  const [intake,        setIntake]        = useState(null)
+  const [aiProgramme,   setAiProgramme]   = useState(null)
+  const [loading,       setLoading]       = useState(true)
+  const [unlocking,     setUnlocking]     = useState(false)
+  const [unlocked,      setUnlocked]      = useState(false)
 
   useEffect(() => {
     if (IS_MOCK) {
@@ -41,12 +43,14 @@ export default function ClienteDetail() {
       fetchJours(id),
       fetchBilans(id),
       fetchIntakeResponses(id),
+      fetchAiProgramme(id),
     ])
-      .then(([prof, j, b, rep]) => {
+      .then(([prof, j, b, rep, ai]) => {
         setCliente(prof)
         setJours(j)
         setBilans(b)
         setIntake(rep ?? {})
+        setAiProgramme(ai)
       })
       .catch(console.error)
       .finally(() => setLoading(false))
@@ -162,7 +166,7 @@ export default function ClienteDetail() {
 
           {/* Tabs */}
           <div style={s.tabs}>
-            {[['progression', '📋 Progression'], ['questionnaire', '📝 Questionnaire'], ['bilans', '💬 Bilans']].map(([key, label]) => (
+            {[['progression', '📋 Progression'], ['questionnaire', '📝 Questionnaire'], ['bilans', '💬 Bilans'], ['programme_ia', '🤖 Programme IA']].map(([key, label]) => (
               <button
                 key={key}
                 onClick={() => setTab(key)}
@@ -213,6 +217,13 @@ export default function ClienteDetail() {
 
           {tab === 'questionnaire' && (
             <QuestionnaireTab intake={intake} />
+          )}
+
+          {tab === 'programme_ia' && (
+            <ProgrammeIATab
+              aiProgramme={aiProgramme}
+              onPublished={updated => setAiProgramme(updated)}
+            />
           )}
 
           {tab === 'bilans' && (
@@ -619,6 +630,363 @@ function BilanCard({ b }) {
       ))}
     </div>
   )
+}
+
+/* ════════════════════════════════════════════════
+   Programme IA Tab
+   ════════════════════════════════════════════════ */
+function ProgrammeIATab({ aiProgramme, onPublished }) {
+  const [profil,     setProfil]     = useState(aiProgramme?.profil_resume ?? '')
+  const [programme,  setProgramme]  = useState(aiProgramme?.programme ?? [])
+  const [questions,  setQuestions]  = useState(aiProgramme?.questions_personnalisees ?? [])
+  const [publishing, setPublishing] = useState(false)
+  const [pubError,   setPubError]   = useState(null)
+  const [expanded,   setExpanded]   = useState({})
+
+  useEffect(() => {
+    setProfil(aiProgramme?.profil_resume ?? '')
+    setProgramme(aiProgramme?.programme ?? [])
+    setQuestions(aiProgramme?.questions_personnalisees ?? [])
+  }, [aiProgramme])
+
+  if (!aiProgramme) {
+    return (
+      <div style={{ background: 'var(--sand)', borderRadius: 'var(--r-lg)', padding: 'var(--s8)', textAlign: 'center' }}>
+        <p style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-lg)', color: 'var(--stone)' }}>
+          En attente du questionnaire
+        </p>
+        <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)', marginTop: 'var(--s2)' }}>
+          Le programme IA sera généré dès que la cliente aura soumis son questionnaire d'intake.
+        </p>
+      </div>
+    )
+  }
+
+  const isPublished = aiProgramme.statut === 'publie'
+
+  async function handlePublish() {
+    setPublishing(true)
+    setPubError(null)
+    try {
+      await publishAiProgramme(aiProgramme.id, {
+        profil_resume: profil,
+        programme,
+        questions_personnalisees: questions,
+      })
+      onPublished({ ...aiProgramme, profil_resume: profil, programme, questions_personnalisees: questions, statut: 'publie', publie_at: new Date().toISOString() })
+    } catch (err) {
+      setPubError(err.message ?? 'Erreur lors de la publication.')
+    } finally {
+      setPublishing(false)
+    }
+  }
+
+  function updateExercice(sIndex, jIndex, eIndex, field, value) {
+    setProgramme(prev => {
+      const next = JSON.parse(JSON.stringify(prev))
+      next[sIndex].jours[jIndex].exercices[eIndex][field] = value
+      return next
+    })
+  }
+
+  function updateJour(sIndex, jIndex, field, value) {
+    setProgramme(prev => {
+      const next = JSON.parse(JSON.stringify(prev))
+      next[sIndex].jours[jIndex][field] = value
+      return next
+    })
+  }
+
+  function updateSemaine(sIndex, field, value) {
+    setProgramme(prev => {
+      const next = JSON.parse(JSON.stringify(prev))
+      next[sIndex][field] = value
+      return next
+    })
+  }
+
+  function updateQuestion(i, field, value) {
+    setQuestions(prev => {
+      const next = [...prev]
+      next[i] = { ...next[i], [field]: value }
+      return next
+    })
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s5)' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--s3)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s3)' }}>
+          <h3 style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)', fontWeight: 400, color: 'var(--earth)' }}>
+            🤖 Programme généré par l'IA
+          </h3>
+          {isPublished && (
+            <span style={{ fontSize: 'var(--tx-xs)', padding: '3px 10px', borderRadius: 99, background: 'rgba(107,127,94,.15)', color: 'var(--moss)', fontWeight: 600 }}>
+              Publié ✓
+            </span>
+          )}
+        </div>
+        {!isPublished && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-end' }}>
+            <Button variant="terracotta" loading={publishing} onClick={handlePublish}>
+              Valider et publier sur son profil ✦
+            </Button>
+            {pubError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubError}</p>}
+          </div>
+        )}
+      </div>
+
+      {/* Profil résumé */}
+      <div style={sIA.card}>
+        <h4 style={sIA.cardTitle}>🧠 Profil émotionnel</h4>
+        {isPublished ? (
+          <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{profil}</p>
+        ) : (
+          <textarea
+            value={profil}
+            onChange={e => setProfil(e.target.value)}
+            rows={6}
+            style={sIA.textarea}
+            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+          />
+        )}
+      </div>
+
+      {/* Questions personnalisées */}
+      <div style={sIA.card}>
+        <h4 style={sIA.cardTitle}>💬 Questions bilan du soir personnalisées</h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
+          {questions.map((q, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em' }}>
+                Question {i + 1}
+              </p>
+              {isPublished ? (
+                <>
+                  <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', fontWeight: 500 }}>{q.question}</p>
+                  <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontStyle: 'italic' }}>{q.placeholder}</p>
+                </>
+              ) : (
+                <>
+                  <input
+                    value={q.question ?? ''}
+                    onChange={e => updateQuestion(i, 'question', e.target.value)}
+                    placeholder="La question…"
+                    style={sIA.input}
+                    onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                    onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                  />
+                  <input
+                    value={q.placeholder ?? ''}
+                    onChange={e => updateQuestion(i, 'placeholder', e.target.value)}
+                    placeholder="Placeholder de réponse…"
+                    style={{ ...sIA.input, fontStyle: 'italic', opacity: .75 }}
+                    onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                    onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                  />
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Programme 8 semaines */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
+        <h4 style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-lg)', fontWeight: 400, color: 'var(--earth)' }}>
+          📅 Programme 8 semaines
+        </h4>
+        {programme.map((sem, sIndex) => (
+          <div key={sIndex} style={sIA.semaineCard}>
+            {/* Semaine header */}
+            <button
+              onClick={() => setExpanded(prev => ({ ...prev, [sIndex]: !prev[sIndex] }))}
+              style={sIA.semaineHeader}
+            >
+              <div>
+                <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.08em' }}>
+                  Semaine {sem.semaine}
+                </span>
+                {isPublished ? (
+                  <p style={{ fontSize: 'var(--tx-sm)', fontWeight: 500, color: 'var(--earth)', marginTop: 2 }}>{sem.theme}</p>
+                ) : (
+                  <input
+                    value={sem.theme ?? ''}
+                    onChange={e => { e.stopPropagation(); updateSemaine(sIndex, 'theme', e.target.value) }}
+                    onClick={e => e.stopPropagation()}
+                    placeholder="Thème de la semaine…"
+                    style={{ ...sIA.input, marginTop: 4, fontWeight: 500 }}
+                    onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                    onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                  />
+                )}
+              </div>
+              <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>
+                {expanded[sIndex] ? '▲' : '▼'}
+              </span>
+            </button>
+
+            {expanded[sIndex] && (
+              <div style={{ padding: 'var(--s4)', display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
+                {/* Intention semaine */}
+                {isPublished ? (
+                  <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontStyle: 'italic', lineHeight: 1.6 }}>
+                    {sem.intention}
+                  </p>
+                ) : (
+                  <textarea
+                    value={sem.intention ?? ''}
+                    onChange={e => updateSemaine(sIndex, 'intention', e.target.value)}
+                    placeholder="Intention de la semaine…"
+                    rows={2}
+                    style={{ ...sIA.textarea, fontSize: 'var(--tx-xs)' }}
+                    onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                    onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                  />
+                )}
+
+                {/* Jours */}
+                {(sem.jours ?? []).map((jour, jIndex) => (
+                  <div key={jIndex} style={{ background: 'var(--cream)', borderRadius: 'var(--r-md)', padding: 'var(--s4)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s3)', marginBottom: 'var(--s3)', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', minWidth: 40 }}>J{jour.jour}</span>
+                      {isPublished ? (
+                        <>
+                          <span style={{ fontWeight: 600, color: 'var(--earth)', fontSize: 'var(--tx-sm)' }}>{jour.nom}</span>
+                          <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>· {jour.duree} min · {jour.type}</span>
+                        </>
+                      ) : (
+                        <>
+                          <input
+                            value={jour.nom ?? ''}
+                            onChange={e => updateJour(sIndex, jIndex, 'nom', e.target.value)}
+                            placeholder="Nom de la séance…"
+                            style={{ ...sIA.input, flex: 1, minWidth: 120 }}
+                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                          />
+                          <input
+                            value={jour.duree ?? ''}
+                            onChange={e => updateJour(sIndex, jIndex, 'duree', Number(e.target.value))}
+                            type="number"
+                            placeholder="Durée"
+                            style={{ ...sIA.input, width: 64 }}
+                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                          />
+                          <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>min</span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Exercices */}
+                    {(jour.exercices ?? []).filter(ex => ex.nom).map((ex, eIndex) => (
+                      <div key={eIndex} style={{ paddingLeft: 'var(--s4)', borderLeft: '2px solid var(--sand)', marginBottom: 8 }}>
+                        {isPublished ? (
+                          <div style={{ display: 'flex', gap: 'var(--s3)', flexWrap: 'wrap', alignItems: 'baseline' }}>
+                            <span style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', fontWeight: 500 }}>{ex.nom}</span>
+                            <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>{ex.series}×{ex.reps} · repos {ex.repos}</span>
+                            {ex.commentaire && <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontStyle: 'italic' }}>{ex.commentaire}</span>}
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                            <input
+                              value={ex.nom ?? ''}
+                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'nom', e.target.value)}
+                              placeholder="Exercice…"
+                              style={{ ...sIA.input, flex: 2, minWidth: 120 }}
+                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                            />
+                            <input
+                              value={ex.series ?? ''}
+                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'series', Number(e.target.value))}
+                              type="number"
+                              placeholder="Séries"
+                              style={{ ...sIA.input, width: 56 }}
+                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                            />
+                            <input
+                              value={ex.reps ?? ''}
+                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'reps', e.target.value)}
+                              placeholder="Reps"
+                              style={{ ...sIA.input, width: 72 }}
+                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                            />
+                            <input
+                              value={ex.repos ?? ''}
+                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'repos', e.target.value)}
+                              placeholder="Repos"
+                              style={{ ...sIA.input, width: 72 }}
+                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Publish CTA at bottom */}
+      {!isPublished && (
+        <div style={{ paddingTop: 'var(--s4)', borderTop: '1px solid var(--sand)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-start' }}>
+          <Button variant="terracotta" loading={publishing} onClick={handlePublish}>
+            Valider et publier sur son profil ✦
+          </Button>
+          {pubError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubError}</p>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const sIA = {
+  card: {
+    background: 'var(--white)', border: '1px solid var(--sand)',
+    borderRadius: 'var(--r-lg)', padding: 'var(--s6)',
+    boxShadow: 'var(--sh-sm)',
+  },
+  cardTitle: {
+    fontFamily: 'var(--serif)', fontSize: 'var(--tx-lg)',
+    fontWeight: 400, color: 'var(--earth)',
+    marginBottom: 'var(--s4)', paddingBottom: 'var(--s3)',
+    borderBottom: '1px solid var(--sand)',
+  },
+  textarea: {
+    width: '100%', resize: 'vertical',
+    border: '1px solid var(--sand)', borderRadius: 'var(--r-sm)',
+    padding: 'var(--s4)', background: 'var(--cream)',
+    color: 'var(--earth)', fontSize: 'var(--tx-sm)',
+    lineHeight: 1.7, outline: 'none',
+    fontFamily: 'var(--sans)', transition: 'border-color 150ms ease',
+  },
+  input: {
+    border: '1px solid var(--sand)', borderRadius: 'var(--r-sm)',
+    padding: '8px var(--s3)', background: 'var(--cream)',
+    color: 'var(--earth)', fontSize: 'var(--tx-sm)',
+    outline: 'none', fontFamily: 'var(--sans)',
+    transition: 'border-color 150ms ease',
+  },
+  semaineCard: {
+    background: 'var(--white)', border: '1px solid var(--sand)',
+    borderRadius: 'var(--r-lg)', overflow: 'hidden', boxShadow: 'var(--sh-sm)',
+  },
+  semaineHeader: {
+    width: '100%', display: 'flex', alignItems: 'center',
+    justifyContent: 'space-between', padding: 'var(--s4) var(--s5)',
+    background: 'var(--cream)', border: 'none', cursor: 'pointer',
+    textAlign: 'left', borderBottom: '1px solid var(--sand)',
+  },
 }
 
 const s = {

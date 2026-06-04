@@ -10,7 +10,9 @@ import {
   saveIntakeResponses,
   completeOnboarding,
   createCoachNotification,
+  saveAiProgramme,
 } from '../../lib/supabase.js'
+import { generateProgramme } from '../../lib/anthropic.js'
 import Button               from '../../components/Button.jsx'
 import LysaQuote            from '../../components/LysaQuote.jsx'
 import IntakeQuestionnaire  from './IntakeQuestionnaire.jsx'
@@ -229,6 +231,22 @@ export default function Onboarding() {
                       'questionnaire_submitted'
                     )
                   } catch {}
+                }
+                // Génération IA en arrière-plan (fire & forget)
+                if (!IS_MOCK && user) {
+                  generateProgramme(intake)
+                    .then(result => saveAiProgramme(user.id, result))
+                    .then(() => {
+                      if (profile?.coach_id) {
+                        createCoachNotification(
+                          profile.coach_id,
+                          user.id,
+                          `Programme IA de ${prenom} généré — en attente de validation ✦`,
+                          'programme_generated'
+                        ).catch(() => {})
+                      }
+                    })
+                    .catch(err => console.error('[IA] Génération échouée :', err))
                 }
                 goToStep(5)
               }}
@@ -562,9 +580,10 @@ function SuccessScreen({ prenom }) {
         <h2 style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-4xl)', fontWeight: 300, color: 'var(--white)', marginBottom: 'var(--s4)' }}>
           Merci, {prenom}.
         </h2>
-        <p style={{ fontSize: 'var(--tx-lg)', color: 'rgba(245,240,232,0.75)', maxWidth: 420, lineHeight: 1.7 }}>
-          Ton onboarding est envoyé. Je te lis avec attention avant notre premier échange.
-          Ton programme commence maintenant.
+        <p style={{ fontSize: 'var(--tx-lg)', color: 'rgba(245,240,232,0.75)', maxWidth: 440, lineHeight: 1.7 }}>
+          Ton questionnaire a bien été reçu. Je le lis avec attention
+          et ton programme personnalisé sera disponible dans les 48h.
+          À très vite. — Lysa 🌿
         </p>
         <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--sage)', marginTop: 'var(--s6)', letterSpacing: '.08em' }}>
           Redirection vers ton tableau de bord…

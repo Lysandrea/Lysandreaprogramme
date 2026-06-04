@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate }         from 'react-router-dom'
 import { useAuth }             from '../../contexts/AuthContext.jsx'
-import { IS_MOCK, fetchBilansJourNums, fetchOnboardingProgress } from '../../lib/supabase.js'
+import { IS_MOCK, fetchBilansJourNums, fetchOnboardingProgress, fetchAiProgramme } from '../../lib/supabase.js'
 import Sidebar   from '../../components/Sidebar.jsx'
 import Topbar    from '../../components/Topbar.jsx'
 import Card      from '../../components/Card.jsx'
@@ -9,9 +9,19 @@ import Button    from '../../components/Button.jsx'
 import LysaQuote from '../../components/LysaQuote.jsx'
 import { MOCK_BILANS_JOUR_NUMS, MOTIVATIONAL_MESSAGES } from '../../lib/mockData.js'
 
-const SEANCE_TITLES    = ['Mobilité & respiration','Force — membres inférieurs','Cardio doux + gainage','Force — membres supérieurs','Récupération active','Circuit complet','Repos actif']
-const SEANCE_DURATIONS = [35, 45, 40, 50, 30, 55, 20]
+const SEANCE_TITLES_DEFAULT    = ['Mobilité & respiration','Force — membres inférieurs','Cardio doux + gainage','Force — membres supérieurs','Récupération active','Circuit complet','Repos actif']
+const SEANCE_DURATIONS_DEFAULT = [35, 45, 40, 50, 30, 55, 20]
 const MIN_BILANS_TO_UNLOCK = 5
+
+function buildDayDataFromProgramme(programme) {
+  const map = {}
+  for (const sem of programme) {
+    for (const jour of sem.jours ?? []) {
+      map[jour.jour] = { titre: jour.nom, duree: jour.duree }
+    }
+  }
+  return map
+}
 
 /* Retourne un Set des numéros de semaine déverrouillées */
 function computeUnlockedWeeks(bilansJourNums) {
@@ -26,17 +36,18 @@ function computeUnlockedWeeks(bilansJourNums) {
 }
 
 /* Construit les 56 jours avec status : 'done' | 'available' | 'locked' */
-function buildDays(bilansJourNums = []) {
+function buildDays(bilansJourNums = [], aiDayData = {}) {
   const unlocked = computeUnlockedWeeks(bilansJourNums)
   return Array.from({ length: 56 }, (_, i) => {
     const jour    = i + 1
     const semaine = Math.ceil(jour / 7)
     const done    = bilansJourNums.includes(jour)
+    const ai      = aiDayData[jour]
     return {
       jour,
       semaine,
-      titre:  SEANCE_TITLES[(jour - 1) % 7],
-      duree:  SEANCE_DURATIONS[(jour - 1) % 7],
+      titre:  ai?.titre ?? SEANCE_TITLES_DEFAULT[(jour - 1) % 7],
+      duree:  ai?.duree ?? SEANCE_DURATIONS_DEFAULT[(jour - 1) % 7],
       status: done ? 'done' : unlocked.has(semaine) ? 'available' : 'locked',
     }
   })
@@ -58,11 +69,15 @@ export default function ClienteDashboard() {
       .then(prog => {
         if (!prog?.completed) { navigate('/onboarding'); return null }
         if (IS_MOCK) { setLoading(false); return null }
-        return fetchBilansJourNums(user.id)
+        return Promise.all([fetchBilansJourNums(user.id), fetchAiProgramme(user.id)])
       })
-      .then(bilansJourNums => {
-        if (bilansJourNums == null) return
-        setDays(buildDays(bilansJourNums))
+      .then(result => {
+        if (result == null) return
+        const [bilansJourNums, aiProg] = result
+        const aiDayData = aiProg?.statut === 'publie'
+          ? buildDayDataFromProgramme(aiProg.programme ?? [])
+          : {}
+        setDays(buildDays(bilansJourNums, aiDayData))
         setLoading(false)
       })
       .catch(err => {
