@@ -10,7 +10,6 @@ import {
   saveIntakeResponses,
   completeOnboarding,
   createCoachNotification,
-  saveAiProgramme,
 } from '../../lib/supabase.js'
 import { generateProgramme } from '../../lib/anthropic.js'
 import Button               from '../../components/Button.jsx'
@@ -232,16 +231,12 @@ export default function Onboarding() {
                     )
                   } catch {}
                 }
-                // Génération IA en arrière-plan (fire & forget)
+                // Génération IA via Edge Function (fire & forget)
                 if (!IS_MOCK && user) {
-                  console.log('[Onboarding] Déclenchement génération IA — user:', user.id)
-                  generateProgramme(intake)
-                    .then(result => {
-                      console.log('[Onboarding] Génération IA réussie → sauvegarde Supabase')
-                      return saveAiProgramme(user.id, result)
-                    })
+                  console.log('[Onboarding] Déclenchement Edge Function — user:', user.id)
+                  generateProgramme(intake, user.id)
                     .then(() => {
-                      console.log('[Onboarding] Programme sauvegardé dans ai_programmes ✓')
+                      console.log('[Onboarding] Programme IA généré et sauvegardé ✓')
                       if (profile?.coach_id) {
                         createCoachNotification(
                           profile.coach_id,
@@ -253,7 +248,6 @@ export default function Onboarding() {
                     })
                     .catch(err => {
                       console.error('[Onboarding] ERREUR génération IA:', err?.message ?? err)
-                      console.error('[Onboarding] Détails:', err)
                     })
                 }
                 goToStep(5)
