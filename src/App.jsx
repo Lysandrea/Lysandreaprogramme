@@ -15,6 +15,7 @@ import Podcasts       from './pages/cliente/Podcasts.jsx'
 import Recettes       from './pages/cliente/Recettes.jsx'
 import LettreFin      from './pages/cliente/LettreFin.jsx'
 import Avis           from './pages/cliente/Avis.jsx'
+import Attente        from './pages/cliente/Attente.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
 
@@ -58,6 +59,11 @@ export default function App() {
       {/* Onboarding (cliente only, no onboarding check — this IS the onboarding) */}
       <Route path="/onboarding" element={
         <ProtectedRoute allow="cliente"><Onboarding /></ProtectedRoute>
+      } />
+
+      {/* Waiting page after onboarding */}
+      <Route path="/attente" element={
+        <ProtectedRoute allow="cliente"><Attente /></ProtectedRoute>
       } />
 
       {/* Cliente (protected — Dashboard handles onboarding redirect internally) */}

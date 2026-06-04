@@ -147,8 +147,7 @@ export default function Onboarding() {
           }
         } catch {}                       // erreur Supabase → on continue quand même
       }
-      setDone(true)
-      setTimeout(() => navigate('/dashboard'), 3000)
+      navigate('/attente')
     } catch (e) {
       console.error(e)
       setSubmitting(false)
