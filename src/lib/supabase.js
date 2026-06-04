@@ -308,8 +308,8 @@ export async function fetchAiProgramme(clienteId) {
     .from('ai_programmes')
     .select('*')
     .eq('cliente_id', clienteId)
-    .single()
-  if (error && error.code !== 'PGRST116') throw error
+    .maybeSingle()
+  if (error) throw error
   return data ?? null
 }
 
