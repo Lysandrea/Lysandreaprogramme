@@ -234,9 +234,14 @@ export default function Onboarding() {
                 }
                 // Génération IA en arrière-plan (fire & forget)
                 if (!IS_MOCK && user) {
+                  console.log('[Onboarding] Déclenchement génération IA — user:', user.id)
                   generateProgramme(intake)
-                    .then(result => saveAiProgramme(user.id, result))
+                    .then(result => {
+                      console.log('[Onboarding] Génération IA réussie → sauvegarde Supabase')
+                      return saveAiProgramme(user.id, result)
+                    })
                     .then(() => {
+                      console.log('[Onboarding] Programme sauvegardé dans ai_programmes ✓')
                       if (profile?.coach_id) {
                         createCoachNotification(
                           profile.coach_id,
@@ -246,7 +251,10 @@ export default function Onboarding() {
                         ).catch(() => {})
                       }
                     })
-                    .catch(err => console.error('[IA] Génération échouée :', err))
+                    .catch(err => {
+                      console.error('[Onboarding] ERREUR génération IA:', err?.message ?? err)
+                      console.error('[Onboarding] Détails:', err)
+                    })
                 }
                 goToStep(5)
               }}

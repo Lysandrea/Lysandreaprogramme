@@ -46,38 +46,59 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
 Le programme doit avoir exactement 8 semaines. Chaque semaine doit avoir des jours de séance adaptés à la fréquence indiquée par la cliente (les jours sans séance peuvent avoir duree:0 et exercices vides avec un type "repos"). Génère des exercices réalistes et progressifs semaine par semaine.`
 
 export async function generateProgramme(clienteData) {
+  const keyPreview = ANTHROPIC_API_KEY
+    ? `${ANTHROPIC_API_KEY.slice(0, 16)}...`
+    : 'NON DÉFINIE'
+  console.log('[AI] generateProgramme démarré')
+  console.log('[AI] Clé API :', keyPreview)
+  console.log('[AI] Cliente :', clienteData?.prenom_surnom ?? '(sans prénom)')
+
   if (!ANTHROPIC_API_KEY || ANTHROPIC_API_KEY === '***') {
-    throw new Error('Clé API Anthropic non configurée. Ajoute VITE_ANTHROPIC_API_KEY dans .env.local')
+    throw new Error(
+      'Clé API Anthropic non configurée — redémarre le serveur Vite après avoir mis VITE_ANTHROPIC_API_KEY dans .env.local'
+    )
   }
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8192,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: 'user',
-          content: `Voici le questionnaire complet de la nouvelle cliente :\n\n${JSON.stringify(clienteData, null, 2)}`,
-        },
-      ],
-    }),
-  })
+  console.log('[AI] Envoi requête à api.anthropic.com...')
+
+  let response
+  try {
+    response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 8192,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: `Voici le questionnaire complet de la nouvelle cliente :\n\n${JSON.stringify(clienteData, null, 2)}`,
+          },
+        ],
+      }),
+    })
+  } catch (networkErr) {
+    console.error('[AI] Erreur réseau (CORS ?):', networkErr)
+    throw new Error(`Erreur réseau : ${networkErr.message}`)
+  }
+
+  console.log('[AI] Réponse reçue — status:', response.status)
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}))
+    console.error('[AI] Erreur API:', response.status, err)
     throw new Error(err?.error?.message ?? `Erreur API Anthropic (${response.status})`)
   }
 
   const data = await response.json()
   const text = data.content?.[0]?.text ?? ''
+  console.log('[AI] Texte reçu — longueur:', text.length, 'chars')
 
   let jsonText = text.trim()
   if (jsonText.startsWith('```')) {
@@ -85,10 +106,14 @@ export async function generateProgramme(clienteData) {
   }
 
   try {
-    return JSON.parse(jsonText)
+    const parsed = JSON.parse(jsonText)
+    console.log('[AI] JSON parsé ✓ — semaines:', parsed.programme?.length ?? 0)
+    return parsed
   } catch {
     const match = jsonText.match(/\{[\s\S]*\}/)
-    if (!match) throw new Error('Réponse IA invalide — JSON non trouvé')
-    return JSON.parse(match[0])
+    if (!match) throw new Error('Réponse IA invalide — JSON non trouvé dans la réponse')
+    const parsed = JSON.parse(match[0])
+    console.log('[AI] JSON extrait ✓ — semaines:', parsed.programme?.length ?? 0)
+    return parsed
   }
 }
