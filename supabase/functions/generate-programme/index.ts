@@ -8,13 +8,18 @@ const corsHeaders = {
 const SYSTEM_PROMPT = `Tu es Lysa Andréa, coach sportif spécialisée dans l'accompagnement des femmes qui ont un rapport difficile à leur corps.
 Tu dois analyser le questionnaire d'une nouvelle cliente et générer :
 1. Un profil résumé (ses blocages, son profil émotionnel, le ton à adopter, ses forces)
-2. La semaine 1 du programme en détail complet (7 jours avec exercices)
-3. Les semaines 2 à 8 en résumé uniquement (theme + intention, sans exercices)
-4. 3 questions de bilan du soir personnalisées pour elle
+2. 3 questions de bilan du soir personnalisées pour elle
+3. La semaine 1 du programme : 3 séances détaillées uniquement (pas les jours de repos)
+4. Les semaines 2 à 8 en résumé uniquement (theme + intention, sans exercices)
 
 Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
 {
-  "profil_resume": "string",
+  "profil_resume": "string (3-4 phrases max)",
+  "questions_personnalisees": [
+    { "question": "string", "placeholder": "string" },
+    { "question": "string", "placeholder": "string" },
+    { "question": "string", "placeholder": "string" }
+  ],
   "programme": [
     {
       "semaine": 1,
@@ -24,9 +29,9 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
         {
           "jour": 1,
           "nom": "string",
-          "duree": 45,
+          "duree": 40,
           "type": "string",
-          "intention": "string",
+          "intention": "string (1 phrase)",
           "exercices": [
             {
               "nom": "string",
@@ -47,19 +52,42 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
       "intention": "string",
       "jours": []
     }
-  ],
-  "questions_personnalisees": [
-    { "question": "string", "placeholder": "string" },
-    { "question": "string", "placeholder": "string" },
-    { "question": "string", "placeholder": "string" }
   ]
 }
 
-IMPORTANT :
-- La semaine 1 doit avoir 7 jours détaillés avec exercices (les jours de repos ont duree:0 et exercices:[]).
-- Les semaines 2 à 8 ont uniquement "semaine", "theme", "intention" et "jours": [] (tableau vide).
-- Le tableau "programme" doit contenir exactement 8 objets (semaines 1 à 8).
-- Génère des exercices réalistes pour la semaine 1, adaptés au niveau et au matériel de la cliente.`
+CONTRAINTES STRICTES (respect du budget de tokens) :
+- profil_resume : 3-4 phrases maximum.
+- questions_personnalisees : exactement 3 questions, courtes.
+- Semaine 1 : exactement 3 objets dans "jours" (les 3 séances, sans les jours de repos).
+- Chaque séance de semaine 1 : 4 exercices maximum.
+- Semaines 2 à 8 : uniquement "semaine", "theme", "intention" et "jours": []. Pas d'exercices.
+- Le tableau "programme" contient exactement 8 objets (semaines 1 à 8).
+- Sois concise. Chaque string doit être courte et précise.`
+
+// Closes any open brackets/strings left by a truncated JSON response
+function repairAndParseJson(text: string): unknown {
+  let inString = false
+  let escape = false
+  const stack: string[] = []
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]
+    if (escape)              { escape = false; continue }
+    if (ch === '\\' && inString) { escape = true; continue }
+    if (ch === '"')          { inString = !inString; continue }
+    if (inString)            continue
+    if (ch === '{')          stack.push('}')
+    else if (ch === '[')     stack.push(']')
+    else if (ch === '}' || ch === ']') stack.pop()
+  }
+
+  let repaired = text.trimEnd()
+  // Close any open string literal
+  if (inString) repaired += '"'
+  // Close any remaining open objects / arrays
+  repaired += stack.reverse().join('')
+  return JSON.parse(repaired)
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -95,7 +123,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4096,
+        max_tokens: 8192,
         system: SYSTEM_PROMPT,
         messages: [
           {
@@ -112,8 +140,12 @@ Deno.serve(async (req) => {
     }
 
     const anthropicData = await anthropicRes.json()
+    const stopReason: string = anthropicData.stop_reason ?? 'unknown'
     const text: string = anthropicData.content?.[0]?.text ?? ''
-    console.log('[generate-programme] Réponse reçue — longueur:', text.length)
+    console.log('[generate-programme] Réponse reçue — longueur:', text.length, '— stop_reason:', stopReason)
+    if (stopReason === 'max_tokens') {
+      console.warn('[generate-programme] ATTENTION : réponse tronquée (max_tokens atteint)')
+    }
 
     let jsonText = text.trim()
     if (jsonText.startsWith('```')) {
@@ -123,10 +155,17 @@ Deno.serve(async (req) => {
     let result
     try {
       result = JSON.parse(jsonText)
-    } catch {
-      const match = jsonText.match(/\{[\s\S]*\}/)
-      if (!match) throw new Error('Réponse IA invalide — JSON non trouvé')
-      result = JSON.parse(match[0])
+    } catch (firstErr) {
+      console.warn('[generate-programme] JSON.parse direct échoué, tentative de réparation…')
+      // Try to extract the outermost {...} block first
+      const match = jsonText.match(/\{[\s\S]*/)
+      const candidate = match ? match[0] : jsonText
+      try {
+        result = repairAndParseJson(candidate)
+        console.log('[generate-programme] JSON réparé ✓')
+      } catch {
+        throw new Error(`Réponse IA invalide — JSON non parsable: ${(firstErr as Error).message}`)
+      }
     }
 
     console.log('[generate-programme] JSON parsé ✓ — semaines:', result.programme?.length ?? 0)
