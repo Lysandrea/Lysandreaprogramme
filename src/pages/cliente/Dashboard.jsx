@@ -14,10 +14,17 @@ const MIN_BILANS_TO_UNLOCK = 5
 function buildDayDataFromProgramme(programme) {
   const map = {}
   for (const sem of programme) {
-    for (const jour of sem.jours ?? []) {
-      map[jour.jour] = { titre: jour.nom, duree: jour.duree }
+    const joursSem = sem.jours ?? []
+    if (sem.semaine === 1) {
+      console.log('[Dashboard] Semaine 1 jours:', joursSem.map(j => ({ jour: j.jour, nom: j.nom })))
+    }
+    for (const jour of joursSem) {
+      // Convert within-week jour number to absolute day (works whether AI uses 1-indexed or already absolute)
+      const absoluteDay = (sem.semaine - 1) * 7 + jour.jour
+      map[absoluteDay] = { titre: jour.nom, duree: jour.duree }
     }
   }
+  console.log('[Dashboard] aiDayData keys (absolute days with séances):', Object.keys(map).map(Number))
   return map
 }
 
@@ -39,12 +46,14 @@ function buildDays(bilansJourNums = [], aiDayData = {}) {
     const semaine = Math.ceil(jour / 7)
     const done    = bilansJourNums.includes(jour)
     const ai      = aiDayData[jour]
+    const isUnlocked = unlocked.has(semaine)
     return {
       jour,
       semaine,
-      titre:  ai?.titre ?? '',
+      titre:  ai?.titre ?? (isUnlocked ? 'Repos' : ''),
       duree:  ai?.duree ?? 0,
-      status: done ? 'done' : unlocked.has(semaine) ? 'available' : 'locked',
+      isRest: !ai && isUnlocked,
+      status: done ? 'done' : isUnlocked ? 'available' : 'locked',
     }
   })
 }
@@ -101,7 +110,7 @@ export default function ClienteDashboard() {
 
   const currentWeek    = Math.max(...days.filter(d => d.status !== 'locked').map(d => d.semaine))
   const bilansThisWeek = days.filter(d => d.semaine === currentWeek && d.status === 'done').length
-  const nextAvailable  = days.find(d => d.status === 'available')
+  const nextAvailable  = days.find(d => d.status === 'available' && !d.isRest)
 
   return (
     <div className="shell">
@@ -236,31 +245,38 @@ function DayCell({ day, onSelect }) {
   const done      = day.status === 'done'
   const available = day.status === 'available'
   const locked    = day.status === 'locked'
+  const isRest    = day.isRest
 
   return (
     <div
-      onClick={() => !locked && onSelect(day.jour)}
+      onClick={() => !locked && !isRest && onSelect(day.jour)}
       title={locked ? `J${day.jour} — semaine verrouillée` : `J${day.jour} — ${day.titre}`}
       style={{
-        background: done      ? 'rgba(107,127,94,.12)'
+        background: done    ? 'rgba(107,127,94,.12)'
+                  : isRest  ? 'rgba(196,181,160,.08)'
                   : available ? 'rgba(192,120,96,.06)'
                   : 'rgba(196,181,160,.15)',
-        border: `1px solid ${done ? 'var(--sage)' : available ? 'rgba(192,120,96,.4)' : 'var(--sand)'}`,
+        border: `1px solid ${done ? 'var(--sage)' : isRest ? 'var(--sand)' : available ? 'rgba(192,120,96,.4)' : 'var(--sand)'}`,
         borderRadius: 'var(--r-md)', padding: '10px 8px',
-        cursor: locked ? 'default' : 'pointer', opacity: locked ? .4 : 1,
+        cursor: locked || isRest ? 'default' : 'pointer', opacity: locked ? .4 : isRest ? .6 : 1,
         display: 'flex', flexDirection: 'column', gap: 3,
         transition: 'transform var(--ease-fast)',
       }}
-      onMouseEnter={e => { if (!locked) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--sh-sm)' } }}
+      onMouseEnter={e => { if (!locked && !isRest) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--sh-sm)' } }}
       onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '' }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.06em', color: done ? 'var(--moss)' : available ? 'var(--terracotta)' : 'var(--stone)' }}>
+        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.06em', color: done ? 'var(--moss)' : available && !isRest ? 'var(--terracotta)' : 'var(--stone)' }}>
           J{day.jour}
         </span>
-        <span style={{ fontSize: 11 }}>{done ? '✓' : locked ? '🔒' : '→'}</span>
+        <span style={{ fontSize: 11 }}>{done ? '✓' : locked ? '🔒' : isRest ? '—' : '→'}</span>
       </div>
-      <p style={{ fontSize: 10, lineHeight: 1.3, color: done ? 'var(--earth)' : available ? 'var(--bark)' : 'var(--stone)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <p style={{
+        fontSize: 10, lineHeight: 1.3,
+        color: done ? 'var(--earth)' : available && !isRest ? 'var(--bark)' : 'var(--stone)',
+        overflow: 'hidden',
+        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+      }}>
         {day.titre}
       </p>
     </div>
@@ -284,7 +300,7 @@ const s = {
   todayTitle:      { fontFamily: 'var(--serif)', fontSize: 'var(--tx-2xl)', fontWeight: 400, color: 'var(--earth)' },
   todayDuree:      { fontSize: 'var(--tx-sm)', color: 'var(--bark)', marginTop: 4 },
   sectionTitle:    { fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)', fontWeight: 400, color: 'var(--earth)', marginBottom: 'var(--s3)' },
-  grid:            { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(92px, 1fr))', gap: 'var(--s2)' },
+  grid:            { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 'var(--s2)' },
   waitBanner:      {
     background: 'var(--forest)',
     borderRadius: 'var(--r-xl)', padding: 'var(--s8)',
