@@ -9,15 +9,15 @@ const QUOTES = [
   { text: "Prendre soin de soi est un acte de courage.",       },
 ]
 
-export default function LysaQuote({ index, style: extra }) {
-  const q = QUOTES[(index ?? 0) % QUOTES.length]
+export default function LysaQuote({ index, quote, style: extra }) {
+  const text = quote ?? QUOTES[(index ?? 0) % QUOTES.length].text
   return (
     <blockquote style={{ borderLeft: '2px solid var(--sage)', paddingLeft: 'var(--s5)', ...extra }}>
       <p style={{
         fontFamily: 'var(--serif)', fontStyle: 'italic',
         fontSize: 'var(--tx-lg)', fontWeight: 300, color: 'var(--earth)', lineHeight: 1.55,
       }}>
-        "{q.text}"
+        "{text}"
       </p>
       <cite style={{
         display: 'block', marginTop: 'var(--s2)',

@@ -34,11 +34,28 @@ export default function CoachDashboard() {
   }, [user])
 
   const clienteMap  = Object.fromEntries(clientes.map(c => [c.id, c.prenom ?? 'Cliente']))
-  const unreadNotifs = notifications.filter(n => !n.read)
+
+  /* Group notifications by cliente — keep most recent, track count */
+  const groupedNotifs = Object.values(
+    notifications.reduce((acc, n) => {
+      const key = n.cliente_id
+      if (!acc[key] || n.created_at > acc[key].created_at) {
+        acc[key] = { ...n, count: (acc[key]?.count ?? 0) + 1 }
+      } else {
+        acc[key] = { ...acc[key], count: acc[key].count + 1 }
+      }
+      return acc
+    }, {})
+  ).sort((a, b) => b.created_at.localeCompare(a.created_at))
+
+  const unreadNotifs = groupedNotifs.filter(n => !n.read)
 
   function handleMarkRead(notifId) {
-    markNotificationRead(notifId).catch(console.error)
-    setNotifications(prev => prev.map(n => n.id === notifId ? { ...n, read: true } : n))
+    /* Mark all notifications from same cliente read */
+    const clienteId = notifications.find(n => n.id === notifId)?.cliente_id
+    const ids = clienteId ? notifications.filter(n => n.cliente_id === clienteId).map(n => n.id) : [notifId]
+    ids.forEach(id => markNotificationRead(id).catch(console.error))
+    setNotifications(prev => prev.map(n => ids.includes(n.id) ? { ...n, read: true } : n))
   }
 
   const actives    = clientes.filter(c => c.status === 'active').length
@@ -55,18 +72,18 @@ export default function CoachDashboard() {
           {/* Notifications */}
           {!IS_MOCK && (
             <Card title={`🔔 Notifications${unreadNotifs.length > 0 ? ` · ${unreadNotifs.length} non lue${unreadNotifs.length > 1 ? 's' : ''}` : ''}`}>
-              {notifications.length === 0 ? (
+              {groupedNotifs.length === 0 ? (
                 <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)', padding: 'var(--s2) 0' }}>
                   Tout est à jour ✓
                 </p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {notifications.map((n, i) => (
+                  {groupedNotifs.map((n, i) => (
                     <NotifRow
                       key={n.id}
                       n={n}
                       prenom={clienteMap[n.cliente_id] ?? 'Cliente'}
-                      isLast={i === notifications.length - 1}
+                      isLast={i === groupedNotifs.length - 1}
                       onRead={handleMarkRead}
                       onView={() => navigate(`/coach/cliente/${n.cliente_id}`, { state: { tab: 'questionnaire' } })}
                     />
@@ -114,6 +131,7 @@ function NotifRow({ n, prenom, isLast, onRead, onView }) {
   const dateStr = new Date(n.created_at).toLocaleDateString('fr-FR', {
     day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
   })
+  const count = n.count ?? 1
 
   return (
     <div style={{
@@ -129,7 +147,9 @@ function NotifRow({ n, prenom, isLast, onRead, onView }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', fontWeight: n.read ? 400 : 500 }}>
           <span style={{ fontWeight: 600 }}>{prenom}</span>
-          {' '}a soumis son questionnaire
+          {count > 1
+            ? ` — ${count} soumissions`
+            : ' a soumis son questionnaire'}
         </p>
         <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', marginTop: 2 }}>{dateStr}</p>
       </div>

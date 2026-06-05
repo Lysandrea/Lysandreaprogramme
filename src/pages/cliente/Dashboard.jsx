@@ -7,10 +7,8 @@ import Topbar    from '../../components/Topbar.jsx'
 import Card      from '../../components/Card.jsx'
 import Button    from '../../components/Button.jsx'
 import LysaQuote from '../../components/LysaQuote.jsx'
-import { MOCK_BILANS_JOUR_NUMS, MOTIVATIONAL_MESSAGES } from '../../lib/mockData.js'
+import { MOTIVATIONAL_MESSAGES } from '../../lib/mockData.js'
 
-const SEANCE_TITLES_DEFAULT    = ['Mobilité & respiration','Force — membres inférieurs','Cardio doux + gainage','Force — membres supérieurs','Récupération active','Circuit complet','Repos actif']
-const SEANCE_DURATIONS_DEFAULT = [35, 45, 40, 50, 30, 55, 20]
 const MIN_BILANS_TO_UNLOCK = 5
 
 function buildDayDataFromProgramme(programme) {
@@ -23,7 +21,6 @@ function buildDayDataFromProgramme(programme) {
   return map
 }
 
-/* Retourne un Set des numéros de semaine déverrouillées */
 function computeUnlockedWeeks(bilansJourNums) {
   const weeks = new Set([1])
   for (let w = 2; w <= 8; w++) {
@@ -35,7 +32,6 @@ function computeUnlockedWeeks(bilansJourNums) {
   return weeks
 }
 
-/* Construit les 56 jours avec status : 'done' | 'available' | 'locked' */
 function buildDays(bilansJourNums = [], aiDayData = {}) {
   const unlocked = computeUnlockedWeeks(bilansJourNums)
   return Array.from({ length: 56 }, (_, i) => {
@@ -46,8 +42,8 @@ function buildDays(bilansJourNums = [], aiDayData = {}) {
     return {
       jour,
       semaine,
-      titre:  ai?.titre ?? SEANCE_TITLES_DEFAULT[(jour - 1) % 7],
-      duree:  ai?.duree ?? SEANCE_DURATIONS_DEFAULT[(jour - 1) % 7],
+      titre:  ai?.titre ?? '',
+      duree:  ai?.duree ?? 0,
       status: done ? 'done' : unlocked.has(semaine) ? 'available' : 'locked',
     }
   })
@@ -59,8 +55,9 @@ export default function ClienteDashboard() {
   const prenom            = profile?.prenom ?? 'toi'
   const motivation        = MOTIVATIONAL_MESSAGES[new Date().getDay() % MOTIVATIONAL_MESSAGES.length]
 
-  const [days,    setDays]    = useState(() => buildDays(IS_MOCK ? MOCK_BILANS_JOUR_NUMS : []))
-  const [loading, setLoading] = useState(true)
+  const [loading,        setLoading]        = useState(true)
+  const [programmePublie, setProgrammePublie] = useState(null)
+  const [days,           setDays]           = useState([])
 
   useEffect(() => {
     if (!user) return
@@ -74,10 +71,11 @@ export default function ClienteDashboard() {
       .then(result => {
         if (result == null) return
         const [bilansJourNums, aiProg] = result
-        const aiDayData = aiProg?.statut === 'publie'
-          ? buildDayDataFromProgramme(aiProg.programme ?? [])
-          : {}
-        setDays(buildDays(bilansJourNums, aiDayData))
+        if (aiProg?.statut === 'publie') {
+          setProgrammePublie(aiProg)
+          const aiDayData = buildDayDataFromProgramme(aiProg.programme ?? [])
+          setDays(buildDays(bilansJourNums, aiDayData))
+        }
         setLoading(false)
       })
       .catch(err => {
@@ -85,11 +83,6 @@ export default function ClienteDashboard() {
         navigate('/onboarding')
       })
   }, [user]) // eslint-disable-line
-
-  /* Semaine courante = semaine la plus haute déverrouillée */
-  const currentWeek      = Math.max(...days.filter(d => d.status !== 'locked').map(d => d.semaine))
-  const bilansThisWeek   = days.filter(d => d.semaine === currentWeek && d.status === 'done').length
-  const nextAvailable    = days.find(d => d.status === 'available')
 
   if (loading) {
     return (
@@ -101,6 +94,14 @@ export default function ClienteDashboard() {
       </div>
     )
   }
+
+  if (!programmePublie) {
+    return <WaitingState prenom={prenom} />
+  }
+
+  const currentWeek    = Math.max(...days.filter(d => d.status !== 'locked').map(d => d.semaine))
+  const bilansThisWeek = days.filter(d => d.semaine === currentWeek && d.status === 'done').length
+  const nextAvailable  = days.find(d => d.status === 'available')
 
   return (
     <div className="shell">
@@ -159,6 +160,54 @@ export default function ClienteDashboard() {
           </div>
 
           <LysaQuote index={nextAvailable?.jour ?? 1} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function WaitingState({ prenom }) {
+  const navigate = useNavigate()
+  return (
+    <div className="shell">
+      <Sidebar />
+      <div className="shell-main">
+        <Topbar title={`Bonjour ${prenom} ✦`} subtitle="Ton espace" />
+        <div className="shell-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s6)' }}>
+
+          {/* ── Carte d'attente ── */}
+          <div style={s.waitBanner}>
+            <h2 style={s.waitTitle}>Ton programme arrive. 🌿</h2>
+            <p style={s.waitText}>
+              Lysa prépare ton programme personnalisé.{' '}
+              Tu seras notifiée dès qu'il est disponible —{' '}
+              en général dans les 48h.
+            </p>
+          </div>
+
+          {/* ── Deux cartes d'invitation ── */}
+          <div style={s.inviteGrid}>
+            <Card style={s.inviteCard}>
+              <p style={s.inviteIcon}>🎙️</p>
+              <h3 style={s.inviteCardTitle}>Ta première ressource t'attend</h3>
+              <p style={s.inviteCardText}>
+                Un épisode a été débloqué pour toi.{' '}
+                Écoute-le quand tu veux.
+              </p>
+              <Button onClick={() => navigate('/podcasts')}>Voir mes podcasts →</Button>
+            </Card>
+            <Card style={s.inviteCard}>
+              <p style={s.inviteIcon}>🍲</p>
+              <h3 style={s.inviteCardTitle}>Une recette pour bien démarrer</h3>
+              <p style={s.inviteCardText}>
+                Ta première recette est disponible.{' '}
+                Simple, bonne, pensée pour toi.
+              </p>
+              <Button onClick={() => navigate('/recettes')}>Voir mes recettes →</Button>
+            </Card>
+          </div>
+
+          <LysaQuote quote="Le programme commence avant même la première séance. Il commence maintenant, dans ce choix que tu as fait." />
         </div>
       </div>
     </div>
@@ -236,4 +285,16 @@ const s = {
   todayDuree:      { fontSize: 'var(--tx-sm)', color: 'var(--bark)', marginTop: 4 },
   sectionTitle:    { fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)', fontWeight: 400, color: 'var(--earth)', marginBottom: 'var(--s3)' },
   grid:            { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(92px, 1fr))', gap: 'var(--s2)' },
+  waitBanner:      {
+    background: 'var(--forest)',
+    borderRadius: 'var(--r-xl)', padding: 'var(--s8)',
+    width: '100%', boxSizing: 'border-box',
+  },
+  waitTitle:       { fontFamily: 'var(--serif)', fontSize: 'var(--tx-3xl)', fontWeight: 300, color: 'var(--white)', marginBottom: 'var(--s3)' },
+  waitText:        { fontSize: 'var(--tx-sm)', color: 'rgba(245,240,232,.8)', lineHeight: 1.65, maxWidth: 520 },
+  inviteGrid:      { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--s4)' },
+  inviteCard:      { display: 'flex', flexDirection: 'column', gap: 'var(--s3)' },
+  inviteIcon:      { fontSize: '2rem', margin: 0 },
+  inviteCardTitle: { fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)', fontWeight: 400, color: 'var(--earth)', margin: 0 },
+  inviteCardText:  { fontSize: 'var(--tx-sm)', color: 'var(--stone)', lineHeight: 1.55, margin: 0 },
 }
