@@ -14,17 +14,18 @@ const MIN_BILANS_TO_UNLOCK = 5
 function buildDayDataFromProgramme(programme) {
   const map = {}
   for (const sem of programme) {
+    const semNum   = Number(sem.semaine)
     const joursSem = sem.jours ?? []
-    if (sem.semaine === 1) {
-      console.log('[Dashboard] Semaine 1 jours:', joursSem.map(j => ({ jour: j.jour, nom: j.nom })))
-    }
     for (const jour of joursSem) {
-      // Convert within-week jour number to absolute day (works whether AI uses 1-indexed or already absolute)
-      const absoluteDay = (sem.semaine - 1) * 7 + jour.jour
-      map[absoluteDay] = { titre: jour.nom, duree: jour.duree }
+      const jourNum     = Number(jour.jour)
+      const titre       = jour.nom ?? jour.name ?? ''
+      if (!jourNum || isNaN(jourNum) || jourNum < 1 || jourNum > 7) continue
+      if (!titre) continue
+      const absoluteDay = (semNum - 1) * 7 + jourNum
+      if (absoluteDay < 1 || absoluteDay > 56) continue
+      map[absoluteDay] = { titre, duree: Number(jour.duree) || 0 }
     }
   }
-  console.log('[Dashboard] aiDayData keys (absolute days with séances):', Object.keys(map).map(Number))
   return map
 }
 
@@ -50,7 +51,7 @@ function buildDays(bilansJourNums = [], aiDayData = {}) {
     return {
       jour,
       semaine,
-      titre:  ai?.titre ?? (isUnlocked ? 'Repos' : ''),
+      titre:  ai?.titre ?? (isUnlocked ? 'Repos actif' : ''),
       duree:  ai?.duree ?? 0,
       isRest: !ai && isUnlocked,
       status: done ? 'done' : isUnlocked ? 'available' : 'locked',
