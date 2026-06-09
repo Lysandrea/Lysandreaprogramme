@@ -313,6 +313,27 @@ export async function fetchAiProgramme(clienteId) {
   return data ?? null
 }
 
+export async function fetchBilan(clienteId, jourNum) {
+  const { data, error } = await supabase
+    .from('bilans')
+    .select('*')
+    .eq('cliente_id', clienteId)
+    .eq('jour_num', jourNum)
+    .maybeSingle()
+  if (error) throw error
+  return data ?? null
+}
+
+export async function saveExercicesData(clienteId, jourNum, exercicesData) {
+  const { error } = await supabase
+    .from('bilans')
+    .upsert(
+      { cliente_id: clienteId, jour_num: jourNum, exercices_data: exercicesData },
+      { onConflict: 'cliente_id,jour_num' }
+    )
+  if (error) throw error
+}
+
 export async function saveAiProgramme(clienteId, { profil_resume, programme, questions_personnalisees }) {
   const { error } = await supabase
     .from('ai_programmes')

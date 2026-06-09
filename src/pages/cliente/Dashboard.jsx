@@ -164,7 +164,12 @@ export default function ClienteDashboard() {
             <WeekUnlockInfo days={days} currentWeek={currentWeek} />
             <div className="days-grid" style={s.grid}>
               {days.map(day => (
-                <DayCell key={day.jour} day={day} onSelect={id => navigate(`/jour/${id}`)} />
+                <DayCell
+                  key={day.jour}
+                  day={day}
+                  isCurrent={day.jour === nextAvailable?.jour}
+                  onSelect={id => navigate(`/jour/${id}`)}
+                />
               ))}
             </div>
           </div>
@@ -242,43 +247,61 @@ function WeekUnlockInfo({ days, currentWeek }) {
 }
 
 /* ── Cellule jour ── */
-function DayCell({ day, onSelect }) {
-  const done      = day.status === 'done'
-  const available = day.status === 'available'
-  const locked    = day.status === 'locked'
-  const isRest    = day.isRest
+function DayCell({ day, isCurrent, onSelect }) {
+  const done    = day.status === 'done'
+  const locked  = day.status === 'locked'
+  const isRest  = day.isRest
+  const clickable = !locked && !isRest
+
+  /* ── Visual state ── */
+  let bg, border, opacity, numColor, titleColor, icon
+  if (isCurrent) {
+    bg = 'var(--terracotta)'; border = '1px solid var(--terracotta)'; opacity = 1
+    numColor = 'rgba(255,255,255,.85)'; titleColor = 'var(--white)'; icon = '→'
+  } else if (done) {
+    bg = 'rgba(107,127,94,.13)'; border = '1px solid var(--sage)'; opacity = 1
+    numColor = 'var(--moss)'; titleColor = 'var(--earth)'; icon = '✓'
+  } else if (isRest) {
+    /* Repos actif — full opacity, clearly neutral, NOT locked */
+    bg = 'var(--cream)'; border = '1px solid var(--sand)'; opacity = 1
+    numColor = 'var(--stone)'; titleColor = 'var(--stone)'; icon = '—'
+  } else if (locked) {
+    /* Future locked week — clearly faded */
+    bg = 'rgba(196,181,160,.10)'; border = '1px solid var(--sand)'; opacity = 0.4
+    numColor = 'var(--stone)'; titleColor = 'var(--stone)'; icon = '🔒'
+  } else {
+    /* Available session (not current) */
+    bg = 'rgba(192,120,96,.06)'; border = '1px solid rgba(192,120,96,.35)'; opacity = 1
+    numColor = 'var(--terracotta)'; titleColor = 'var(--bark)'; icon = '→'
+  }
 
   return (
     <div
-      onClick={() => !locked && !isRest && onSelect(day.jour)}
+      onClick={() => clickable && onSelect(day.jour)}
       title={locked ? `J${day.jour} — semaine verrouillée` : `J${day.jour} — ${day.titre}`}
       style={{
-        background: done    ? 'rgba(107,127,94,.12)'
-                  : isRest  ? 'rgba(196,181,160,.08)'
-                  : available ? 'rgba(192,120,96,.06)'
-                  : 'rgba(196,181,160,.15)',
-        border: `1px solid ${done ? 'var(--sage)' : isRest ? 'var(--sand)' : available ? 'rgba(192,120,96,.4)' : 'var(--sand)'}`,
-        borderRadius: 'var(--r-md)', padding: '10px 8px',
-        cursor: locked || isRest ? 'default' : 'pointer', opacity: locked ? .4 : isRest ? .6 : 1,
+        background: bg, border, borderRadius: 'var(--r-md)',
+        padding: '10px 8px', opacity, cursor: clickable ? 'pointer' : 'default',
         display: 'flex', flexDirection: 'column', gap: 3,
         transition: 'transform var(--ease-fast)',
       }}
-      onMouseEnter={e => { if (!locked && !isRest) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--sh-sm)' } }}
+      onMouseEnter={e => { if (clickable) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--sh-sm)' } }}
       onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '' }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.06em', color: done ? 'var(--moss)' : available && !isRest ? 'var(--terracotta)' : 'var(--stone)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.06em', color: numColor }}>
           J{day.jour}
         </span>
-        <span style={{ fontSize: 11 }}>{done ? '✓' : locked ? '🔒' : isRest ? '—' : '→'}</span>
+        <span style={{ fontSize: isCurrent ? 12 : 11, color: isCurrent ? 'var(--white)' : undefined }}>
+          {icon}
+        </span>
       </div>
       <p style={{
-        fontSize: 10, lineHeight: 1.3,
-        color: done ? 'var(--earth)' : available && !isRest ? 'var(--bark)' : 'var(--stone)',
+        fontSize: 10, lineHeight: 1.3, color: titleColor,
         overflow: 'hidden',
         display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
       }}>
-        {day.titre}
+        {isCurrent ? day.titre : isRest ? 'Repos' : day.titre}
       </p>
     </div>
   )
