@@ -26,8 +26,8 @@ export default function RoueDeLaVie() {
     }
     fetchIntakeResponses(user.id)
       .then(rep => {
-        if (rep?.reponses?.roue_de_vie) setRoue(rep.reponses.roue_de_vie)
-        if (rep?.reponses?.roue_de_vie_finale) setRoueFin(rep.reponses.roue_de_vie_finale)
+        if (rep?.roue_de_vie) setRoue(rep.roue_de_vie)
+        if (rep?.roue_de_vie_finale) setRoueFin(rep.roue_de_vie_finale)
       })
       .catch(console.error)
       .finally(() => setLoading(false))
