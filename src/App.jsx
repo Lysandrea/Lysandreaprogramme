@@ -13,9 +13,10 @@ import Documents      from './pages/cliente/Documents.jsx'
 import Progression    from './pages/cliente/Progression.jsx'
 import Podcasts       from './pages/cliente/Podcasts.jsx'
 import Recettes       from './pages/cliente/Recettes.jsx'
-import LettreFin      from './pages/cliente/LettreFin.jsx'
-import Avis           from './pages/cliente/Avis.jsx'
-import Attente        from './pages/cliente/Attente.jsx'
+import LettreFin         from './pages/cliente/LettreFin.jsx'
+import Avis              from './pages/cliente/Avis.jsx'
+import Attente           from './pages/cliente/Attente.jsx'
+import ConseilsNutrition from './pages/cliente/ConseilsNutrition.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
 
@@ -99,6 +100,9 @@ export default function App() {
       } />
       <Route path="/avis" element={
         <ProtectedRoute allow="cliente"><Avis /></ProtectedRoute>
+      } />
+      <Route path="/conseils-nutrition" element={
+        <ProtectedRoute allow="cliente"><ConseilsNutrition /></ProtectedRoute>
       } />
 
       {/* Coach (protected) */}

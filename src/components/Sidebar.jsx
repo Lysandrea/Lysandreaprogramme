@@ -2,7 +2,7 @@ import { useState, useEffect }  from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth }              from '../contexts/AuthContext.jsx'
 import { useSidebar }           from '../contexts/SidebarContext.jsx'
-import { IS_MOCK, fetchUnreadNotificationsCount } from '../lib/supabase.js'
+import { IS_MOCK, fetchUnreadNotificationsCount, fetchAiProgramme } from '../lib/supabase.js'
 
 const COACH_NAV = [
   { label: 'Vue Coach', to: '/coach', icon: '📋' },
@@ -27,8 +27,9 @@ const CLIENTE_SECTIONS = [
   {
     title: 'Contenu débloqué',
     items: [
-      { label: 'Mes podcasts', to: '/podcasts', icon: '🎙️' },
-      { label: 'Mes recettes', to: '/recettes', icon: '🍲' },
+      { label: 'Mes podcasts',          to: '/podcasts',           icon: '🎙️' },
+      { label: 'Mes recettes',          to: '/recettes',           icon: '🍲' },
+      { label: 'Mes conseils nutrition', to: '/conseils-nutrition', icon: '🥗', requiresPublished: true },
     ],
   },
   {
@@ -55,6 +56,7 @@ export default function Sidebar() {
 
   const currentSemaine = Math.ceil((profile?.current_day ?? 1) / 7)
   const isWeek8 = currentSemaine >= 8
+  const [aiPublie, setAiPublie] = useState(false)
 
   useEffect(() => {
     if (IS_MOCK || role !== 'coach' || !user) return
@@ -62,6 +64,13 @@ export default function Sidebar() {
       .then(setUnreadCount)
       .catch(() => {})
   }, [role, user, location.pathname])
+
+  useEffect(() => {
+    if (IS_MOCK || role !== 'cliente' || !user) return
+    fetchAiProgramme(user.id)
+      .then(prog => setAiPublie(prog?.statut === 'publie'))
+      .catch(() => {})
+  }, [role, user])
 
   async function handleSignOut() {
     await signOut()
@@ -89,6 +98,7 @@ export default function Sidebar() {
                 <p style={s.sectionLabel}>{section.title}</p>
                 {section.items.map(item => {
                   const locked = item.lockable && !isWeek8
+                  if (item.requiresPublished && !aiPublie) return null
 
                   if (item.external) {
                     return (

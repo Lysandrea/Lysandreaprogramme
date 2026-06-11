@@ -9,6 +9,11 @@ const DEF_ROUE = {
   corps_mouvement: 5, energie_vitalite: 5, emotions: 5, relations: 5,
   vie_pro: 5, environnement: 5, rapport_soi: 5, sommeil_recuperation: 5,
 }
+const DEF_NUTRITION = {
+  poids: '', taille: '', objectif_nutrition: '', relation_nourriture: '',
+  historique_regimes: '', allergies: '', repas_par_jour: '', cuisine_ou_pouce: '',
+  aliments_aimes_evites: '', manger_emotions: '',
+}
 const DEFAULT_INTAKE = {
   prenom_surnom: '', age: '', ville_pays: '', whatsapp: '', email: '',
   pourquoi_maintenant: '', objectifs: [], objectifs_autre: '',
@@ -22,6 +27,7 @@ const DEFAULT_INTAKE = {
   symptomes_cycle: [], symptomes_regles_detail: '', symptomes_premenstruel_detail: '', symptomes_complet_detail: '',
   cycle_actuel: '',
   informations_manquantes: '', comment_connue: [], comment_connue_autre: '', questions_avant: '',
+  nutrition: DEF_NUTRITION,
   roue_de_vie: DEF_ROUE,
 }
 
@@ -46,7 +52,7 @@ function SectionHead({ num, emoji, title, sectionRef }) {
   return (
     <div ref={sectionRef} style={{ paddingTop: 8 }}>
       <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 4 }}>
-        Section {num} / 8
+        Section {num} / 9
       </p>
       <h3 style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-2xl)', fontWeight: 400, color: 'var(--earth)' }}>
         {emoji} {title}
@@ -202,11 +208,18 @@ export default function IntakeQuestionnaire({ intake, setIntake, userEmail, onBa
     ...DEFAULT_INTAKE,
     ...intake,
     email: intake?.email || userEmail || '',
+    nutrition: { ...DEF_NUTRITION, ...(intake?.nutrition || {}) },
     roue_de_vie: { ...DEF_ROUE, ...(intake?.roue_de_vie || {}) },
   }
 
   function set(field, value) {
     setIntake(prev => ({ ...DEFAULT_INTAKE, ...prev, [field]: value }))
+  }
+  function setNutrition(field, value) {
+    setIntake(prev => ({
+      ...DEFAULT_INTAKE, ...prev,
+      nutrition: { ...DEF_NUTRITION, ...(prev.nutrition || {}), [field]: value },
+    }))
   }
   function setRoue(field, value) {
     setIntake(prev => ({
@@ -243,10 +256,10 @@ export default function IntakeQuestionnaire({ intake, setIntake, userEmail, onBa
       <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'var(--white)', borderBottom: '1px solid var(--sand)', padding: '10px 0 10px', marginBottom: 4 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', whiteSpace: 'nowrap', minWidth: 72 }}>
-            Section {activeSection} / 8
+            Section {activeSection} / 9
           </span>
           <div style={{ flex: 1, height: 3, background: 'var(--sand)', borderRadius: 99 }}>
-            <div style={{ width: `${(activeSection / 8) * 100}%`, height: '100%', background: 'var(--forest)', borderRadius: 99, transition: 'width 400ms ease' }} />
+            <div style={{ width: `${(activeSection / 9) * 100}%`, height: '100%', background: 'var(--forest)', borderRadius: 99, transition: 'width 400ms ease' }} />
           </div>
         </div>
       </div>
@@ -716,10 +729,120 @@ export default function IntakeQuestionnaire({ intake, setIntake, userEmail, onBa
       <Divider />
 
       {/* ════════════════════════════════
-          SECTION 8 — Roue de la Vie
+          SECTION 8 — Nutrition & alimentation
           ════════════════════════════════ */}
       <div style={card}>
-        <SectionHead num={8} emoji="🌀" title="Ta Roue de la Vie" sectionRef={el => sRefs.current[7] = el} />
+        <SectionHead num={8} emoji="🥗" title="Nutrition & alimentation" sectionRef={el => sRefs.current[7] = el} />
+
+        <div style={{ background: 'var(--sand)', border: '1px solid rgba(196,181,160,.4)', borderRadius: 'var(--r-md)', padding: 'var(--s5)' }}>
+          <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--bark)', fontStyle: 'italic', lineHeight: 1.7 }}>
+            Ces informations me permettent de te donner des orientations nutritionnelles adaptées à ton profil et tes objectifs.
+            Ce ne sont pas des prescriptions médicales — juste des conseils personnalisés basés sur qui tu es.
+          </p>
+        </div>
+
+        <div style={fields}>
+
+          <div style={row2}>
+            <div style={{ flex: 1 }}>
+              <QLabel>Ton poids approximatif (optionnel)</QLabel>
+              <TI value={d.nutrition.poids} onChange={v => setNutrition('poids', v)} placeholder="en kg" type="number" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <QLabel>Ta taille</QLabel>
+              <TI value={d.nutrition.taille} onChange={v => setNutrition('taille', v)} placeholder="en cm" type="number" />
+            </div>
+          </div>
+
+          <div>
+            <QLabel>Ton objectif principal côté alimentation ?</QLabel>
+            <RadioPills
+              value={d.nutrition.objectif_nutrition}
+              onChange={v => setNutrition('objectif_nutrition', v)}
+              options={[
+                { value: 'perdre_poids',     label: 'Perdre du poids progressivement' },
+                { value: 'maintenir',        label: 'Maintenir mon poids actuel' },
+                { value: 'prise_masse',      label: 'Prendre de la masse musculaire' },
+                { value: 'mieux_manger',     label: 'Mieux manger au quotidien' },
+                { value: 'plus_energie',     label: "Avoir plus d'énergie" },
+                { value: 'ne_sait_pas',      label: 'Je ne sais pas encore' },
+              ]}
+            />
+          </div>
+
+          <div>
+            <QLabel>Comment tu décrirais ta relation avec la nourriture ?</QLabel>
+            <RadioPills
+              value={d.nutrition.relation_nourriture}
+              onChange={v => setNutrition('relation_nourriture', v)}
+              options={[
+                { value: 'sereine',      label: "Sereine — je mange bien et j'écoute mon corps" },
+                { value: 'compliquee',   label: "Compliquée — j'ai souvent des hauts et des bas" },
+                { value: 'restrictive',  label: "Restrictive — j'ai tendance à me priver" },
+                { value: 'emotionnelle', label: 'Émotionnelle — je mange souvent selon mon humeur' },
+                { value: 'yo_yo',        label: 'Yo-yo — je fais des régimes et reprends le poids' },
+              ]}
+            />
+          </div>
+
+          <div>
+            <QLabel>As-tu déjà fait des régimes ? Si oui, qu'est-ce qui s'est passé ?</QLabel>
+            <TA value={d.nutrition.historique_regimes} onChange={v => setNutrition('historique_regimes', v)} placeholder="Ta réponse…" rows={3} />
+          </div>
+
+          <div>
+            <QLabel>Tu as des allergies ou intolérances alimentaires ?</QLabel>
+            <TA value={d.nutrition.allergies} onChange={v => setNutrition('allergies', v)} placeholder="Gluten, lactose, fruits à coque…" rows={2} />
+          </div>
+
+          <div>
+            <QLabel>Combien de repas par jour en général ?</QLabel>
+            <RadioPills
+              value={d.nutrition.repas_par_jour}
+              onChange={v => setNutrition('repas_par_jour', v)}
+              options={[
+                { value: '1_2',        label: '1-2 repas' },
+                { value: '3',          label: '3 repas' },
+                { value: '3_collation',label: '3 repas + collations' },
+                { value: 'grignote',   label: 'Je grignote toute la journée' },
+              ]}
+            />
+          </div>
+
+          <div>
+            <QLabel>Tu cuisines ou plutôt tu manges sur le pouce ?</QLabel>
+            <RadioPills
+              value={d.nutrition.cuisine_ou_pouce}
+              onChange={v => setNutrition('cuisine_ou_pouce', v)}
+              options={[
+                { value: 'cuisine_souvent', label: "Je cuisine souvent et j'aime ça" },
+                { value: 'cuisine_parfois', label: "Je cuisine parfois quand j'ai le temps" },
+                { value: 'sur_le_pouce',    label: 'Plutôt sur le pouce ou réchauffé' },
+                { value: 'commande',        label: 'Je commande souvent' },
+              ]}
+            />
+          </div>
+
+          <div>
+            <QLabel>Y a-t-il des aliments que tu adores ou que tu ne supportes pas ?</QLabel>
+            <TA value={d.nutrition.aliments_aimes_evites} onChange={v => setNutrition('aliments_aimes_evites', v)} placeholder="Dis-moi ce que tu aimes et ce que tu évites…" rows={3} />
+          </div>
+
+          <div>
+            <QLabel>Est-ce que tu manges tes émotions ? Comment ça se manifeste ?</QLabel>
+            <TA value={d.nutrition.manger_emotions} onChange={v => setNutrition('manger_emotions', v)} placeholder="Stress, ennui, tristesse… comment ça se passe pour toi ?" rows={3} />
+          </div>
+
+        </div>
+      </div>
+
+      <Divider />
+
+      {/* ════════════════════════════════
+          SECTION 9 — Roue de la Vie
+          ════════════════════════════════ */}
+      <div style={card}>
+        <SectionHead num={9} emoji="🌀" title="Ta Roue de la Vie" sectionRef={el => sRefs.current[8] = el} />
         <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--bark)', lineHeight: 1.6 }}>
           Note chaque domaine de 1 à 10. Il n'y a pas de bonne réponse — juste ton ressenti honnête aujourd'hui.
         </p>

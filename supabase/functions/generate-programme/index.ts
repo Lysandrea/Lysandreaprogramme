@@ -11,6 +11,7 @@ Tu dois analyser le questionnaire d'une nouvelle cliente et générer :
 2. 3 questions de bilan du soir personnalisées pour elle
 3. La semaine 1 du programme : 3 séances détaillées uniquement (pas les jours de repos)
 4. Les semaines 2 à 8 en résumé uniquement (theme + intention, sans exercices)
+5. Des conseils nutritionnels personnalisés
 
 Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
 {
@@ -52,7 +53,19 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
       "intention": "string",
       "jours": []
     }
-  ]
+  ],
+  "conseils_nutrition": {
+    "profil_resume": "string — 2-3 phrases sur son profil nutritionnel",
+    "principes": ["string", "string", "string", "string", "string"],
+    "repas_type": {
+      "petit_dejeuner": "string",
+      "dejeuner": "string",
+      "diner": "string",
+      "collation": "string"
+    },
+    "a_eviter": ["string", "string", "string"],
+    "message_lysa": "string — message personnel de Lysa sur son rapport à la nourriture"
+  }
 }
 
 CONTRAINTES STRICTES (respect du budget de tokens) :
@@ -62,7 +75,14 @@ CONTRAINTES STRICTES (respect du budget de tokens) :
 - Chaque séance de semaine 1 : 4 exercices maximum.
 - Semaines 2 à 8 : uniquement "semaine", "theme", "intention" et "jours": []. Pas d'exercices.
 - Le tableau "programme" contient exactement 8 objets (semaines 1 à 8).
-- Sois concise. Chaque string doit être courte et précise.`
+- Sois concise. Chaque string doit être courte et précise.
+
+CONSEILS NUTRITION — règles impératives :
+- Bienveillant, jamais restrictif ni culpabilisant.
+- Adapté à son objectif ET son profil émotionnel alimentaire.
+- Pas de comptage de calories.
+- Orientations générales, pas prescriptions médicales.
+- Maximum 300 tokens pour toute la section conseils_nutrition.`
 
 // Closes any open brackets/strings left by a truncated JSON response
 function repairAndParseJson(text: string): unknown {
@@ -184,6 +204,7 @@ Deno.serve(async (req) => {
           profil_resume:            result.profil_resume,
           programme:                result.programme,
           questions_personnalisees: result.questions_personnalisees,
+          conseils_nutrition:       result.conseils_nutrition ?? null,
           statut:                   'en_attente',
           generated_at:             new Date().toISOString(),
         },
