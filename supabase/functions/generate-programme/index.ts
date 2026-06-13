@@ -92,19 +92,26 @@ function repairAndParseJson(text: string): unknown {
 
   for (let i = 0; i < text.length; i++) {
     const ch = text[i]
-    if (escape)              { escape = false; continue }
-    if (ch === '\\' && inString) { escape = true; continue }
-    if (ch === '"')          { inString = !inString; continue }
-    if (inString)            continue
-    if (ch === '{')          stack.push('}')
-    else if (ch === '[')     stack.push(']')
+    if (escape) {
+      escape = false
+      continue
+    }
+    if (ch === '\\' && inString) {
+      escape = true
+      continue
+    }
+    if (ch === '"') {
+      inString = !inString
+      continue
+    }
+    if (inString) continue
+    if (ch === '{') stack.push('}')
+    else if (ch === '[') stack.push(']')
     else if (ch === '}' || ch === ']') stack.pop()
   }
 
   let repaired = text.trimEnd()
-  // Close any open string literal
   if (inString) repaired += '"'
-  // Close any remaining open objects / arrays
   repaired += stack.reverse().join('')
   return JSON.parse(repaired)
 }
@@ -161,36 +168,36 @@ Deno.serve(async (req) => {
 
     const anthropicData = await anthropicRes.json()
     const stopReason: string = anthropicData.stop_reason ?? 'unknown'
-    const text: string = anthropicData.content?.[0]?.text ?? ''
-    console.log('[generate-programme] Réponse reçue — longueur:', text.length, '— stop_reason:', stopReason)
+    const rawText: string = anthropicData.content?.[0]?.text ?? ''
+
+    console.log('[generate-programme] Réponse reçue — longueur:', rawText.length, '— stop_reason:', stopReason)
     if (stopReason === 'max_tokens') {
       console.warn('[generate-programme] ATTENTION : réponse tronquée (max_tokens atteint)')
     }
 
-    let jsonText = text.trim()
+    let jsonText = rawText.trim()
     if (jsonText.startsWith('```')) {
       jsonText = jsonText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
     }
 
-    let result
+    let result: Record<string, unknown>
     try {
       result = JSON.parse(jsonText)
     } catch (firstErr) {
       console.warn('[generate-programme] JSON.parse direct échoué, tentative de réparation…')
-      // Try to extract the outermost {...} block first
       const match = jsonText.match(/\{[\s\S]*/)
       const candidate = match ? match[0] : jsonText
       try {
-        result = repairAndParseJson(candidate)
+        result = repairAndParseJson(candidate) as Record<string, unknown>
         console.log('[generate-programme] JSON réparé ✓')
       } catch {
         throw new Error(`Réponse IA invalide — JSON non parsable: ${(firstErr as Error).message}`)
       }
     }
 
-    console.log('[generate-programme] JSON parsé ✓ — semaines:', result.programme?.length ?? 0)
+    const programme = result.programme as unknown[]
+    console.log('[generate-programme] JSON parsé ✓ — semaines:', programme?.length ?? 0)
 
-    // Sauvegarde avec la clé service (contourne RLS)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SERVICE_ROLE_KEY')!
@@ -223,9 +230,10 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (err) {
-    console.error('[generate-programme] ERREUR:', err?.message ?? err)
+    const message = err instanceof Error ? err.message : 'Erreur inconnue'
+    console.error('[generate-programme] ERREUR:', message)
     return new Response(
-      JSON.stringify({ error: err?.message ?? 'Erreur inconnue' }),
+      JSON.stringify({ error: message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
