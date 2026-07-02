@@ -33,26 +33,26 @@ const STEPS = [
 /* ── Checklist ── */
 const CHECKLIST = [
   {
-    section: 'Accès & outils',
+    section: 'ACCÈS & OUTILS',
     items: [
-      { key: 'lien_acces',    label: "J'ai reçu le lien d'accès à ma plateforme" },
+      { key: 'plateforme',    label: "J'ai compris comment me connecter à ma plateforme" },
       { key: 'whatsapp',      label: "J'ai enregistré le numéro WhatsApp de Lysa" },
-      { key: 'appli',         label: "J'ai téléchargé l'application sur mon téléphone si besoin" },
+      { key: 'appli',         label: "J'ai mis sur mon écran d'accueil la page du programme si besoin" },
     ],
   },
   {
-    section: 'Espace physique',
+    section: 'ESPACE PHYSIQUE',
     items: [
-      { key: 'espace',        label: "J'ai identifié un espace pour mes séances à la maison" },
-      { key: 'tapis',         label: "J'ai un tapis ou une surface confortable" },
+      { key: 'espace',        label: "J'ai un espace pour mes séances de sport" },
+      { key: 'seances',       label: "Je suis prête à suivre les séances du programme" },
       { key: 'vetements',     label: "J'ai des vêtements dans lesquels je me sens à l'aise" },
     ],
   },
   {
-    section: 'Espace intérieur',
+    section: 'ESPACE INTÉRIEUR',
     items: [
-      { key: 'message',       label: "J'ai lu le message de bienvenue de Lysa" },
-      { key: 'moment',        label: "J'ai un moment réservé dans ma semaine pour bouger" },
+      { key: 'soin',          label: "Je suis prête à prendre soin de moi" },
+      { key: 'temps',         label: "Je m'engage à prendre du temps pour moi et ce programme." },
       { key: 'rythme',        label: "Je suis prête à avancer à mon rythme, sans me juger" },
     ],
   },
@@ -481,18 +481,17 @@ function Step5({ signature, setSignature, submitting, onBack, onComplete }) {
   return (
     <div style={s.stepWrap}>
       <div style={s.stepHeader}>
-        <h2 style={s.stepTitle}>Accord & engagement</h2>
-        <p style={s.stepDesc}>Ce que l'on s'engage à faire ensemble.</p>
+        <h2 style={s.stepTitle}>Ce que l'on s'engage à faire ensemble.</h2>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s5)' }}>
         {/* Lysa s'engage */}
         <div style={s.accordCard}>
-          <p style={s.accordSection}>Ce que je m'engage à faire pour toi</p>
+          <p style={s.accordSection}>CE QUE JE M'ENGAGE À FAIRE POUR TOI</p>
           {[
             'Je lis ton questionnaire avec attention avant de démarrer.',
-            'Je te réponds à chaque check-in dans les 24h.',
-            'Je prépare chaque semaine en pensant à toi.',
+            'Je te réponds dans les 48h.',
+            "Je prépare chaque semaine pour qu'elle soit personnalisée à toi et tes objectifs.",
             'Je ne te juge pas — jamais.',
           ].map(line => (
             <div key={line} style={s.accordLine}>
@@ -504,7 +503,7 @@ function Step5({ signature, setSignature, submitting, onBack, onComplete }) {
 
         {/* Cliente s'engage */}
         <div style={s.accordCard}>
-          <p style={s.accordSection}>Ce que tu t'engages à faire</p>
+          <p style={s.accordSection}>CE QUE TU T'ENGAGES À FAIRE</p>
           {[
             'Compléter ton bilan du soir chaque jour.',
             'Me prévenir si tu traverses quelque chose de difficile.',
@@ -519,7 +518,7 @@ function Step5({ signature, setSignature, submitting, onBack, onComplete }) {
 
         {/* Ce qu'on comprend */}
         <div style={s.accordCard}>
-          <p style={s.accordSection}>Ce qu'on comprend toutes les deux</p>
+          <p style={s.accordSection}>CE QU'ON COMPREND TOUTES LES DEUX</p>
           {[
             "Il y aura des jours plus durs. Ce n'est pas un échec.",
             'Ce que tu partages ici reste confidentiel.',
@@ -529,6 +528,21 @@ function Step5({ signature, setSignature, submitting, onBack, onComplete }) {
               <span style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)' }}>{line}</span>
             </div>
           ))}
+        </div>
+
+        {/* Responsabilité */}
+        <div style={s.accordCard}>
+          <p style={s.accordSection}>RESPONSABILITÉ</p>
+          <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', lineHeight: 1.7 }}>
+            Ce programme est un accompagnement sportif et de bien-être personnel.
+            Il ne constitue pas un traitement médical, thérapeutique ou diététique.
+            Lysa Andréa ne peut être tenue responsable des résultats obtenus,
+            ni d'éventuelles blessures, maladies ou contre-indications non signalées.
+            En signant cet accord, tu confirmes être en mesure de pratiquer
+            une activité physique et tu prends la responsabilité de tes choix
+            et de ta progression. En cas de doute sur ton état de santé,
+            consulte un professionnel de santé avant de démarrer.
+          </p>
         </div>
 
         {/* Signature */}
