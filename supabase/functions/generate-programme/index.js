@@ -71,10 +71,10 @@ CONSEILS NUTRITION — règles impératives :
 - Maximum 300 tokens pour toute la section conseils_nutrition.`
 
 // Closes any open brackets/strings left by a truncated JSON response
-function repairAndParseJson(text: string): unknown {
+function repairAndParseJson(text) {
   let inString = false
   let escape = false
-  const stack: string[] = []
+  const stack = []
 
   for (let i = 0; i < text.length; i++) {
     const ch = text[i]
@@ -153,8 +153,8 @@ Deno.serve(async (req) => {
     }
 
     const anthropicData = await anthropicRes.json()
-    const stopReason: string = anthropicData.stop_reason ?? 'unknown'
-    const rawText: string = anthropicData.content?.[0]?.text ?? ''
+    const stopReason = anthropicData.stop_reason ?? 'unknown'
+    const rawText = anthropicData.content?.[0]?.text ?? ''
 
     console.log('[generate-programme] Réponse reçue — longueur:', rawText.length, '— stop_reason:', stopReason)
     if (stopReason === 'max_tokens') {
@@ -166,7 +166,7 @@ Deno.serve(async (req) => {
       jsonText = jsonText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
     }
 
-    let result: Record<string, unknown>
+    let result
     try {
       result = JSON.parse(jsonText)
     } catch (firstErr) {
@@ -174,19 +174,19 @@ Deno.serve(async (req) => {
       const match = jsonText.match(/\{[\s\S]*/)
       const candidate = match ? match[0] : jsonText
       try {
-        result = repairAndParseJson(candidate) as Record<string, unknown>
+        result = repairAndParseJson(candidate)
         console.log('[generate-programme] JSON réparé ✓')
       } catch {
-        throw new Error(`Réponse IA invalide — JSON non parsable: ${(firstErr as Error).message}`)
+        throw new Error(`Réponse IA invalide — JSON non parsable: ${firstErr.message}`)
       }
     }
 
-    const programme = result.programme as unknown[]
+    const programme = result.programme
     console.log('[generate-programme] JSON parsé ✓ — semaines:', programme?.length ?? 0)
 
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SERVICE_ROLE_KEY')!
+      Deno.env.get('SUPABASE_URL'),
+      Deno.env.get('SERVICE_ROLE_KEY')
     )
 
     const { error: dbError } = await supabase
