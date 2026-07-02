@@ -544,6 +544,18 @@ function BilanCoachCard({ b }) {
           <QRow key={label} label={label} value={val} />
         ))}
 
+        {/* Questions personnalisées */}
+        {Array.isArray(b.reponses_personnalisees) && b.reponses_personnalisees.length > 0 && (
+          <div style={{ borderTop: '1px solid var(--sand)', paddingTop: 'var(--s3)', marginTop: 'var(--s1)', display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
+            <p style={{ fontSize: 'var(--tx-xs)', fontWeight: 600, color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+              Questions personnalisées
+            </p>
+            {b.reponses_personnalisees.map((rp, i) => (
+              <QRow key={i} label={rp.question} value={rp.reponse} />
+            ))}
+          </div>
+        )}
+
         {/* Réponse coach */}
         {!IS_MOCK && (
           <div style={{ borderTop: '1px dashed var(--sand)', paddingTop: 'var(--s4)', marginTop: 'var(--s2)' }}>
