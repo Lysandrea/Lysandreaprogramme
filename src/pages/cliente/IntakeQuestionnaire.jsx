@@ -718,16 +718,6 @@ export default function IntakeQuestionnaire({ intake, setIntake, userEmail, onBa
         </div>
       </div>
 
-      {/* ── Closing message ── */}
-      <div style={{ ...card, background: 'var(--sand)', border: '1px solid rgba(196,181,160,.4)' }}>
-        <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 'var(--tx-lg)', color: 'var(--earth)', lineHeight: 1.7 }}>
-          🙏 Merci d'avoir pris le temps de remplir tout ça avec soin. Je lis chaque réponse attentivement. À très vite.
-        </p>
-        <p style={{ fontSize: 'var(--tx-base)', color: 'var(--bark)', marginTop: 'var(--s2)' }}>— Lysa 🌿</p>
-      </div>
-
-      <Divider />
-
       {/* ════════════════════════════════
           SECTION 8 — Nutrition & alimentation
           ════════════════════════════════ */}
@@ -867,6 +857,14 @@ export default function IntakeQuestionnaire({ intake, setIntake, userEmail, onBa
           </p>
           <RadarChart values={d.roue_de_vie} />
         </div>
+      </div>
+
+      {/* ── Closing message ── */}
+      <div style={{ ...card, background: 'var(--sand)', border: '1px solid rgba(196,181,160,.4)' }}>
+        <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 'var(--tx-lg)', color: 'var(--earth)', lineHeight: 1.7 }}>
+          🙏 Merci d'avoir pris le temps de remplir tout ça avec soin. Je lis chaque réponse attentivement. À très vite.
+        </p>
+        <p style={{ fontSize: 'var(--tx-base)', color: 'var(--bark)', marginTop: 'var(--s2)' }}>— Lysa 🌿</p>
       </div>
 
       {/* ── Navigation ── */}
