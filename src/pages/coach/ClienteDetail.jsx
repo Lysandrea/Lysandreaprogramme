@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation }    from 'react-router-dom'
 import {
   IS_MOCK, fetchClienteProfile, fetchJours, fetchBilans,
   desbloquerSemaine, fetchIntakeResponses, saveReponseCoach,
-  fetchAiProgramme, publishAiProgramme,
+  fetchAiProgramme, publishAiProgramme, saveAiProgrammeExercices,
 } from '../../lib/supabase.js'
 import Sidebar   from '../../components/Sidebar.jsx'
 import Topbar    from '../../components/Topbar.jsx'
@@ -648,12 +648,13 @@ function BilanCard({ b }) {
    Programme IA Tab
    ════════════════════════════════════════════════ */
 function ProgrammeIATab({ aiProgramme, onPublished }) {
-  const [profil,     setProfil]     = useState(aiProgramme?.profil_resume ?? '')
-  const [programme,  setProgramme]  = useState(aiProgramme?.programme ?? [])
-  const [questions,  setQuestions]  = useState(aiProgramme?.questions_personnalisees ?? [])
-  const [publishing, setPublishing] = useState(false)
-  const [pubError,   setPubError]   = useState(null)
-  const [expanded,   setExpanded]   = useState({})
+  const [profil,          setProfil]          = useState(aiProgramme?.profil_resume ?? '')
+  const [programme,       setProgramme]       = useState(aiProgramme?.programme ?? [])
+  const [questions,       setQuestions]       = useState(aiProgramme?.questions_personnalisees ?? [])
+  const [publishing,      setPublishing]      = useState(false)
+  const [pubError,        setPubError]        = useState(null)
+  const [expanded,        setExpanded]        = useState({})
+  const [jourSaveStates,  setJourSaveStates]  = useState({})
 
   useEffect(() => {
     setProfil(aiProgramme?.profil_resume ?? '')
@@ -715,6 +716,35 @@ function ProgrammeIATab({ aiProgramme, onPublished }) {
       next[sIndex][field] = value
       return next
     })
+  }
+
+  function addExercice(sIndex, jIndex) {
+    setProgramme(prev => {
+      const next = JSON.parse(JSON.stringify(prev))
+      next[sIndex].jours[jIndex].exercices.push({ nom: '', series: 3, reps: '', repos: '' })
+      return next
+    })
+  }
+
+  function removeExercice(sIndex, jIndex, eIndex) {
+    setProgramme(prev => {
+      const next = JSON.parse(JSON.stringify(prev))
+      next[sIndex].jours[jIndex].exercices.splice(eIndex, 1)
+      return next
+    })
+  }
+
+  async function handleSaveJour(sIndex, jIndex) {
+    const key = `${sIndex}-${jIndex}`
+    setJourSaveStates(prev => ({ ...prev, [key]: 'saving' }))
+    try {
+      await saveAiProgrammeExercices(aiProgramme.id, programme)
+      setJourSaveStates(prev => ({ ...prev, [key]: 'saved' }))
+      setTimeout(() => setJourSaveStates(prev => ({ ...prev, [key]: 'idle' })), 2500)
+    } catch (err) {
+      console.error('[handleSaveJour]', err)
+      setJourSaveStates(prev => ({ ...prev, [key]: 'error' }))
+    }
   }
 
   function updateQuestion(i, field, value) {
@@ -894,53 +924,79 @@ function ProgrammeIATab({ aiProgramme, onPublished }) {
                     </div>
 
                     {/* Exercices */}
-                    {(jour.exercices ?? []).filter(ex => ex.nom).map((ex, eIndex) => (
-                      <div key={eIndex} style={{ paddingLeft: 'var(--s4)', borderLeft: '2px solid var(--sand)', marginBottom: 8 }}>
-                        {isPublished ? (
-                          <div style={{ display: 'flex', gap: 'var(--s3)', flexWrap: 'wrap', alignItems: 'baseline' }}>
-                            <span style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', fontWeight: 500 }}>{ex.nom}</span>
-                            <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>{ex.series}×{ex.reps} · repos {ex.repos}</span>
-                            {ex.commentaire && <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontStyle: 'italic' }}>{ex.commentaire}</span>}
-                          </div>
-                        ) : (
-                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                            <input
-                              value={ex.nom ?? ''}
-                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'nom', e.target.value)}
-                              placeholder="Exercice…"
-                              style={{ ...sIA.input, flex: 2, minWidth: 120 }}
-                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                            />
-                            <input
-                              value={ex.series ?? ''}
-                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'series', Number(e.target.value))}
-                              type="number"
-                              placeholder="Séries"
-                              style={{ ...sIA.input, width: 56 }}
-                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                            />
-                            <input
-                              value={ex.reps ?? ''}
-                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'reps', e.target.value)}
-                              placeholder="Reps"
-                              style={{ ...sIA.input, width: 72 }}
-                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                            />
-                            <input
-                              value={ex.repos ?? ''}
-                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'repos', e.target.value)}
-                              placeholder="Repos"
-                              style={{ ...sIA.input, width: 72 }}
-                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                            />
-                          </div>
+                    <div style={{ marginTop: 'var(--s2)', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {(jour.exercices ?? []).map((ex, eIndex) => (
+                        <div key={eIndex} style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                          <input
+                            value={ex.nom ?? ''}
+                            onChange={e => updateExercice(sIndex, jIndex, eIndex, 'nom', e.target.value)}
+                            placeholder="Ex: Squat, Fente..."
+                            style={{ ...sIA.input, flex: 2, minWidth: 120 }}
+                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                          />
+                          <input
+                            value={ex.series ?? ''}
+                            onChange={e => updateExercice(sIndex, jIndex, eIndex, 'series', Number(e.target.value))}
+                            type="number"
+                            placeholder="3"
+                            style={{ ...sIA.input, width: 52 }}
+                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                          />
+                          <input
+                            value={ex.reps ?? ''}
+                            onChange={e => updateExercice(sIndex, jIndex, eIndex, 'reps', e.target.value)}
+                            placeholder="10-12"
+                            style={{ ...sIA.input, width: 64 }}
+                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                          />
+                          <input
+                            value={ex.repos ?? ''}
+                            onChange={e => updateExercice(sIndex, jIndex, eIndex, 'repos', e.target.value)}
+                            placeholder="60s"
+                            style={{ ...sIA.input, width: 56 }}
+                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                          />
+                          <button
+                            onClick={() => removeExercice(sIndex, jIndex, eIndex)}
+                            title="Supprimer"
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--stone)', fontSize: 18, padding: '2px 6px', lineHeight: 1, flexShrink: 0 }}
+                          >×</button>
+                        </div>
+                      ))}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s3)', marginTop: 4, flexWrap: 'wrap' }}>
+                        <button
+                          onClick={() => addExercice(sIndex, jIndex)}
+                          style={{ background: 'none', border: '1px solid var(--sand)', borderRadius: 'var(--r-sm)', padding: '5px 10px', cursor: 'pointer', fontSize: 'var(--tx-xs)', color: 'var(--bark)', fontFamily: 'var(--sans)' }}
+                        >+ Ajouter un exercice</button>
+                        {(() => {
+                          const key = `${sIndex}-${jIndex}`
+                          const st  = jourSaveStates[key] ?? 'idle'
+                          return (
+                            <button
+                              onClick={() => handleSaveJour(sIndex, jIndex)}
+                              disabled={st === 'saving'}
+                              style={{
+                                background: st === 'saved' ? 'rgba(61,79,60,.75)' : 'var(--forest)',
+                                color: 'var(--white)', border: 'none',
+                                borderRadius: 'var(--r-sm)', padding: '5px 12px',
+                                cursor: st === 'saving' ? 'wait' : 'pointer',
+                                fontSize: 'var(--tx-xs)', fontFamily: 'var(--sans)', fontWeight: 500,
+                                transition: 'background 150ms ease',
+                              }}
+                            >
+                              {st === 'saving' ? 'Enregistrement…' : st === 'saved' ? 'Enregistré ✓' : 'Sauvegarder'}
+                            </button>
+                          )
+                        })()}
+                        {jourSaveStates[`${sIndex}-${jIndex}`] === 'error' && (
+                          <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ Erreur</span>
                         )}
                       </div>
-                    ))}
+                    </div>
                   </div>
                 ))}
               </div>

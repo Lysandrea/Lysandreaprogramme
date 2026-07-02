@@ -351,6 +351,14 @@ export async function saveAiProgramme(clienteId, { profil_resume, programme, que
   if (error) throw error
 }
 
+export async function saveAiProgrammeExercices(programmeId, programme) {
+  const { error } = await supabase
+    .from('ai_programmes')
+    .update({ programme })
+    .eq('id', programmeId)
+  if (error) throw error
+}
+
 export async function publishAiProgramme(programmeId, { profil_resume, programme, questions_personnalisees }) {
   const { error } = await supabase
     .from('ai_programmes')
