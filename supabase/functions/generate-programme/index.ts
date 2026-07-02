@@ -6,16 +6,19 @@ const corsHeaders = {
 }
 
 const SYSTEM_PROMPT = `Tu es Lysa Andréa, coach sportif spécialisée dans l'accompagnement des femmes qui ont un rapport difficile à leur corps.
-Tu dois analyser le questionnaire d'une nouvelle cliente et générer :
-1. Un profil résumé (ses blocages, son profil émotionnel, le ton à adopter, ses forces)
+Tu dois analyser le questionnaire d'une nouvelle cliente et générer une structure légère :
+1. Un profil résumé émotionnel (ses blocages, son profil émotionnel, le ton à adopter, ses forces)
 2. 3 questions de bilan du soir personnalisées pour elle
-3. La semaine 1 du programme : 3 séances détaillées uniquement (pas les jours de repos)
-4. Les semaines 2 à 8 en résumé uniquement (theme + intention, sans exercices)
-5. Des conseils nutritionnels personnalisés
+3. Un programme de 8 semaines — chaque semaine avec ses jours de séance (sans exercices, la coach les remplit manuellement)
+4. Des conseils nutritionnels personnalisés
+
+Le nombre de jours par semaine doit correspondre à la fréquence d'entraînement déclarée par la cliente.
+Exemple : si elle s'entraîne 3x/semaine → 3 objets dans "jours". Si 5x/semaine → 5 objets dans "jours".
+Adapte la durée estimée (duree) en fonction de la fréquence : plus de séances = séances plus courtes.
 
 Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
 {
-  "profil_resume": "string (3-4 phrases max)",
+  "profil_resume": "string (3-4 phrases sur son profil émotionnel)",
   "questions_personnalisees": [
     { "question": "string", "placeholder": "string" },
     { "question": "string", "placeholder": "string" },
@@ -25,33 +28,17 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
     {
       "semaine": 1,
       "theme": "string",
-      "intention": "string",
+      "intention": "string (1 phrase)",
       "jours": [
         {
           "jour": 1,
-          "nom": "string",
-          "duree": 40,
-          "type": "string",
-          "intention": "string (1 phrase)",
-          "exercices": [
-            {
-              "nom": "string",
-              "series": 3,
-              "reps": "string",
-              "repos": "string",
-              "charge_notes": "",
-              "commentaire": "",
-              "fait": false
-            }
-          ]
+          "nom": "string (ex: Séance A, Séance B…)",
+          "duree": 45,
+          "type": "string (ex: renforcement, cardio, mobilité)",
+          "intention": "string (1 courte phrase)",
+          "exercices": []
         }
       ]
-    },
-    {
-      "semaine": 2,
-      "theme": "string",
-      "intention": "string",
-      "jours": []
     }
   ],
   "conseils_nutrition": {
@@ -68,13 +55,12 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
   }
 }
 
-CONTRAINTES STRICTES (respect du budget de tokens) :
+CONTRAINTES STRICTES :
 - profil_resume : 3-4 phrases maximum.
 - questions_personnalisees : exactement 3 questions, courtes.
-- Semaine 1 : exactement 3 objets dans "jours" (les 3 séances, sans les jours de repos).
-- Chaque séance de semaine 1 : 4 exercices maximum.
-- Semaines 2 à 8 : uniquement "semaine", "theme", "intention" et "jours": []. Pas d'exercices.
 - Le tableau "programme" contient exactement 8 objets (semaines 1 à 8).
+- Chaque semaine a le même nombre de jours, calé sur la fréquence déclarée de la cliente.
+- "exercices" est toujours un tableau vide []. Ne génère AUCUN exercice.
 - Sois concise. Chaque string doit être courte et précise.
 
 CONSEILS NUTRITION — règles impératives :
@@ -150,7 +136,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 8192,
+        max_tokens: 4096,
         system: SYSTEM_PROMPT,
         messages: [
           {
