@@ -5,7 +5,8 @@ import { useSidebar }           from '../contexts/SidebarContext.jsx'
 import { IS_MOCK, fetchUnreadNotificationsCount, fetchAiProgramme } from '../lib/supabase.js'
 
 const COACH_NAV = [
-  { label: 'Vue Coach', to: '/coach', icon: '📋' },
+  { label: 'Vue Coach',       to: '/coach',               icon: '📋' },
+  { label: 'Liste d\'attente', to: '/coach/liste-attente', icon: '📬' },
 ]
 
 const CLIENTE_SECTIONS = [

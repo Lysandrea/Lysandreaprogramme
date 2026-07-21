@@ -20,6 +20,7 @@ import Attente           from './pages/cliente/Attente.jsx'
 import ConseilsNutrition from './pages/cliente/ConseilsNutrition.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
+import ListeAttente   from './pages/coach/ListeAttente.jsx'
 
 /* ── Loading screen ── */
 function Spinner() {
@@ -113,6 +114,9 @@ export default function App() {
       } />
       <Route path="/coach/cliente/:id" element={
         <ProtectedRoute allow="coach"><ClienteDetail /></ProtectedRoute>
+      } />
+      <Route path="/coach/liste-attente" element={
+        <ProtectedRoute allow="coach"><ListeAttente /></ProtectedRoute>
       } />
 
       {/* Fallback */}
