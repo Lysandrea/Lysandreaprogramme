@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext.jsx'
 
+import ComingSoon     from './pages/ComingSoon.jsx'
 import Login          from './pages/auth/Login.jsx'
 import Inscription    from './pages/auth/Inscription.jsx'
 import Onboarding     from './pages/cliente/Onboarding.jsx'
@@ -54,7 +55,8 @@ export default function App() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<ComingSoon />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/inscription" element={<Inscription />} />
 
       {/* Onboarding (cliente only, no onboarding check — this IS the onboarding) */}

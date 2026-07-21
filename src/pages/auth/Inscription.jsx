@@ -1,10 +1,17 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link, Navigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase.js'
 import Button from '../../components/Button.jsx'
 
+const VALID_TOKEN = 'beta2026lysa'
+
 export default function Inscription() {
   const navigate = useNavigate()
+  const [params] = useSearchParams()
+
+  if (params.get('invite') !== VALID_TOKEN) {
+    return <Navigate to="/" replace />
+  }
 
   const [prenom,          setPrenom]          = useState('')
   const [email,           setEmail]           = useState('')

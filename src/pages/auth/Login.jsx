@@ -74,12 +74,6 @@ export default function Login() {
           </Button>
         </form>
 
-        {/* Footer */}
-        <p style={s.footer}>
-          Première connexion ?{' '}
-          <a href="/inscription" style={s.link}>Créer mon accès</a>
-        </p>
-
         {/* Dev hint */}
         {!import.meta.env.VITE_SUPABASE_URL && (
           <div style={s.hint}>
