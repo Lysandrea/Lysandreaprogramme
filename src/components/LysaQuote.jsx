@@ -7,6 +7,15 @@ const QUOTES = [
   { text: "Tu n'es pas en retard. Tu es exactement là où tu dois être.", },
   { text: "La force ne vient pas du corps seul.",              },
   { text: "Prendre soin de soi est un acte de courage.",       },
+  { text: "Tu n'as rien à prouver. Juste à sentir.",          },
+  { text: "Ton corps n'est pas un problème à résoudre.",       },
+  { text: "Avancer doucement, c'est encore avancer.",          },
+  { text: "Un jour raté n'efface pas tous les autres.",        },
+  { text: "Sentir avant de performer.",                        },
+  { text: "Ton rythme est le bon rythme.",                     },
+  { text: "Tu ne rattrapes rien. Tu construis.",               },
+  { text: "Ce n'est pas une question de discipline. C'est une question de douceur.", },
+  { text: "Tu n'as pas à te dépasser aujourd'hui. Juste à te montrer.", },
 ]
 
 export default function LysaQuote({ index, quote, style: extra }) {

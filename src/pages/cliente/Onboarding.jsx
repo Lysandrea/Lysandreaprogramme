@@ -358,15 +358,10 @@ function Step1({ prenom, onNext }) {
         index={0}
         style={{ marginTop: 4 }}
       />
-      {/* Override the quote text inline */}
-      <blockquote style={{ borderLeft: '2px solid var(--sage)', paddingLeft: 'var(--s5)', marginTop: 'var(--s4)' }}>
-        <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 'var(--tx-lg)', fontWeight: 300, color: 'var(--earth)', lineHeight: 1.55 }}>
-          "Ce programme n'est pas là pour te changer. Il est là pour t'aider à te retrouver."
-        </p>
-        <cite style={{ display: 'block', marginTop: 'var(--s2)', fontSize: 'var(--tx-xs)', fontStyle: 'normal', color: 'var(--stone)', letterSpacing: '.08em', textTransform: 'uppercase' }}>
-          — Lysa Andréa
-        </cite>
-      </blockquote>
+      <LysaQuote
+        quote="Ce programme n'est pas là pour te changer. Il est là pour t'aider à te retrouver."
+        style={{ marginTop: 'var(--s4)' }}
+      />
 
       <div style={{ marginTop: 'var(--s8)' }}>
         <Button variant="terracotta" size="lg" onClick={onNext}>
