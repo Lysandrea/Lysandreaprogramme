@@ -7,7 +7,16 @@ import Topbar    from '../../components/Topbar.jsx'
 import Card      from '../../components/Card.jsx'
 import Button    from '../../components/Button.jsx'
 import LysaQuote from '../../components/LysaQuote.jsx'
-import { MOTIVATIONAL_MESSAGES } from '../../lib/mockData.js'
+const WEEKLY_MESSAGES = {
+  1: "Tu commences. C'est déjà beaucoup.",
+  2: "La routine s'installe, doucement.",
+  3: "C'est normal si certains jours sont plus durs.",
+  4: "Tu es à mi-chemin. Regarde ce que tu as déjà fait.",
+  5: "La suite demande un peu plus de toi. Tu es prête.",
+  6: "Ce qui semblait difficile devient plus familier.",
+  7: "Bientôt la fin. Ne lâche rien.",
+  8: "Tu y es presque. Regarde le chemin parcouru.",
+}
 
 const MIN_BILANS_TO_UNLOCK = 5
 
@@ -63,7 +72,8 @@ export default function ClienteDashboard() {
   const { user, profile } = useAuth()
   const navigate          = useNavigate()
   const prenom            = profile?.prenom ?? 'toi'
-  const motivation        = MOTIVATIONAL_MESSAGES[new Date().getDay() % MOTIVATIONAL_MESSAGES.length]
+  const currentDay        = profile?.current_day ?? 1
+  const currentWeekCalc   = Math.min(Math.ceil(currentDay / 7), 8)
 
   const [loading,        setLoading]        = useState(true)
   const [programmePublie, setProgrammePublie] = useState(null)
@@ -128,7 +138,7 @@ export default function ClienteDashboard() {
             <div>
               <p style={s.bannerEye}>Ton programme · Semaine {currentWeek}</p>
               <h2 style={s.bannerTitle}>Bonjour {prenom} ✦</h2>
-              <p style={s.bannerMsg}>{motivation}</p>
+              <p style={s.bannerMsg}>{WEEKLY_MESSAGES[currentWeekCalc]}</p>
             </div>
             <div style={s.bannerWeek}>
               <span style={s.bannerWeekLabel}>Sem.</span>
