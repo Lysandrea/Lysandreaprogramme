@@ -373,6 +373,15 @@ export async function publishAiProgramme(programmeId, { profil_resume, programme
   if (error) throw error
 }
 
+export async function generateSemaineExercices(payload) {
+  const { data, error } = await supabase.functions.invoke('generate-semaine-exercices', {
+    body: payload,
+  })
+  if (error) throw error
+  if (data?.error) throw new Error(data.error)
+  return data
+}
+
 export async function saveReponseCoach(bilanId, reponse) {
   const { data, error } = await supabase
     .from('bilans')

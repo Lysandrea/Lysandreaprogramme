@@ -4,6 +4,7 @@ import {
   IS_MOCK, fetchClienteProfile, fetchJours, fetchBilans,
   desbloquerSemaine, fetchIntakeResponses, saveReponseCoach,
   fetchAiProgramme, publishAiProgramme, saveAiProgrammeExercices,
+  generateSemaineExercices,
 } from '../../lib/supabase.js'
 import Sidebar   from '../../components/Sidebar.jsx'
 import Topbar    from '../../components/Topbar.jsx'
@@ -222,6 +223,8 @@ export default function ClienteDetail() {
           {tab === 'programme_ia' && (
             <ProgrammeIATab
               aiProgramme={aiProgramme}
+              clienteId={id}
+              intake={intake}
               onPublished={updated => setAiProgramme(updated)}
             />
           )}
@@ -647,7 +650,12 @@ function BilanCard({ b }) {
 /* ════════════════════════════════════════════════
    Programme IA Tab
    ════════════════════════════════════════════════ */
-function ProgrammeIATab({ aiProgramme, onPublished }) {
+function semaineHasNoExercices(sem) {
+  if (!sem.jours || sem.jours.length === 0) return false
+  return sem.jours.every(j => !j.exercices || j.exercices.length === 0)
+}
+
+function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
   const [profil,          setProfil]          = useState(aiProgramme?.profil_resume ?? '')
   const [programme,       setProgramme]       = useState(aiProgramme?.programme ?? [])
   const [questions,       setQuestions]       = useState(aiProgramme?.questions_personnalisees ?? [])
@@ -655,6 +663,7 @@ function ProgrammeIATab({ aiProgramme, onPublished }) {
   const [pubError,        setPubError]        = useState(null)
   const [expanded,        setExpanded]        = useState({})
   const [jourSaveStates,  setJourSaveStates]  = useState({})
+  const [genStates,       setGenStates]       = useState({})
 
   useEffect(() => {
     setProfil(aiProgramme?.profil_resume ?? '')
@@ -744,6 +753,35 @@ function ProgrammeIATab({ aiProgramme, onPublished }) {
     } catch (err) {
       console.error('[handleSaveJour]', err)
       setJourSaveStates(prev => ({ ...prev, [key]: 'error' }))
+    }
+  }
+
+  async function handleGenerateSemaine(sIndex) {
+    const sem = programme[sIndex]
+    setGenStates(prev => ({ ...prev, [sIndex]: 'loading' }))
+    setExpanded(prev => ({ ...prev, [sIndex]: true }))
+    try {
+      const result = await generateSemaineExercices({
+        clienteId,
+        semaineNum:    sem.semaine,
+        theme:         sem.theme,
+        intention:     sem.intention,
+        jours:         sem.jours,
+        profil_resume: profil,
+        clienteData: {
+          frequence:      intake?.frequence_semaine,
+          materiel:       intake?.materiel,
+          zones_a_eviter: intake?.zones_eviter,
+        },
+      })
+      if (result?.programme) {
+        setProgramme(result.programme)
+      }
+      setGenStates(prev => ({ ...prev, [sIndex]: 'done' }))
+      setTimeout(() => setGenStates(prev => ({ ...prev, [sIndex]: null })), 3000)
+    } catch (err) {
+      console.error('[handleGenerateSemaine]', err)
+      setGenStates(prev => ({ ...prev, [sIndex]: 'error' }))
     }
   }
 
@@ -842,15 +880,41 @@ function ProgrammeIATab({ aiProgramme, onPublished }) {
         </h4>
         {programme.map((sem, sIndex) => (
           <div key={sIndex} style={sIA.semaineCard}>
-            {/* Semaine header */}
-            <button
+            {/* Semaine header — div instead of button to allow nested button */}
+            <div
               onClick={() => setExpanded(prev => ({ ...prev, [sIndex]: !prev[sIndex] }))}
-              style={sIA.semaineHeader}
+              style={{ ...sIA.semaineHeader, cursor: 'pointer' }}
             >
-              <div>
-                <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.08em' }}>
-                  Semaine {sem.semaine}
-                </span>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s3)', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.08em' }}>
+                    Semaine {sem.semaine}
+                  </span>
+                  {!isPublished && semaineHasNoExercices(sem) && (() => {
+                    const gs = genStates[sIndex]
+                    return (
+                      <button
+                        onClick={e => { e.stopPropagation(); if (gs !== 'loading') handleGenerateSemaine(sIndex) }}
+                        disabled={gs === 'loading'}
+                        style={{
+                          background: gs === 'done' ? 'rgba(61,79,60,.1)' : 'rgba(168,184,154,.15)',
+                          border: '1px solid var(--sage)',
+                          borderRadius: 'var(--r-sm)',
+                          padding: '3px 10px',
+                          cursor: gs === 'loading' ? 'wait' : 'pointer',
+                          fontSize: 11,
+                          color: gs === 'done' ? 'var(--forest)' : 'var(--bark)',
+                          fontFamily: 'var(--sans)',
+                          fontWeight: 500,
+                          whiteSpace: 'nowrap',
+                          transition: 'all 150ms ease',
+                        }}
+                      >
+                        {gs === 'loading' ? '⏳ Génération…' : gs === 'done' ? '✓ Exercices générés' : gs === 'error' ? '⚠ Erreur — Réessayer' : '✨ Générer les exercices avec l\'IA'}
+                      </button>
+                    )
+                  })()}
+                </div>
                 {isPublished ? (
                   <p style={{ fontSize: 'var(--tx-sm)', fontWeight: 500, color: 'var(--earth)', marginTop: 2 }}>{sem.theme}</p>
                 ) : (
@@ -868,7 +932,7 @@ function ProgrammeIATab({ aiProgramme, onPublished }) {
               <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>
                 {expanded[sIndex] ? '▲' : '▼'}
               </span>
-            </button>
+            </div>
 
             {expanded[sIndex] && (
               <div style={{ padding: 'var(--s4)', display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
