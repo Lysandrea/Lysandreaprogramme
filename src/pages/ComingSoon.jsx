@@ -60,7 +60,7 @@ export default function ComingSoon() {
         {/* Logo block */}
         <div style={s.logoBlock}>
           <span style={s.logoName}>Lysa Andréa</span>
-          <span style={s.logoSub}>Programme 8 semaines</span>
+          <span style={s.logoSub}>Déclic</span>
         </div>
 
         {/* Main title */}

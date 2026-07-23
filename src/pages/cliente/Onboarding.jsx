@@ -277,7 +277,7 @@ function OnboardingSidebar({ etape, profile, open, close }) {
       <button className="sidebar-close-btn" onClick={close} aria-label="Fermer">✕</button>
       <div style={s.sidebarBrand}>
         <span style={s.brandName}>Lysa Andréa</span>
-        <span style={s.brandSub}>Programme 8 semaines</span>
+        <span style={s.brandSub}>Déclic</span>
       </div>
 
       <nav style={s.sidebarNav}>

@@ -32,7 +32,7 @@ export default function Login() {
         {/* Logo */}
         <div style={s.logoBlock}>
           <span style={s.logoTitle}>Lysa Andréa</span>
-          <span style={s.logoSub}>Programme 8 semaines</span>
+          <span style={s.logoSub}>Déclic</span>
         </div>
 
         {/* Form */}

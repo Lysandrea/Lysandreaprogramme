@@ -88,7 +88,7 @@ export default function Sidebar() {
         {/* Brand */}
         <div style={s.brand}>
           <span style={s.brandName}>Lysa Andréa</span>
-          <span style={s.brandSub}>Programme 8 semaines</span>
+          <span style={s.brandSub}>Déclic</span>
         </div>
 
         {/* Nav — Cliente : sections */}

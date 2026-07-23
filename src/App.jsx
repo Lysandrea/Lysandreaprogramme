@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext.jsx'
 
 import ComingSoon     from './pages/ComingSoon.jsx'
+import Vente          from './pages/Vente.jsx'
 import Login          from './pages/auth/Login.jsx'
 import Inscription    from './pages/auth/Inscription.jsx'
 import Onboarding     from './pages/cliente/Onboarding.jsx'
@@ -57,6 +58,7 @@ export default function App() {
     <Routes>
       {/* Public */}
       <Route path="/" element={<ComingSoon />} />
+      <Route path="/vente" element={<Vente />} />
       <Route path="/login" element={<Login />} />
       <Route path="/inscription" element={<Inscription />} />
 

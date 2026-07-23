@@ -873,10 +873,10 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
         </div>
       </div>
 
-      {/* Programme 8 semaines */}
+      {/* Déclic */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
         <h4 style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-lg)', fontWeight: 400, color: 'var(--earth)' }}>
-          📅 Programme 8 semaines
+          📅 Déclic · 8 semaines
         </h4>
         {programme.map((sem, sIndex) => (
           <div key={sIndex} style={sIA.semaineCard}>
