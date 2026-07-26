@@ -30,6 +30,14 @@ function ObjectionItem({ question, answer }) {
   )
 }
 
+/* ── Emphasis helpers ── */
+const Em = ({ children }) => (
+  <strong style={{ fontWeight: 600, color: 'var(--forest)' }}>{children}</strong>
+)
+const EmInverse = ({ children }) => (
+  <strong style={{ fontWeight: 600, color: 'var(--cream)' }}>{children}</strong>
+)
+
 export default function Vente() {
   function scrollToOffre(e) {
     e.preventDefault()
@@ -58,9 +66,14 @@ export default function Vente() {
               Déclic — 8 semaines pour enfin l'entendre,<br />
               et bouger avec lui, pas contre lui.
             </p>
-            <a href="#offre" style={s.ctaSecondary} onClick={scrollToOffre}>
-              Découvrir le programme ↓
-            </a>
+            <div style={s.heroCtaRow}>
+              <a href="#offre" style={s.ctaSecondary} onClick={scrollToOffre}>
+                Découvrir le programme ↓
+              </a>
+              <button style={s.ctaTerracottaOutline} onClick={handleCTA}>
+                Je réserve ma place ✦
+              </button>
+            </div>
           </div>
           <div style={s.heroImageWrap}>
             <img
@@ -78,7 +91,8 @@ export default function Vente() {
           <h2 style={s.sectionTitle}>Tu as déjà essayé.</h2>
           <p style={s.body}>
             Des régimes. Des programmes en ligne. Des coachs. Des applications.
-            Peut-être même que ça a marché — un peu, un temps.
+            Peut-être même que ça a marché —{' '}
+            <Em>un peu, un temps</Em>.
           </p>
           <p style={s.body}>
             Et puis c'est reparti comme avant. Tu t'es dit que tu n'étais
@@ -88,32 +102,38 @@ export default function Vente() {
             Ce n'est pas vrai.
           </p>
           <p style={s.body}>
-            Ce n'est pas un problème de volonté. C'est un problème de
-            relation avec ton corps.
+            Ce n'est pas un problème de <Em>volonté</Em>.
+            C'est un problème de <Em>relation avec ton corps</Em>.
           </p>
         </div>
       </section>
 
-      {/* ── SECTION 3 — LA CONVICTION (white) ── */}
-      <section style={s.sectionWhite}>
-        <div style={s.inner}>
-          <h2 style={s.sectionTitle}>Ton corps t'envoie des messages. Depuis longtemps.</h2>
-          <p style={s.body}>
+      {/* ── SECTION 3 — LA CONVICTION (image de fond Hyrox + overlay forest) ── */}
+      <section style={s.sectionConviction}>
+        <div style={s.convictionOverlay} />
+        <div style={{ ...s.inner, position: 'relative', zIndex: 1 }}>
+          <h2 style={{ ...s.sectionTitle, color: 'var(--cream)' }}>
+            Ton corps t'envoie des messages. Depuis longtemps.
+          </h2>
+          <p style={s.bodyInverse}>
             La tension dans tes épaules. Le ventre noué. Le dos qui bloque
             au mauvais moment.
           </p>
-          <p style={s.body}>
-            Ce ne sont pas des accidents. Ce sont des signaux — et tant
+          <p style={s.bodyInverse}>
+            Ce ne sont pas des accidents. Ce sont{' '}
+            <EmInverse>des signaux</EmInverse> — et tant
             qu'on ne les écoute pas, ils reviennent, ils s'aggravent,
             ils prennent toute la place.
           </p>
-          <p style={s.body}>
-            Ma conviction : le corps n'est pas ton ennemi. Il est ton allié
+          <p style={s.bodyInverse}>
+            Ma conviction : le corps n'est pas ton ennemi.{' '}
+            <EmInverse>Il est ton allié</EmInverse>{' '}
             — encore faut-il apprendre sa langue.
           </p>
-          <p style={{ ...s.body, borderLeft: '3px solid var(--terracotta)', paddingLeft: 20, fontStyle: 'italic' }}>
-            Déclic, c'est exactement ça : le moment où tu arrêtes de subir,
-            et où tu commences à comprendre.
+          <p style={{ ...s.bodyInverse, borderLeft: '3px solid var(--terracotta)', paddingLeft: 20, fontStyle: 'italic' }}>
+            Déclic, c'est exactement ça : le moment où tu{' '}
+            <EmInverse>arrêtes de subir</EmInverse>,
+            et où tu <EmInverse>commences à comprendre</EmInverse>.
           </p>
         </div>
       </section>
@@ -133,48 +153,63 @@ export default function Vente() {
               <h2 style={{ ...s.sectionTitle, color: 'var(--cream)' }}>Pourquoi moi</h2>
               <p style={s.bodyInverse}>
                 J'ai traversé l'anorexie, puis la boulimie. Le sport a longtemps
-                été une punition avant de devenir une réconciliation.
+                été <EmInverse>une punition</EmInverse> avant de devenir{' '}
+                <EmInverse>une réconciliation</EmInverse>.
               </p>
               <p style={s.bodyInverse}>
                 Aujourd'hui je suis athlète Hyrox, je m'entraîne dur — mais
-                avec mon corps, plus jamais contre lui.
+                avec mon corps, <EmInverse>plus jamais contre lui</EmInverse>.
               </p>
               <p style={s.bodyInverse}>
                 Je suis coach sportive et émotionnelle. En cours de certification
                 en coaching sportif, déjà diplômée en coaching mental et émotionnel.
-                J'ai construit Déclic comme le programme que j'aurais aimé qu'on
-                me propose.
+                J'ai construit Déclic comme <EmInverse>le programme que j'aurais aimé qu'on
+                me propose</EmInverse>.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 5 — L'OFFRE (cream) ── */}
+      {/* ── SECTION 5 — L'OFFRE (cream, photos en colonne latérale) ── */}
       <section id="offre" style={s.sectionCream}>
-        <div style={s.inner}>
-          <h2 style={s.sectionTitle}>Ce que tu vas vivre pendant 8 semaines</h2>
-          <div style={s.cardsGrid}>
-            {OFFRE_CARDS.map(c => (
-              <div key={c.icon} style={s.card}>
-                <span style={s.cardIcon}>{c.icon}</span>
-                <strong style={s.cardTitle}>{c.title}</strong>
-                <p style={s.cardDesc}>{c.desc}</p>
+        <div style={s.innerWide}>
+          <div style={s.offreLayout}>
+            <div style={s.offreLeft}>
+              <h2 style={s.sectionTitle}>Ce que tu vas vivre pendant 8 semaines</h2>
+              <div style={s.cardsGrid}>
+                {OFFRE_CARDS.map(c => (
+                  <div key={c.icon} style={s.card}>
+                    <span style={s.cardIcon}>{c.icon}</span>
+                    <strong style={s.cardTitle}>{c.title}</strong>
+                    <p style={s.cardDesc}>{c.desc}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div style={s.actionPhotosRow}>
-            {ACTION_PHOTOS.map(({ file, alt }) => (
+            </div>
+            <div style={s.offreRight}>
               <img
-                key={file}
-                src={`${BASE}/${file}`}
-                alt={alt}
-                style={s.actionPhoto}
+                src={`${BASE}/IMG_1382.JPG`}
+                alt="Lysandréa en compétition Hyrox"
+                style={s.offrePhoto}
               />
-            ))}
+              <img
+                src={`${BASE}/IMG_2325.JPG`}
+                alt="Effort et puissance en compétition"
+                style={s.offrePhoto}
+              />
+            </div>
           </div>
         </div>
       </section>
+
+      {/* ── CTA APRÈS L'OFFRE ── */}
+      <div style={s.ctaInterlude}>
+        <button style={s.ctaPrimary} onClick={handleCTA}>
+          Je réserve ma place →
+        </button>
+        <p style={s.ctaInterludeNote}>10 places · Beta septembre 2026 · 179€</p>
+      </div>
 
       {/* ── SECTION 6 — CE QUE CE N'EST PAS (white + sand card) ── */}
       <section style={s.sectionWhite}>
@@ -182,11 +217,12 @@ export default function Vente() {
           <div style={s.disclaimerCard}>
             <p style={s.disclaimerText}>
               Je ne suis pas thérapeute, ni nutritionniste. Ce n'est pas
-              un programme de performance, ni un régime déguisé.
+              un programme de performance, ni <Em>un régime déguisé</Em>.
             </p>
             <p style={s.disclaimerText}>
               C'est un accompagnement sport et émotionnel, pensé pour
-              une seule chose : que tu arrêtes de te battre contre ton corps.
+              une seule chose : que tu arrêtes de{' '}
+              <Em>te battre contre ton corps</Em>.
             </p>
           </div>
         </div>
@@ -199,15 +235,22 @@ export default function Vente() {
           <div style={s.objList}>
             <ObjectionItem
               question="Et si ça ne marche pas pour moi ?"
-              answer="Ce n'est pas un programme générique. Il s'adapte à toi, à ton histoire, à ton rythme. On n'avance jamais plus vite que ce que ton corps peut entendre."
+              answer={<>Ce n'est pas un programme générique.{' '}
+                <Em>Il s'adapte à toi</Em>, à ton histoire, à ton rythme.
+                On n'avance jamais plus vite que{' '}
+                <Em>ce que ton corps peut entendre</Em>.</>}
             />
             <ObjectionItem
               question="Je n'ai jamais réussi à être régulière"
-              answer="C'est exactement pour ça que tu n'es pas seule dans ce programme. Chaque semaine, je suis là. Si tu décroches, je le vois, et on ajuste ensemble."
+              answer={<>C'est exactement pour ça que{' '}
+                <Em>tu n'es pas seule</Em> dans ce programme. Chaque semaine,
+                je suis là. Si tu décroches, je le vois, et on ajuste ensemble.</>}
             />
             <ObjectionItem
               question="J'ai peur que ça redevienne une obsession"
-              answer="Il n'y a pas d'objectif chiffré ici. Il y a toi, ton corps, et un cadre bienveillant pour apprendre à travailler avec lui — pas contre lui."
+              answer={<>Il n'y a pas d'objectif chiffré ici. Il y a{' '}
+                <Em>toi, ton corps</Em>, et un cadre bienveillant pour apprendre
+                à travailler avec lui — <Em>pas contre lui</Em>.</>}
             />
           </div>
         </div>
@@ -221,7 +264,7 @@ export default function Vente() {
             Je lance Déclic en beta. Ça veut dire une chose simple :
             je veux les retours de mes 10 premières clientes pour affiner
             encore ce que je propose. En échange, vous avez un accès complet,
-            à un tarif qui ne reviendra pas.
+            à <Em>un tarif qui ne reviendra pas</Em>.
           </p>
           <div style={s.prixCard}>
             <p style={s.prixSub}>Déclic · 8 semaines · 10 places seulement</p>
@@ -311,12 +354,6 @@ const OFFRE_CARDS = [
   },
 ]
 
-const ACTION_PHOTOS = [
-  { file: 'IMG_1382.JPG', alt: 'Lysandréa en compétition Hyrox' },
-  { file: 'IMG_2275.JPG', alt: "Session d'entraînement intense" },
-  { file: 'IMG_2325.JPG', alt: 'Effort et puissance en compétition' },
-]
-
 /* ── Styles ── */
 const s = {
   page: {
@@ -344,11 +381,26 @@ const s = {
     justifyContent: 'center',
     background: 'linear-gradient(135deg, #3D4F3C 0%, #4d6349 100%)',
   },
+  sectionConviction: {
+    padding: '100px 24px',
+    display: 'flex',
+    justifyContent: 'center',
+    position: 'relative',
+    backgroundImage: `url(${BASE}/IMG_2275.JPG)`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center 30%',
+  },
+  convictionOverlay: {
+    position: 'absolute',
+    inset: 0,
+    background: 'rgba(44,57,43,0.80)',
+    zIndex: 0,
+  },
 
   /* Hero */
   hero: {
     background: 'linear-gradient(135deg, #3D4F3C 0%, #4d6349 100%)',
-    padding: '100px 40px 100px',
+    padding: '100px 40px',
     display: 'flex',
     justifyContent: 'center',
   },
@@ -401,11 +453,17 @@ const s = {
     margin: 0,
     maxWidth: 460,
   },
+  heroCtaRow: {
+    display: 'flex',
+    gap: 16,
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
   ctaSecondary: {
     display: 'inline-block',
     padding: '14px 28px',
     borderRadius: 8,
-    border: '1.5px solid rgba(245,240,232,0.5)',
+    border: '1.5px solid rgba(245,240,232,0.45)',
     color: 'var(--cream)',
     fontFamily: 'var(--font-sans)',
     fontSize: 14,
@@ -413,7 +471,19 @@ const s = {
     letterSpacing: '0.03em',
     textDecoration: 'none',
     cursor: 'pointer',
-    alignSelf: 'flex-start',
+  },
+  ctaTerracottaOutline: {
+    display: 'inline-block',
+    padding: '14px 28px',
+    borderRadius: 8,
+    border: '1.5px solid var(--terracotta)',
+    color: 'var(--terracotta)',
+    background: 'transparent',
+    fontFamily: 'var(--font-sans)',
+    fontSize: 14,
+    fontWeight: 500,
+    letterSpacing: '0.03em',
+    cursor: 'pointer',
   },
 
   /* Content containers */
@@ -457,19 +527,53 @@ const s = {
     gap: 24,
   },
 
-  /* Section 5 — Action photos */
-  actionPhotosRow: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: 16,
-    marginTop: 8,
+  /* Section 5 — L'offre layout */
+  offreLayout: {
+    display: 'flex',
+    gap: 48,
+    alignItems: 'flex-start',
   },
-  actionPhoto: {
+  offreLeft: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 28,
+    minWidth: 0,
+  },
+  offreRight: {
+    flexShrink: 0,
+    width: 260,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16,
+  },
+  offrePhoto: {
     width: '100%',
-    height: 260,
+    height: 240,
     objectFit: 'cover',
     borderRadius: 16,
     display: 'block',
+  },
+
+  /* CTA interlude */
+  ctaInterlude: {
+    padding: '52px 24px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 14,
+    background: 'var(--cream)',
+    borderTop: '1px solid var(--sand)',
+    borderBottom: '1px solid var(--sand)',
+  },
+  ctaInterludeNote: {
+    fontFamily: 'var(--font-sans)',
+    fontSize: 12,
+    color: 'var(--bark)',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    margin: 0,
+    opacity: 0.7,
   },
 
   /* Typography */
@@ -500,7 +604,7 @@ const s = {
   /* Cards */
   cardsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
     gap: 16,
   },
   card: {
