@@ -150,7 +150,7 @@ export default function Vente() {
               />
             </div>
             <div style={s.quiText}>
-              <h2 style={{ ...s.sectionTitle, color: 'var(--cream)' }}>Pourquoi moi</h2>
+              <h2 style={{ ...s.sectionTitle, color: 'var(--cream)' }}>Qui suis-je ?</h2>
               <p style={s.bodyInverse}>
                 J'ai traversé l'anorexie, puis la boulimie. Le sport a longtemps
                 été <EmInverse>une punition</EmInverse> avant de devenir{' '}
@@ -295,7 +295,7 @@ export default function Vente() {
             />
             <FaqItem
               question="Qu'est-ce qui se passe après le paiement ?"
-              answer="Tu reçois un email avec un questionnaire de démarrage pour que je puisse te connaître avant qu'on commence. Ensuite on planifie un premier échange pour poser les bases ensemble."
+              answer="Après le paiement, tu reçois un email avec ton accès direct à la plateforme. Tu peux créer ton compte et remplir ton questionnaire de démarrage en toute autonomie — c'est pensé pour ça. Si tu préfères être accompagnée pour le remplir ensemble, tu peux réserver un rendez-vous gratuit de 30 minutes avec moi."
             />
             <FaqItem
               question="Combien de temps par semaine il faut prévoir ?"
