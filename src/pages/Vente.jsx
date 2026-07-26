@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+const BASE = 'https://omcednuoxfmhyfwmrmmp.supabase.co/storage/v1/object/public/photo-page-vente'
+
 /* ── FAQ accordion item ── */
 function FaqItem({ question, answer }) {
   const [open, setOpen] = useState(false)
@@ -42,27 +44,36 @@ export default function Vente() {
   return (
     <div style={s.page}>
 
-      {/* ── SECTION 1 — HERO ── */}
+      {/* ── SECTION 1 — HERO (forest gradient) ── */}
       <section style={s.hero}>
         <div style={s.heroInner}>
-          <p style={s.eyebrow}>Programme Déclic · Beta Septembre 2026</p>
-          <h1 style={s.heroTitle}>
-            Ton corps ne te trahit pas.
-            <br />
-            <em>Il te parle.</em>
-          </h1>
-          <p style={s.heroSub}>
-            Déclic — 8 semaines pour enfin l'entendre,<br />
-            et bouger avec lui, pas contre lui.
-          </p>
-          <a href="#offre" style={s.ctaSecondary} onClick={scrollToOffre}>
-            Découvrir le programme ↓
-          </a>
+          <div style={s.heroText}>
+            <p style={s.eyebrow}>Programme Déclic · Beta Septembre 2026</p>
+            <h1 style={s.heroTitle}>
+              Ton corps ne te trahit pas.
+              <br />
+              <em>Il te parle.</em>
+            </h1>
+            <p style={s.heroSub}>
+              Déclic — 8 semaines pour enfin l'entendre,<br />
+              et bouger avec lui, pas contre lui.
+            </p>
+            <a href="#offre" style={s.ctaSecondary} onClick={scrollToOffre}>
+              Découvrir le programme ↓
+            </a>
+          </div>
+          <div style={s.heroImageWrap}>
+            <img
+              src={`${BASE}/DSC03757.JPG`}
+              alt="Studio de pilates — espace d'entraînement lumineux"
+              style={s.heroImage}
+            />
+          </div>
         </div>
       </section>
 
-      {/* ── SECTION 2 — LE CONSTAT ── */}
-      <section style={s.section}>
+      {/* ── SECTION 2 — LE CONSTAT (cream) ── */}
+      <section style={s.sectionCream}>
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Tu as déjà essayé.</h2>
           <p style={s.body}>
@@ -83,8 +94,8 @@ export default function Vente() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — LA CONVICTION ── */}
-      <section style={{ ...s.section, background: 'var(--white)' }}>
+      {/* ── SECTION 3 — LA CONVICTION (white) ── */}
+      <section style={s.sectionWhite}>
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Ton corps t'envoie des messages. Depuis longtemps.</h2>
           <p style={s.body}>
@@ -107,29 +118,40 @@ export default function Vente() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — QUI JE SUIS ── */}
-      <section style={s.section}>
-        <div style={s.inner}>
-          <h2 style={s.sectionTitle}>Pourquoi moi</h2>
-          <p style={s.body}>
-            J'ai traversé l'anorexie, puis la boulimie. Le sport a longtemps
-            été une punition avant de devenir une réconciliation.
-          </p>
-          <p style={s.body}>
-            Aujourd'hui je suis athlète Hyrox, je m'entraîne dur — mais
-            avec mon corps, plus jamais contre lui.
-          </p>
-          <p style={s.body}>
-            Je suis coach sportive et émotionnelle. En cours de certification
-            en coaching sportif, déjà diplômée en coaching mental et émotionnel.
-            J'ai construit Déclic comme le programme que j'aurais aimé qu'on
-            me propose.
-          </p>
+      {/* ── SECTION 4 — QUI JE SUIS (forest) ── */}
+      <section style={s.sectionForest}>
+        <div style={s.innerWide}>
+          <div style={s.quiLayout}>
+            <div style={s.quiImageWrap}>
+              <img
+                src={`${BASE}/A601426C-48A3-41BE-B1A9-6A73B2ABB531.JPG`}
+                alt="Portrait de Lysandréa, coach sportive et émotionnelle"
+                style={s.quiImage}
+              />
+            </div>
+            <div style={s.quiText}>
+              <h2 style={{ ...s.sectionTitle, color: 'var(--cream)' }}>Pourquoi moi</h2>
+              <p style={s.bodyInverse}>
+                J'ai traversé l'anorexie, puis la boulimie. Le sport a longtemps
+                été une punition avant de devenir une réconciliation.
+              </p>
+              <p style={s.bodyInverse}>
+                Aujourd'hui je suis athlète Hyrox, je m'entraîne dur — mais
+                avec mon corps, plus jamais contre lui.
+              </p>
+              <p style={s.bodyInverse}>
+                Je suis coach sportive et émotionnelle. En cours de certification
+                en coaching sportif, déjà diplômée en coaching mental et émotionnel.
+                J'ai construit Déclic comme le programme que j'aurais aimé qu'on
+                me propose.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── SECTION 5 — L'OFFRE ── */}
-      <section id="offre" style={{ ...s.section, background: 'var(--white)' }}>
+      {/* ── SECTION 5 — L'OFFRE (cream) ── */}
+      <section id="offre" style={s.sectionCream}>
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Ce que tu vas vivre pendant 8 semaines</h2>
           <div style={s.cardsGrid}>
@@ -141,11 +163,21 @@ export default function Vente() {
               </div>
             ))}
           </div>
+          <div style={s.actionPhotosRow}>
+            {ACTION_PHOTOS.map(({ file, alt }) => (
+              <img
+                key={file}
+                src={`${BASE}/${file}`}
+                alt={alt}
+                style={s.actionPhoto}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── SECTION 6 — CE QUE CE N'EST PAS ── */}
-      <section style={s.section}>
+      {/* ── SECTION 6 — CE QUE CE N'EST PAS (white + sand card) ── */}
+      <section style={s.sectionWhite}>
         <div style={s.inner}>
           <div style={s.disclaimerCard}>
             <p style={s.disclaimerText}>
@@ -160,8 +192,8 @@ export default function Vente() {
         </div>
       </section>
 
-      {/* ── SECTION 7 — OBJECTIONS ── */}
-      <section style={{ ...s.section, background: 'var(--white)' }}>
+      {/* ── SECTION 7 — OBJECTIONS (cream) ── */}
+      <section style={s.sectionCream}>
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Ce que tu te dis peut-être en ce moment</h2>
           <div style={s.objList}>
@@ -181,8 +213,8 @@ export default function Vente() {
         </div>
       </section>
 
-      {/* ── SECTION 8 — LE PRIX ── */}
-      <section style={s.section}>
+      {/* ── SECTION 8 — LE PRIX (white, prominent forest card) ── */}
+      <section style={s.sectionWhite}>
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Une offre beta — parce que c'est un vrai début</h2>
           <p style={s.body}>
@@ -205,8 +237,8 @@ export default function Vente() {
         </div>
       </section>
 
-      {/* ── SECTION 9 — FAQ ── */}
-      <section style={{ ...s.section, background: 'var(--white)' }}>
+      {/* ── SECTION 9 — FAQ (cream) ── */}
+      <section style={s.sectionCream}>
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Questions fréquentes</h2>
           <div style={s.faqList}>
@@ -230,13 +262,13 @@ export default function Vente() {
         </div>
       </section>
 
-      {/* ── SECTION 10 — CTA FINAL ── */}
-      <section style={{ ...s.section, background: 'var(--forest)', textAlign: 'center' }}>
+      {/* ── SECTION 10 — CTA FINAL (forest) ── */}
+      <section style={{ ...s.sectionForest, textAlign: 'center' }}>
         <div style={{ ...s.inner, alignItems: 'center' }}>
-          <h2 style={{ ...s.sectionTitle, color: 'var(--white)' }}>
+          <h2 style={{ ...s.sectionTitle, color: 'var(--cream)', textAlign: 'center' }}>
             10 places. Une seule fois à ce prix.
           </h2>
-          <p style={{ ...s.body, color: 'rgba(253,250,246,0.8)', maxWidth: 540, textAlign: 'center' }}>
+          <p style={{ ...s.bodyInverse, maxWidth: 540, textAlign: 'center', opacity: 0.85 }}>
             Si tu sens que quelque chose doit changer dans ta relation
             à ton corps — c'est le moment de vivre ton Déclic.
           </p>
@@ -265,7 +297,7 @@ const OFFRE_CARDS = [
   {
     icon: '💬',
     title: 'Suivi personnalisé',
-    desc: 'Un point hebdomadaire avec moi — vocal ou message, tu n\'es jamais seule.',
+    desc: "Un point hebdomadaire avec moi — vocal ou message, tu n'es jamais seule.",
   },
   {
     icon: '📓',
@@ -279,6 +311,12 @@ const OFFRE_CARDS = [
   },
 ]
 
+const ACTION_PHOTOS = [
+  { file: 'IMG_1382.JPG', alt: 'Lysandréa en compétition Hyrox' },
+  { file: 'IMG_2275.JPG', alt: "Session d'entraînement intense" },
+  { file: 'IMG_2325.JPG', alt: 'Effort et puissance en compétition' },
+]
+
 /* ── Styles ── */
 const s = {
   page: {
@@ -286,20 +324,57 @@ const s = {
     color: 'var(--bark)',
     background: 'var(--cream)',
   },
-  hero: {
+
+  /* Section backgrounds */
+  sectionCream: {
+    padding: '100px 24px',
+    display: 'flex',
+    justifyContent: 'center',
     background: 'var(--cream)',
-    padding: '100px 24px 80px',
+  },
+  sectionWhite: {
+    padding: '100px 24px',
+    display: 'flex',
+    justifyContent: 'center',
+    background: 'var(--white)',
+  },
+  sectionForest: {
+    padding: '100px 24px',
+    display: 'flex',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg, #3D4F3C 0%, #4d6349 100%)',
+  },
+
+  /* Hero */
+  hero: {
+    background: 'linear-gradient(135deg, #3D4F3C 0%, #4d6349 100%)',
+    padding: '100px 40px 100px',
     display: 'flex',
     justifyContent: 'center',
   },
   heroInner: {
-    maxWidth: 680,
+    maxWidth: 1100,
     width: '100%',
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 60,
+    alignItems: 'center',
+  },
+  heroText: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center',
-    gap: 24,
+    gap: 28,
+  },
+  heroImageWrap: {
+    flexShrink: 0,
+  },
+  heroImage: {
+    width: '100%',
+    height: 520,
+    objectFit: 'cover',
+    borderRadius: 16,
+    border: '1px solid rgba(232,221,208,0.25)',
+    display: 'block',
   },
   eyebrow: {
     fontFamily: 'var(--font-sans)',
@@ -311,9 +386,9 @@ const s = {
   },
   heroTitle: {
     fontFamily: 'var(--font-serif)',
-    fontSize: 'clamp(40px, 6vw, 68px)',
+    fontSize: 'clamp(40px, 5vw, 64px)',
     fontWeight: 400,
-    color: 'var(--earth)',
+    color: 'var(--cream)',
     lineHeight: 1.15,
     letterSpacing: '-0.01em',
     margin: 0,
@@ -321,38 +396,83 @@ const s = {
   heroSub: {
     fontFamily: 'var(--font-sans)',
     fontSize: 17,
-    color: 'var(--bark)',
+    color: 'rgba(245,240,232,0.8)',
     lineHeight: 1.8,
     margin: 0,
-    maxWidth: 520,
+    maxWidth: 460,
   },
   ctaSecondary: {
     display: 'inline-block',
     padding: '14px 28px',
     borderRadius: 8,
-    border: '1.5px solid var(--forest)',
-    color: 'var(--forest)',
+    border: '1.5px solid rgba(245,240,232,0.5)',
+    color: 'var(--cream)',
     fontFamily: 'var(--font-sans)',
     fontSize: 14,
     fontWeight: 500,
     letterSpacing: '0.03em',
     textDecoration: 'none',
     cursor: 'pointer',
-    transition: 'background 0.15s',
+    alignSelf: 'flex-start',
   },
-  section: {
-    padding: '80px 24px',
-    display: 'flex',
-    justifyContent: 'center',
-    background: 'var(--cream)',
-  },
+
+  /* Content containers */
   inner: {
     maxWidth: 720,
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
+    gap: 28,
+  },
+  innerWide: {
+    maxWidth: 1100,
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 28,
+  },
+
+  /* Section 4 — Qui je suis */
+  quiLayout: {
+    display: 'flex',
+    gap: 64,
+    alignItems: 'center',
+  },
+  quiImageWrap: {
+    flexShrink: 0,
+    width: 380,
+  },
+  quiImage: {
+    width: '100%',
+    height: 500,
+    objectFit: 'cover',
+    borderRadius: 16,
+    border: '1px solid rgba(232,221,208,0.2)',
+    display: 'block',
+  },
+  quiText: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
     gap: 24,
   },
+
+  /* Section 5 — Action photos */
+  actionPhotosRow: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: 16,
+    marginTop: 8,
+  },
+  actionPhoto: {
+    width: '100%',
+    height: 260,
+    objectFit: 'cover',
+    borderRadius: 16,
+    display: 'block',
+  },
+
+  /* Typography */
   sectionTitle: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(28px, 4vw, 42px)',
@@ -369,13 +489,22 @@ const s = {
     lineHeight: 1.85,
     margin: 0,
   },
+  bodyInverse: {
+    fontFamily: 'var(--font-sans)',
+    fontSize: 16,
+    color: 'rgba(245,240,232,0.85)',
+    lineHeight: 1.85,
+    margin: 0,
+  },
+
+  /* Cards */
   cardsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
     gap: 16,
   },
   card: {
-    background: 'var(--cream)',
+    background: 'var(--white)',
     border: '1px solid var(--sand)',
     borderRadius: 12,
     padding: '28px 24px',
@@ -401,10 +530,12 @@ const s = {
     lineHeight: 1.7,
     margin: 0,
   },
+
+  /* Section 6 — disclaimer */
   disclaimerCard: {
     background: 'var(--sand)',
-    borderRadius: 12,
-    padding: '32px 36px',
+    borderRadius: 16,
+    padding: '40px 44px',
     display: 'flex',
     flexDirection: 'column',
     gap: 16,
@@ -417,6 +548,8 @@ const s = {
     margin: 0,
     fontStyle: 'italic',
   },
+
+  /* Section 7 — Objections */
   objList: {
     display: 'flex',
     flexDirection: 'column',
@@ -451,15 +584,18 @@ const s = {
     margin: 0,
     padding: '0 24px 20px',
   },
+
+  /* Section 8 — Prix */
   prixCard: {
-    background: 'var(--forest)',
-    borderRadius: 16,
-    padding: '48px 40px',
+    background: 'linear-gradient(135deg, #3D4F3C 0%, #4d6349 100%)',
+    borderRadius: 20,
+    padding: '56px 48px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: 20,
     textAlign: 'center',
+    boxShadow: '0 12px 48px rgba(61,79,60,0.18)',
   },
   prixSub: {
     fontFamily: 'var(--font-sans)',
@@ -482,15 +618,15 @@ const s = {
   },
   prixMain: {
     fontFamily: 'var(--font-serif)',
-    fontSize: 64,
+    fontSize: 72,
     fontWeight: 400,
-    color: 'var(--white)',
+    color: 'var(--cream)',
     lineHeight: 1,
     letterSpacing: '-0.02em',
   },
   ctaPrimary: {
     display: 'inline-block',
-    padding: '18px 40px',
+    padding: '18px 44px',
     borderRadius: 8,
     border: 'none',
     background: 'var(--terracotta)',
@@ -509,6 +645,8 @@ const s = {
     margin: 0,
     letterSpacing: '0.02em',
   },
+
+  /* Section 9 — FAQ */
   faqList: {
     display: 'flex',
     flexDirection: 'column',
