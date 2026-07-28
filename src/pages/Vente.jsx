@@ -54,7 +54,12 @@ export default function Vente() {
       <section style={s.hero} className="v-hero">
         <div style={s.heroInner} className="v-hero-inner">
           <div style={s.heroText}>
-            <p style={s.eyebrow}>Programme Déclic · Beta Septembre 2026</p>
+            <div style={s.brandMark}>
+              <span style={s.brandLine} />
+              <span style={s.brandName}>Déclic</span>
+              <span style={s.brandLine} />
+            </div>
+            <p style={s.eyebrow}>Programme · Beta Septembre 2026</p>
             <h1 style={s.heroTitle} className="v-hero-title">
               Ton corps ne te trahit pas.
               <br />
@@ -469,6 +474,28 @@ const s = {
     objectFit: 'cover',
     borderRadius: 16,
     border: '1px solid rgba(232,221,208,0.25)',
+    display: 'block',
+  },
+  brandMark: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 16,
+    marginBottom: 8,
+  },
+  brandName: {
+    fontFamily: 'var(--font-serif)',
+    fontSize: 'clamp(36px, 5.5vw, 68px)',
+    fontWeight: 400,
+    fontStyle: 'italic',
+    color: 'var(--cream)',
+    letterSpacing: '-0.01em',
+    lineHeight: 1,
+    whiteSpace: 'nowrap',
+  },
+  brandLine: {
+    flex: 1,
+    height: 1,
+    background: 'rgba(245,240,232,0.25)',
     display: 'block',
   },
   eyebrow: {
