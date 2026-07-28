@@ -1,0 +1,99 @@
+/* ── Vente.jsx mobile overrides ─────────────────────────────────────────── */
+/* All layout is inline-style on desktop; this file overrides for mobile.   */
+
+@media (max-width: 768px) {
+
+  /* ── Sections: reduce vertical padding, tighten horizontal ── */
+  .v-section {
+    padding: 60px 20px !important;
+  }
+  .v-hero {
+    padding: 56px 20px !important;
+  }
+
+  /* ── Hero: stack columns vertically ── */
+  .v-hero-inner {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .v-hero-image {
+    height: 260px !important;
+  }
+  .v-hero-title {
+    font-size: 34px !important;
+  }
+
+  /* ── Hero CTAs: stack + full width ── */
+  .v-hero-cta-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .v-cta-secondary,
+  .v-cta-outline {
+    display: block !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── Qui suis-je: stack, image full width ── */
+  .v-qui-layout {
+    flex-direction: column !important;
+    gap: 32px !important;
+  }
+  .v-qui-image-wrap {
+    width: 100% !important;
+    flex-shrink: 1 !important;
+  }
+  .v-qui-image {
+    width: 100% !important;
+    height: 300px !important;
+  }
+
+  /* ── L'offre: stack main content then photos ── */
+  .v-offre-layout {
+    flex-direction: column !important;
+  }
+  .v-offre-right {
+    width: 100% !important;
+    flex-direction: row !important;
+    gap: 12px !important;
+  }
+  .v-offre-right img {
+    flex: 1 !important;
+    height: 160px !important;
+    width: 0 !important;
+  }
+
+  /* ── Avant/Après: single column ── */
+  .v-avant-apres {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Feature cards: single column ── */
+  .v-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── All primary CTAs: full width ── */
+  .v-cta-primary {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+  }
+
+  /* ── Prix card: tighter padding + smaller price ── */
+  .v-prix-card {
+    padding: 40px 24px !important;
+    border-radius: 16px !important;
+  }
+  .v-prix-main {
+    font-size: 56px !important;
+  }
+
+  /* ── Disclaimer card: tighter padding ── */
+  .v-disclaimer-card {
+    padding: 28px 20px !important;
+  }
+}

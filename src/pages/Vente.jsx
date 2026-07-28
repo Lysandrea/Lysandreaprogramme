@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import './Vente.css'
 
 const BASE = 'https://omcednuoxfmhyfwmrmmp.supabase.co/storage/v1/object/public/photo-page-vente'
 
@@ -50,11 +51,11 @@ export default function Vente() {
     <div style={s.page}>
 
       {/* ── SECTION 1 — HERO (forest gradient) ── */}
-      <section style={s.hero}>
-        <div style={s.heroInner}>
+      <section style={s.hero} className="v-hero">
+        <div style={s.heroInner} className="v-hero-inner">
           <div style={s.heroText}>
             <p style={s.eyebrow}>Programme Déclic · Beta Septembre 2026</p>
-            <h1 style={s.heroTitle}>
+            <h1 style={s.heroTitle} className="v-hero-title">
               Ton corps ne te trahit pas.
               <br />
               <em>Il te parle.</em>
@@ -63,11 +64,11 @@ export default function Vente() {
               Déclic — 8 semaines pour enfin l'entendre,<br />
               et bouger avec lui, pas contre lui.
             </p>
-            <div style={s.heroCtaRow}>
-              <a href="#offre" style={s.ctaSecondary} onClick={scrollToOffre}>
+            <div style={s.heroCtaRow} className="v-hero-cta-row">
+              <a href="#offre" style={s.ctaSecondary} className="v-cta-secondary" onClick={scrollToOffre}>
                 Découvrir le programme ↓
               </a>
-              <a href={STRIPE_URL} style={s.ctaTerracottaOutline}>
+              <a href={STRIPE_URL} style={s.ctaTerracottaOutline} className="v-cta-outline">
                 Je réserve ma place ✦
               </a>
             </div>
@@ -77,13 +78,14 @@ export default function Vente() {
               src={`${BASE}/DSC03757.JPG`}
               alt="Studio de pilates — espace d'entraînement lumineux"
               style={s.heroImage}
+              className="v-hero-image"
             />
           </div>
         </div>
       </section>
 
       {/* ── SECTION 2 — LE CONSTAT (cream) ── */}
-      <section style={s.sectionCream}>
+      <section style={s.sectionCream} className="v-section">
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Tu as déjà essayé.</h2>
           <p style={s.body}>
@@ -106,7 +108,7 @@ export default function Vente() {
       </section>
 
       {/* ── SECTION 3 — LA CONVICTION (image de fond Hyrox + overlay forest) ── */}
-      <section style={s.sectionConviction}>
+      <section style={s.sectionConviction} className="v-section">
         <div style={s.convictionOverlay} />
         <div style={{ ...s.inner, position: 'relative', zIndex: 1 }}>
           <h2 style={{ ...s.sectionTitle, color: 'var(--cream)' }}>
@@ -136,14 +138,15 @@ export default function Vente() {
       </section>
 
       {/* ── SECTION 4 — QUI JE SUIS (forest) ── */}
-      <section style={s.sectionForest}>
+      <section style={s.sectionForest} className="v-section">
         <div style={s.innerWide}>
-          <div style={s.quiLayout}>
-            <div style={s.quiImageWrap}>
+          <div style={s.quiLayout} className="v-qui-layout">
+            <div style={s.quiImageWrap} className="v-qui-image-wrap">
               <img
                 src={`${BASE}/A601426C-48A3-41BE-B1A9-6A73B2ABB531.JPG`}
                 alt="Portrait de Lysandréa, coach sportive et émotionnelle"
                 style={s.quiImage}
+                className="v-qui-image"
               />
             </div>
             <div style={s.quiText}>
@@ -169,9 +172,9 @@ export default function Vente() {
       </section>
 
       {/* ── SECTION 5 — L'OFFRE (cream, photos en colonne latérale) ── */}
-      <section id="offre" style={s.sectionCream}>
+      <section id="offre" style={s.sectionCream} className="v-section">
         <div style={s.innerWide}>
-          <div style={s.offreLayout}>
+          <div style={s.offreLayout} className="v-offre-layout">
             <div style={s.offreLeft}>
               <div>
                 <h2 style={s.sectionTitle}>Ce qui change en 8 semaines</h2>
@@ -181,7 +184,7 @@ export default function Vente() {
               </div>
 
               {/* Avant / Après */}
-              <div style={s.avantApresGrid}>
+              <div style={s.avantApresGrid} className="v-avant-apres">
                 <div style={s.avantCol}>
                   <span style={s.avantLabel}>AVANT</span>
                   {[
@@ -207,7 +210,7 @@ export default function Vente() {
               </div>
 
               {/* Feature cards */}
-              <div style={s.cardsGrid}>
+              <div style={s.cardsGrid} className="v-cards-grid">
                 {OFFRE_CARDS.map(c => (
                   <div key={c.icon} style={s.card}>
                     <span style={s.cardIcon}>{c.icon}</span>
@@ -217,7 +220,7 @@ export default function Vente() {
                 ))}
               </div>
             </div>
-            <div style={s.offreRight}>
+            <div style={s.offreRight} className="v-offre-right">
               <img
                 src={`${BASE}/IMG_1382.JPG`}
                 alt="Lysandréa en compétition Hyrox"
@@ -235,16 +238,16 @@ export default function Vente() {
 
       {/* ── CTA APRÈS L'OFFRE ── */}
       <div style={s.ctaInterlude}>
-        <a href={STRIPE_URL} style={s.ctaPrimary}>
+        <a href={STRIPE_URL} style={s.ctaPrimary} className="v-cta-primary">
           Je réserve ma place →
         </a>
         <p style={s.ctaInterludeNote}>10 places · Beta septembre 2026 · 179€</p>
       </div>
 
       {/* ── SECTION 6 — CE QUE CE N'EST PAS (white + sand card) ── */}
-      <section style={s.sectionWhite}>
+      <section style={s.sectionWhite} className="v-section">
         <div style={s.inner}>
-          <div style={s.disclaimerCard}>
+          <div style={s.disclaimerCard} className="v-disclaimer-card">
             <p style={s.disclaimerText}>
               Je ne suis pas thérapeute, ni nutritionniste. Ce n'est pas
               un programme de performance, ni <Em>un régime déguisé</Em>.
@@ -259,7 +262,7 @@ export default function Vente() {
       </section>
 
       {/* ── SECTION 7 — OBJECTIONS (cream) ── */}
-      <section style={s.sectionCream}>
+      <section style={s.sectionCream} className="v-section">
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Ce que tu te dis peut-être en ce moment</h2>
           <div style={s.objList}>
@@ -287,7 +290,7 @@ export default function Vente() {
       </section>
 
       {/* ── SECTION 8 — LE PRIX (white, prominent forest card) ── */}
-      <section style={s.sectionWhite}>
+      <section style={s.sectionWhite} className="v-section">
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Une offre beta — parce que c'est un vrai début</h2>
           <p style={s.body}>
@@ -296,13 +299,13 @@ export default function Vente() {
             encore ce que je propose. En échange, vous avez un accès complet,
             à <Em>un tarif qui ne reviendra pas</Em>.
           </p>
-          <div style={s.prixCard}>
+          <div style={s.prixCard} className="v-prix-card">
             <p style={s.prixSub}>Déclic · 8 semaines · 10 places seulement</p>
             <div style={s.prixRow}>
               <span style={s.prixBarre}>349€</span>
-              <span style={s.prixMain}>179€</span>
+              <span style={s.prixMain} className="v-prix-main">179€</span>
             </div>
-            <a href={STRIPE_URL} style={s.ctaPrimary}>
+            <a href={STRIPE_URL} style={s.ctaPrimary} className="v-cta-primary">
               Je réserve ma place
             </a>
             <p style={s.prixNote}>Paiement sécurisé · Places attribuées dans l'ordre d'inscription</p>
@@ -311,7 +314,7 @@ export default function Vente() {
       </section>
 
       {/* ── SECTION 9 — FAQ (cream) ── */}
-      <section style={s.sectionCream}>
+      <section style={s.sectionCream} className="v-section">
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Questions fréquentes</h2>
           <div style={s.faqList}>
@@ -336,7 +339,7 @@ export default function Vente() {
       </section>
 
       {/* ── SECTION 10 — CTA FINAL (forest) ── */}
-      <section style={{ ...s.sectionForest, textAlign: 'center' }}>
+      <section style={{ ...s.sectionForest, textAlign: 'center' }} className="v-section">
         <div style={{ ...s.inner, alignItems: 'center' }}>
           <h2 style={{ ...s.sectionTitle, color: 'var(--cream)', textAlign: 'center' }}>
             10 places. Une seule fois à ce prix.
@@ -345,7 +348,7 @@ export default function Vente() {
             Si tu sens que quelque chose doit changer dans ta relation
             à ton corps — c'est le moment de vivre ton Déclic.
           </p>
-          <a href={STRIPE_URL} style={{ ...s.ctaPrimary, marginTop: 8 }}>
+          <a href={STRIPE_URL} style={{ ...s.ctaPrimary, marginTop: 8 }} className="v-cta-primary">
             Je réserve ma place — 179€
           </a>
         </div>
@@ -524,6 +527,7 @@ const s = {
     fontWeight: 500,
     letterSpacing: '0.03em',
     cursor: 'pointer',
+    textDecoration: 'none',
   },
 
   /* Content containers */
@@ -842,6 +846,7 @@ const s = {
     letterSpacing: '0.03em',
     cursor: 'pointer',
     transition: 'opacity 0.15s',
+    textDecoration: 'none',
   },
   prixNote: {
     fontFamily: 'var(--font-sans)',
