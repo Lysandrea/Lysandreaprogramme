@@ -44,10 +44,7 @@ export default function Vente() {
     document.getElementById('offre')?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  function handleCTA(e) {
-    e.preventDefault()
-    console.log('stripe checkout')
-  }
+  const STRIPE_URL = 'https://buy.stripe.com/28E28r2XvbAjaDj0330co00'
 
   return (
     <div style={s.page}>
@@ -70,9 +67,9 @@ export default function Vente() {
               <a href="#offre" style={s.ctaSecondary} onClick={scrollToOffre}>
                 Découvrir le programme ↓
               </a>
-              <button style={s.ctaTerracottaOutline} onClick={handleCTA}>
+              <a href={STRIPE_URL} style={s.ctaTerracottaOutline}>
                 Je réserve ma place ✦
-              </button>
+              </a>
             </div>
           </div>
           <div style={s.heroImageWrap}>
@@ -205,9 +202,9 @@ export default function Vente() {
 
       {/* ── CTA APRÈS L'OFFRE ── */}
       <div style={s.ctaInterlude}>
-        <button style={s.ctaPrimary} onClick={handleCTA}>
+        <a href={STRIPE_URL} style={s.ctaPrimary}>
           Je réserve ma place →
-        </button>
+        </a>
         <p style={s.ctaInterludeNote}>10 places · Beta septembre 2026 · 179€</p>
       </div>
 
@@ -272,9 +269,9 @@ export default function Vente() {
               <span style={s.prixBarre}>349€</span>
               <span style={s.prixMain}>179€</span>
             </div>
-            <button style={s.ctaPrimary} onClick={handleCTA}>
+            <a href={STRIPE_URL} style={s.ctaPrimary}>
               Je réserve ma place
-            </button>
+            </a>
             <p style={s.prixNote}>Paiement sécurisé · Places attribuées dans l'ordre d'inscription</p>
           </div>
         </div>
@@ -315,9 +312,9 @@ export default function Vente() {
             Si tu sens que quelque chose doit changer dans ta relation
             à ton corps — c'est le moment de vivre ton Déclic.
           </p>
-          <button style={{ ...s.ctaPrimary, marginTop: 8 }} onClick={handleCTA}>
+          <a href={STRIPE_URL} style={{ ...s.ctaPrimary, marginTop: 8 }}>
             Je réserve ma place — 179€
-          </button>
+          </a>
         </div>
       </section>
 
