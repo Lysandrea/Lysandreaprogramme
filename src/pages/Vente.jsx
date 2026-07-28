@@ -173,7 +173,40 @@ export default function Vente() {
         <div style={s.innerWide}>
           <div style={s.offreLayout}>
             <div style={s.offreLeft}>
-              <h2 style={s.sectionTitle}>Ce que tu vas vivre pendant 8 semaines</h2>
+              <div>
+                <h2 style={s.sectionTitle}>Ce qui change en 8 semaines</h2>
+                <p style={s.offreSubtitle}>
+                  Pas une liste de fonctionnalités. Une vraie transformation dans ta relation à ton corps.
+                </p>
+              </div>
+
+              {/* Avant / Après */}
+              <div style={s.avantApresGrid}>
+                <div style={s.avantCol}>
+                  <span style={s.avantLabel}>AVANT</span>
+                  {[
+                    'Tu te bats contre ton corps',
+                    'Chaque programme fini abandonné',
+                    'Tu ne sais plus par où commencer',
+                    'Tu es seule face à tes doutes',
+                  ].map(t => (
+                    <p key={t} style={s.avantItem}>{t}</p>
+                  ))}
+                </div>
+                <div style={s.apresCol}>
+                  <span style={s.apresLabel}>APRÈS DÉCLIC</span>
+                  {[
+                    'Tu comprends ce que ton corps te dit',
+                    'Un rythme qui tient dans la durée',
+                    'Un chemin clair, semaine après semaine',
+                    'Je suis là, chaque semaine, avec toi',
+                  ].map(t => (
+                    <p key={t} style={s.apresItem}>{t}</p>
+                  ))}
+                </div>
+              </div>
+
+              {/* Feature cards */}
               <div style={s.cardsGrid}>
                 {OFFRE_CARDS.map(c => (
                   <div key={c.icon} style={s.card}>
@@ -327,27 +360,37 @@ const OFFRE_CARDS = [
   {
     icon: '🏃',
     title: 'Volet sport',
-    desc: 'Un programme adapté à toi — pas à un idéal, à ta réalité, ton rythme, ton histoire.',
+    desc: 'Un programme qui s'adapte à toi — pas l'inverse. Semaine après semaine, ton corps retrouve sa force, à ton rythme.',
   },
   {
     icon: '🧠',
     title: 'Volet émotionnel',
-    desc: 'Décoder ce que ton corps te dit, semaine après semaine.',
+    desc: 'Chaque tension, chaque blocage a un sens. Tu vas enfin comprendre ce que ton corps essayait de te dire.',
   },
   {
     icon: '💬',
     title: 'Suivi personnalisé',
-    desc: "Un point hebdomadaire avec moi — vocal ou message, tu n'es jamais seule.",
+    desc: 'Un point chaque semaine avec moi — vocal ou message. Tu avances, et tu n'avances pas seule.',
   },
   {
     icon: '📓',
     title: 'Ton espace personnel',
-    desc: 'Ton programme, ton journal, ta roue de la vie — avant/après.',
+    desc: 'Ton programme, ton journal, ta roue de la vie. Un espace rien qu'à toi pour voir le chemin parcouru.',
   },
   {
     icon: '🎯',
     title: 'Bilans réguliers',
-    desc: 'Pour ajuster en continu, jamais figé.',
+    desc: 'On ajuste ensemble au fil des semaines. Rien n'est gravé dans le marbre — tout est pensé pour coller à ta vie.',
+  },
+  {
+    icon: '🎙️',
+    title: 'Podcasts privés',
+    desc: 'Des épisodes audio rien que pour toi, débloqués semaine après semaine — confiance, zone de confort, exigence, effet cumulé…',
+  },
+  {
+    icon: '🍲',
+    title: 'Des recettes qui font du bien',
+    desc: 'Des recettes saines et gourmandes, pensées pour manger avec plaisir, sans culpabilité, tout au long du programme.',
   },
 ]
 
@@ -550,6 +593,67 @@ const s = {
     objectFit: 'cover',
     borderRadius: 16,
     display: 'block',
+  },
+  offreSubtitle: {
+    fontFamily: 'var(--serif)',
+    fontSize: 'var(--tx-base)',
+    color: 'var(--bark)',
+    fontStyle: 'italic',
+    lineHeight: 1.7,
+    margin: '8px 0 0',
+  },
+
+  /* Avant / Après */
+  avantApresGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    borderRadius: 14,
+    overflow: 'hidden',
+    border: '1px solid var(--sand)',
+  },
+  avantCol: {
+    background: 'var(--sand)',
+    padding: '24px 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+  },
+  apresCol: {
+    background: 'var(--forest)',
+    padding: '24px 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+  },
+  avantLabel: {
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: '0.14em',
+    color: 'var(--stone)',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  apresLabel: {
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: '0.14em',
+    color: 'rgba(255,255,255,0.6)',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  avantItem: {
+    fontSize: 'var(--tx-sm)',
+    color: 'var(--bark)',
+    lineHeight: 1.5,
+    margin: 0,
+    opacity: 0.75,
+  },
+  apresItem: {
+    fontSize: 'var(--tx-sm)',
+    color: 'var(--cream)',
+    lineHeight: 1.5,
+    margin: 0,
+    fontWeight: 500,
   },
 
   /* CTA interlude */
