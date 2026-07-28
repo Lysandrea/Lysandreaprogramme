@@ -1,24 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link, Navigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase.js'
 import Button from '../../components/Button.jsx'
 
-const VALID_TOKEN = 'beta2026lysa'
-
 export default function Inscription() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
+  const token = params.get('invite')
 
-  if (params.get('invite') !== VALID_TOKEN) {
-    return <Navigate to="/" replace />
-  }
+  // null = verifying, true = valid, false = invalid
+  const [tokenValid, setTokenValid] = useState(null)
 
   const [prenom,          setPrenom]          = useState('')
   const [email,           setEmail]           = useState('')
   const [password,        setPassword]        = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState('')
+  const [loading,         setLoading]         = useState(false)
+  const [error,           setError]           = useState('')
+
+  useEffect(() => {
+    if (!token) { setTokenValid(false); return }
+    supabase
+      .rpc('verify_invite_token', { p_token: token })
+      .then(({ data, error }) => setTokenValid(!error && data === true))
+  }, [token])
+
+  if (tokenValid === null) {
+    return (
+      <div style={s.page}>
+        <p style={{ color: 'var(--stone)', fontSize: 'var(--tx-sm)' }}>Vérification en cours…</p>
+      </div>
+    )
+  }
+
+  if (!tokenValid) return <Navigate to="/" replace />
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -42,12 +57,14 @@ export default function Inscription() {
       })
       if (signUpError) throw signUpError
 
+      // Mark invite as used
+      await supabase.rpc('use_invite_token', { p_token: token })
+
       if (data.session) {
         navigate('/onboarding', { replace: true })
         return
       }
 
-      // Confirmation désactivée mais pas de session retournée → signIn manuel
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email:    email.trim(),
         password,
