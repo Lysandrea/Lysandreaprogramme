@@ -57,7 +57,7 @@ export default function App() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/" element={<ComingSoon />} />
+      <Route path="/" element={new Date() >= new Date('2026-08-01T00:00:00+02:00') ? <Vente /> : <ComingSoon />} />
       <Route path="/vente" element={<Vente />} />
       <Route path="/login" element={<Login />} />
       <Route path="/inscription" element={<Inscription />} />
