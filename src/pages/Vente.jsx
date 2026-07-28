@@ -360,37 +360,37 @@ const OFFRE_CARDS = [
   {
     icon: '🏃',
     title: 'Volet sport',
-    desc: 'Un programme qui s'adapte à toi — pas l'inverse. Semaine après semaine, ton corps retrouve sa force, à ton rythme.',
+    desc: "Un programme qui s'adapte à toi — pas l'inverse. Semaine après semaine, ton corps retrouve sa force, à ton rythme.",
   },
   {
     icon: '🧠',
     title: 'Volet émotionnel',
-    desc: 'Chaque tension, chaque blocage a un sens. Tu vas enfin comprendre ce que ton corps essayait de te dire.',
+    desc: "Chaque tension, chaque blocage a un sens. Tu vas enfin comprendre ce que ton corps essayait de te dire.",
   },
   {
     icon: '💬',
     title: 'Suivi personnalisé',
-    desc: 'Un point chaque semaine avec moi — vocal ou message. Tu avances, et tu n'avances pas seule.',
+    desc: "Un point chaque semaine avec moi — vocal ou message. Tu avances, et tu n'avances pas seule.",
   },
   {
     icon: '📓',
     title: 'Ton espace personnel',
-    desc: 'Ton programme, ton journal, ta roue de la vie. Un espace rien qu'à toi pour voir le chemin parcouru.',
+    desc: "Ton programme, ton journal, ta roue de la vie. Un espace rien qu'à toi pour voir le chemin parcouru.",
   },
   {
     icon: '🎯',
     title: 'Bilans réguliers',
-    desc: 'On ajuste ensemble au fil des semaines. Rien n'est gravé dans le marbre — tout est pensé pour coller à ta vie.',
+    desc: "On ajuste ensemble au fil des semaines. Rien n'est gravé dans le marbre — tout est pensé pour coller à ta vie.",
   },
   {
     icon: '🎙️',
     title: 'Podcasts privés',
-    desc: 'Des épisodes audio rien que pour toi, débloqués semaine après semaine — confiance, zone de confort, exigence, effet cumulé…',
+    desc: "Des épisodes audio rien que pour toi, débloqués semaine après semaine — confiance, zone de confort, exigence, effet cumulé…",
   },
   {
     icon: '🍲',
     title: 'Des recettes qui font du bien',
-    desc: 'Des recettes saines et gourmandes, pensées pour manger avec plaisir, sans culpabilité, tout au long du programme.',
+    desc: "Des recettes saines et gourmandes, pensées pour manger avec plaisir, sans culpabilité, tout au long du programme.",
   },
 ]
 
