@@ -29,6 +29,7 @@ export default function ListeAttente() {
   const [rows,       setRows]       = useState([])
   const [loading,    setLoading]    = useState(true)
   const [notifying,  setNotifying]  = useState(false)
+  const [resetting,  setResetting]  = useState(false)
   const [notifyMsg,  setNotifyMsg]  = useState(null) // { type: 'success'|'error', text: string }
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function ListeAttente() {
   }, [])
 
   const unnotifiedCount = rows.filter(r => !r.notified).length
+  const notifiedCount   = rows.filter(r =>  r.notified).length
 
   async function handleNotify() {
     if (unnotifiedCount === 0) return
@@ -75,6 +77,31 @@ export default function ListeAttente() {
     }
   }
 
+  async function handleReset() {
+    if (notifiedCount === 0) return
+    const confirmed = window.confirm(
+      `Réinitialiser les notifications pour ${notifiedCount} personne${notifiedCount > 1 ? 's' : ''} non-convertie${notifiedCount > 1 ? 's' : ''} ?`
+    )
+    if (!confirmed) return
+
+    setResetting(true)
+    setNotifyMsg(null)
+    try {
+      const { error } = await supabase
+        .from('waitlist')
+        .update({ notified: false })
+        .eq('notified', true)
+      if (error) throw error
+
+      setRows(prev => prev.map(r => ({ ...r, notified: false })))
+      setNotifyMsg({ type: 'success', text: `Notifications réinitialisées pour ${notifiedCount} personne${notifiedCount > 1 ? 's' : ''} ✓` })
+    } catch (err) {
+      setNotifyMsg({ type: 'error', text: `Erreur : ${err.message}` })
+    } finally {
+      setResetting(false)
+    }
+  }
+
   return (
     <div className="shell">
       <Sidebar />
@@ -103,6 +130,15 @@ export default function ListeAttente() {
                   loading={notifying}
                 >
                   📢 Prévenir la liste d'attente ({unnotifiedCount})
+                </Button>
+              )}
+              {notifiedCount > 0 && (
+                <Button
+                  variant="secondary"
+                  onClick={handleReset}
+                  loading={resetting}
+                >
+                  🔄 Réinitialiser les notifications
                 </Button>
               )}
             </div>

@@ -127,6 +127,9 @@ Deno.serve(async (req) => {
       .insert({ email, token })
     if (insertError) throw insertError
 
+    // Remove from waitlist if they were on it (they've converted)
+    await supabase.from('waitlist').delete().eq('email', email)
+
     await sendWelcomeEmail(email, token)
 
     console.log(`[stripe-webhook] invite created for ${email}`)
