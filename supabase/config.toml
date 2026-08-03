@@ -1,0 +1,6 @@
+[functions.stripe-webhook]
+verify_jwt = false
+# Stripe authenticates via its own HMAC-SHA256 Stripe-Signature header,
+# so Supabase JWT verification must be disabled for this function.
+# Any future function that receives external webhooks (e.g. from a payment
+# processor, email provider, etc.) should also get verify_jwt = false here.
