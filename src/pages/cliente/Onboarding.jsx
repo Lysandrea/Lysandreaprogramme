@@ -485,7 +485,7 @@ function Step5({ signature, setSignature, submitting, onBack, onComplete }) {
           <p style={s.accordSection}>CE QUE JE M'ENGAGE À FAIRE POUR TOI</p>
           {[
             'Je lis ton questionnaire avec attention avant de démarrer.',
-            'Je te réponds dans les 48h.',
+            'Je te réponds cette semaine.',
             "Je prépare chaque semaine pour qu'elle soit personnalisée à toi et tes objectifs.",
             'Je ne te juge pas — jamais.',
           ].map(line => (
@@ -592,8 +592,8 @@ function SuccessScreen({ prenom }) {
         </h2>
         <p style={{ fontSize: 'var(--tx-lg)', color: 'rgba(245,240,232,0.75)', maxWidth: 440, lineHeight: 1.7 }}>
           Ton questionnaire a bien été reçu. Je le lis avec attention
-          et ton programme personnalisé sera disponible dans les 48h.
-          À très vite. — Lysa 🌿
+          et ton programme personnalisé sera prêt pour toi cette semaine.
+          Je prends le temps de bien faire les choses. À très vite. — Lysa 🌿
         </p>
         <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--sage)', marginTop: 'var(--s6)', letterSpacing: '.08em' }}>
           Redirection vers ton tableau de bord…

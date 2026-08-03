@@ -206,7 +206,7 @@ function WaitingState({ prenom }) {
             <p style={s.waitText}>
               Lysa prépare ton programme personnalisé.{' '}
               Tu seras notifiée dès qu'il est disponible —{' '}
-              en général dans les 48h.
+              d'ici la fin de la semaine.
             </p>
           </div>
 

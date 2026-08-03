@@ -62,7 +62,7 @@ export default function Attente() {
           }}>
             Je lis ton questionnaire avec attention.{' '}
             Ton programme personnalisé sera créé sur mesure pour toi
-            et disponible dans les 48h.
+            et disponible cette semaine.
           </p>
 
           {/* Quote */}
