@@ -210,25 +210,29 @@ function WaitingState({ prenom }) {
             </p>
           </div>
 
-          {/* ── Deux cartes d'invitation ── */}
+          {/* ── Deux cartes verrouillées ── */}
           <div style={s.inviteGrid}>
             <Card style={s.inviteCard}>
-              <p style={s.inviteIcon}>🎙️</p>
-              <h3 style={s.inviteCardTitle}>Ta première ressource t'attend</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <p style={{ ...s.inviteIcon, margin: 0 }}>🎙️</p>
+                <span style={s.lockedBadge}>Bientôt disponible</span>
+              </div>
+              <h3 style={s.inviteCardTitle}>Mes podcasts</h3>
               <p style={s.inviteCardText}>
-                Un épisode a été débloqué pour toi.{' '}
-                Écoute-le quand tu veux.
+                Les épisodes seront débloqués avec ton programme personnalisé.
               </p>
-              <Button onClick={() => navigate('/podcasts')}>Voir mes podcasts →</Button>
+              <div style={s.lockedBtn}>Débloqué avec ton programme 🔒</div>
             </Card>
             <Card style={s.inviteCard}>
-              <p style={s.inviteIcon}>🍲</p>
-              <h3 style={s.inviteCardTitle}>Une recette pour bien démarrer</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <p style={{ ...s.inviteIcon, margin: 0 }}>🍲</p>
+                <span style={s.lockedBadge}>Bientôt disponible</span>
+              </div>
+              <h3 style={s.inviteCardTitle}>Mes recettes</h3>
               <p style={s.inviteCardText}>
-                Ta première recette est disponible.{' '}
-                Simple, bonne, pensée pour toi.
+                Les recettes seront débloquées avec ton programme personnalisé.
               </p>
-              <Button onClick={() => navigate('/recettes')}>Voir mes recettes →</Button>
+              <div style={s.lockedBtn}>Débloqué avec ton programme 🔒</div>
             </Card>
           </div>
 
@@ -347,4 +351,6 @@ const s = {
   inviteIcon:      { fontSize: '2rem', margin: 0 },
   inviteCardTitle: { fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)', fontWeight: 400, color: 'var(--earth)', margin: 0 },
   inviteCardText:  { fontSize: 'var(--tx-sm)', color: 'var(--stone)', lineHeight: 1.55, margin: 0 },
+  lockedBadge:     { fontSize: 10, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--stone)', background: 'var(--sand)', borderRadius: 4, padding: '2px 7px' },
+  lockedBtn:       { display: 'inline-block', padding: '10px 18px', borderRadius: 'var(--r-sm)', border: '1.5px solid var(--sand)', color: 'var(--stone)', fontSize: 'var(--tx-sm)', fontWeight: 500, background: 'transparent', cursor: 'not-allowed', opacity: 0.6, userSelect: 'none' },
 }

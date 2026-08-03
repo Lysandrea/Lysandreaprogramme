@@ -31,6 +31,7 @@ const CLIENTE_SECTIONS = [
       { label: 'Mes podcasts',          to: '/podcasts',           icon: '🎙️' },
       { label: 'Mes recettes',          to: '/recettes',           icon: '🍲' },
       { label: 'Mes conseils nutrition', to: '/conseils-nutrition', icon: '🥗', requiresPublished: true },
+      { label: 'Pourquoi j\'ai mal',    to: '/pourquoi-ai-mal',    icon: '🩹', alwaysLocked: true, subtitle: 'Bientôt disponible' },
     ],
   },
   {
@@ -98,7 +99,7 @@ export default function Sidebar() {
               <div key={section.title} style={{ marginBottom: 'var(--s2)' }}>
                 <p style={s.sectionLabel}>{section.title}</p>
                 {section.items.map(item => {
-                  const locked = item.lockable && !isWeek8
+                  const locked = (item.lockable && !isWeek8) || item.alwaysLocked
                   if (item.requiresPublished && !aiPublie) return null
 
                   if (item.external) {
@@ -122,7 +123,10 @@ export default function Sidebar() {
                     return (
                       <div key={item.to} style={{ ...s.item, ...s.itemLocked }}>
                         <span style={s.icon}>{item.icon}</span>
-                        <span style={{ flex: 1 }}>{item.label}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div>{item.label}</div>
+                          {item.subtitle && <div style={{ fontSize: 9, opacity: .7, marginTop: 1 }}>{item.subtitle}</div>}
+                        </div>
                         <span style={{ fontSize: 10 }}>🔒</span>
                       </div>
                     )
