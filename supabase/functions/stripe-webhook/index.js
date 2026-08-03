@@ -62,7 +62,7 @@ ${inscriptionUrl}
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Lysa Andréa <hello@lysandreaprogramme.vercel.app>',
+      from: 'Lysa Andréa <onboarding@resend.dev>',
       to: [email],
       subject: 'Bienvenue dans Déclic 🌿',
       text: body,
