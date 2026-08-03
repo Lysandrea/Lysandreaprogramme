@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import './Vente.css'
 
 const BASE = 'https://omcednuoxfmhyfwmrmmp.supabase.co/storage/v1/object/public/photo-page-vente'
@@ -49,6 +50,11 @@ export default function Vente() {
 
   return (
     <div style={s.page}>
+
+      {/* ── TOP NAV — espace membres ── */}
+      <div style={s.topNav}>
+        <Link to="/login" style={s.topNavLink}>Mon espace Déclic →</Link>
+      </div>
 
       {/* ── SECTION 1 — HERO (forest gradient) ── */}
       <section style={s.hero} className="v-hero">
@@ -443,6 +449,26 @@ const s = {
     inset: 0,
     background: 'rgba(44,57,43,0.80)',
     zIndex: 0,
+  },
+
+  /* Top nav */
+  topNav: {
+    background: 'linear-gradient(135deg, #3D4F3C 0%, #4d6349 100%)',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    padding: '10px 40px',
+    borderBottom: '1px solid rgba(245,240,232,0.1)',
+  },
+  topNavLink: {
+    fontFamily: 'var(--font-sans)',
+    fontSize: 12,
+    fontWeight: 500,
+    letterSpacing: '0.04em',
+    color: 'rgba(245,240,232,0.65)',
+    textDecoration: 'none',
+    border: '1px solid rgba(245,240,232,0.2)',
+    borderRadius: 6,
+    padding: '5px 12px',
   },
 
   /* Hero */

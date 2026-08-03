@@ -161,7 +161,7 @@ export default function Inscription() {
 
         <p style={s.footer}>
           Déjà un compte ?{' '}
-          <Link to="/" style={s.link}>Se connecter</Link>
+          <Link to="/login" style={s.link}>Se connecter</Link>
         </p>
       </div>
     </div>
