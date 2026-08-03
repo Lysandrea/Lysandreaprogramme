@@ -18,7 +18,9 @@ import Recettes       from './pages/cliente/Recettes.jsx'
 import LettreFin         from './pages/cliente/LettreFin.jsx'
 import Avis              from './pages/cliente/Avis.jsx'
 import Attente           from './pages/cliente/Attente.jsx'
-import ConseilsNutrition from './pages/cliente/ConseilsNutrition.jsx'
+import ConseilsNutrition  from './pages/cliente/ConseilsNutrition.jsx'
+import PourquoiJaiMal    from './pages/cliente/PourquoiJaiMal.jsx'
+import PourquoiJaiMalZone from './pages/cliente/PourquoiJaiMalZone.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
 import ListeAttente   from './pages/coach/ListeAttente.jsx'
@@ -108,6 +110,12 @@ export default function App() {
       } />
       <Route path="/conseils-nutrition" element={
         <ProtectedRoute allow="cliente"><ConseilsNutrition /></ProtectedRoute>
+      } />
+      <Route path="/pourquoi-jai-mal" element={
+        <ProtectedRoute allow="cliente"><PourquoiJaiMal /></ProtectedRoute>
+      } />
+      <Route path="/pourquoi-jai-mal/:zone" element={
+        <ProtectedRoute allow="cliente"><PourquoiJaiMalZone /></ProtectedRoute>
       } />
 
       {/* Coach (protected) */}

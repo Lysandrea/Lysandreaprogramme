@@ -28,10 +28,10 @@ const CLIENTE_SECTIONS = [
   {
     title: 'Contenu débloqué',
     items: [
-      { label: 'Mes podcasts',          to: '/podcasts',           icon: '🎙️' },
-      { label: 'Mes recettes',          to: '/recettes',           icon: '🍲' },
+      { label: 'Mes podcasts',           to: '/podcasts',           icon: '🎙️', lockedUntilPublished: true },
+      { label: 'Mes recettes',           to: '/recettes',           icon: '🍲', lockedUntilPublished: true },
       { label: 'Mes conseils nutrition', to: '/conseils-nutrition', icon: '🥗', requiresPublished: true },
-      { label: 'Pourquoi j\'ai mal',    to: '/pourquoi-ai-mal',    icon: '🩹', alwaysLocked: true, subtitle: 'Bientôt disponible' },
+      { label: "Pourquoi j'ai mal",      to: '/pourquoi-jai-mal',   icon: '🩹', lockedUntilPublished: true },
     ],
   },
   {
@@ -99,7 +99,7 @@ export default function Sidebar() {
               <div key={section.title} style={{ marginBottom: 'var(--s2)' }}>
                 <p style={s.sectionLabel}>{section.title}</p>
                 {section.items.map(item => {
-                  const locked = (item.lockable && !isWeek8) || item.alwaysLocked
+                  const locked = (item.lockable && !isWeek8) || (item.lockedUntilPublished && !aiPublie)
                   if (item.requiresPublished && !aiPublie) return null
 
                   if (item.external) {
@@ -123,10 +123,7 @@ export default function Sidebar() {
                     return (
                       <div key={item.to} style={{ ...s.item, ...s.itemLocked }}>
                         <span style={s.icon}>{item.icon}</span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div>{item.label}</div>
-                          {item.subtitle && <div style={{ fontSize: 9, opacity: .7, marginTop: 1 }}>{item.subtitle}</div>}
-                        </div>
+                        <span style={{ flex: 1 }}>{item.label}</span>
                         <span style={{ fontSize: 10 }}>🔒</span>
                       </div>
                     )
