@@ -682,47 +682,10 @@ export default function IntakeQuestionnaire({ intake, setIntake, userEmail, onBa
       <Divider />
 
       {/* ════════════════════════════════
-          SECTION 7 — Pour finir
+          SECTION 7 — Nutrition & alimentation
           ════════════════════════════════ */}
       <div style={card}>
-        <SectionHead num={7} emoji="💬" title="Pour finir" sectionRef={el => sRefs.current[6] = el} />
-        <div style={fields}>
-
-          <div>
-            <QLabel>Est-ce qu'il y a quelque chose d'important à savoir sur toi que je n'ai pas demandé ?</QLabel>
-            <TA value={d.informations_manquantes} onChange={v => set('informations_manquantes', v)} placeholder="Ta réponse…" rows={3} />
-          </div>
-
-          <div>
-            <QLabel>Comment tu as entendu parler de moi ?</QLabel>
-            <CheckboxList
-              values={d.comment_connue}
-              onChange={v => set('comment_connue', v)}
-              options={[
-                { value: 'instagram',       label: 'Instagram' },
-                { value: 'bouche_a_oreille',label: 'Bouche à oreille' },
-                { value: 'podcast',         label: 'Podcast' },
-                { value: 'autre',           label: 'Autre' },
-              ]}
-            />
-            <Fade show={d.comment_connue.includes('autre')}>
-              <TI value={d.comment_connue_autre} onChange={v => set('comment_connue_autre', v)} placeholder="Précise…" />
-            </Fade>
-          </div>
-
-          <div>
-            <QLabel>Tu as des questions avant qu'on commence ?</QLabel>
-            <TA value={d.questions_avant} onChange={v => set('questions_avant', v)} placeholder="Ta réponse…" rows={3} />
-          </div>
-
-        </div>
-      </div>
-
-      {/* ════════════════════════════════
-          SECTION 8 — Nutrition & alimentation
-          ════════════════════════════════ */}
-      <div style={card}>
-        <SectionHead num={8} emoji="🥗" title="Nutrition & alimentation" sectionRef={el => sRefs.current[7] = el} />
+        <SectionHead num={7} emoji="🥗" title="Nutrition & alimentation" sectionRef={el => sRefs.current[6] = el} />
 
         <div style={{ background: 'var(--sand)', border: '1px solid rgba(196,181,160,.4)', borderRadius: 'var(--r-md)', padding: 'var(--s5)' }}>
           <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--bark)', fontStyle: 'italic', lineHeight: 1.7 }}>
@@ -829,10 +792,10 @@ export default function IntakeQuestionnaire({ intake, setIntake, userEmail, onBa
       <Divider />
 
       {/* ════════════════════════════════
-          SECTION 9 — Roue de la Vie
+          SECTION 8 — Roue de la Vie
           ════════════════════════════════ */}
       <div style={card}>
-        <SectionHead num={9} emoji="🌀" title="Ta Roue de la Vie" sectionRef={el => sRefs.current[8] = el} />
+        <SectionHead num={8} emoji="🌀" title="Ta Roue de la Vie" sectionRef={el => sRefs.current[7] = el} />
         <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--bark)', lineHeight: 1.6 }}>
           Note chaque domaine de 1 à 10. Il n'y a pas de bonne réponse — juste ton ressenti honnête aujourd'hui.
         </p>
@@ -856,6 +819,45 @@ export default function IntakeQuestionnaire({ intake, setIntake, userEmail, onBa
             Ton profil aujourd'hui
           </p>
           <RadarChart values={d.roue_de_vie} />
+        </div>
+      </div>
+
+      <Divider />
+
+      {/* ════════════════════════════════
+          SECTION 9 — Pour finir
+          ════════════════════════════════ */}
+      <div style={card}>
+        <SectionHead num={9} emoji="💬" title="Pour finir" sectionRef={el => sRefs.current[8] = el} />
+        <div style={fields}>
+
+          <div>
+            <QLabel>Est-ce qu'il y a quelque chose d'important à savoir sur toi que je n'ai pas demandé ?</QLabel>
+            <TA value={d.informations_manquantes} onChange={v => set('informations_manquantes', v)} placeholder="Ta réponse…" rows={3} />
+          </div>
+
+          <div>
+            <QLabel>Comment tu as entendu parler de moi ?</QLabel>
+            <CheckboxList
+              values={d.comment_connue}
+              onChange={v => set('comment_connue', v)}
+              options={[
+                { value: 'instagram',       label: 'Instagram' },
+                { value: 'bouche_a_oreille',label: 'Bouche à oreille' },
+                { value: 'podcast',         label: 'Podcast' },
+                { value: 'autre',           label: 'Autre' },
+              ]}
+            />
+            <Fade show={d.comment_connue.includes('autre')}>
+              <TI value={d.comment_connue_autre} onChange={v => set('comment_connue_autre', v)} placeholder="Précise…" />
+            </Fade>
+          </div>
+
+          <div>
+            <QLabel>Tu as des questions avant qu'on commence ?</QLabel>
+            <TA value={d.questions_avant} onChange={v => set('questions_avant', v)} placeholder="Ta réponse…" rows={3} />
+          </div>
+
         </div>
       </div>
 
