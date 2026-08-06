@@ -4,6 +4,7 @@ import { useAuth }    from '../../contexts/AuthContext.jsx'
 import { useSidebar } from '../../contexts/SidebarContext.jsx'
 import {
   IS_MOCK,
+  supabase,
   fetchOnboardingProgress,
   fetchIntakeResponses,
   saveOnboardingStep,
@@ -220,15 +221,22 @@ export default function Onboarding() {
               onBack={() => goToStep(3)}
               onNext={async () => {
                 await persistIntake(intake)
-                if (!IS_MOCK && user && profile?.coach_id) {
+                if (!IS_MOCK && user) {
                   try {
-                    await createCoachNotification(
-                      profile.coach_id,
-                      user.id,
-                      `${prenom} a soumis son questionnaire.`,
-                      'questionnaire_submitted'
-                    )
+                    await supabase.functions.invoke('notify-coach-questionnaire', {
+                      body: { clienteId: user.id, clienteName: prenom },
+                    })
                   } catch {}
+                  if (profile?.coach_id) {
+                    try {
+                      await createCoachNotification(
+                        profile.coach_id,
+                        user.id,
+                        `${prenom} a soumis son questionnaire.`,
+                        'questionnaire_submitted'
+                      )
+                    } catch {}
+                  }
                 }
                 // Génération IA via Edge Function (fire & forget)
                 if (!IS_MOCK && user) {
