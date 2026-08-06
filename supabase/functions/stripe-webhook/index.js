@@ -47,13 +47,22 @@ async function sendWelcomeEmail(email, token) {
     return
   }
 
-  const body = `C'est fait. Ta place dans Déclic est réservée.
+  const body = `Bienvenue dans Déclic.
 
-Clique sur le lien ci-dessous pour créer ton accès à la plateforme et commencer ton parcours.
+Je suis vraiment contente de t'accompagner sur ces 8 semaines.
+
+Clique sur le lien ci-dessous pour créer ton accès à la plateforme :
 
 ${inscriptionUrl}
 
-À très vite. — Lysa`
+Une fois ton compte créé, tu pourras remplir ton questionnaire de démarrage — prends le temps qu'il te faut, il n'y a pas de bonne ou mauvaise réponse, je le lis avec attention.
+
+Une fois ton questionnaire complété, compte environ une semaine pour que je prépare ton programme personnalisé sur mesure — sport, émotionnel, et nutrition.
+
+Si tu as la moindre question d'ici là, écris-moi directement sur WhatsApp : https://wa.me/33650947117
+
+À très vite.
+— Lysa 🌿`
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -67,15 +76,19 @@ ${inscriptionUrl}
       subject: 'Bienvenue dans Déclic 🌿',
       text: body,
       html: `
-        <p>C'est fait. Ta place dans <strong>Déclic</strong> est réservée.</p>
-        <p>Clique sur le lien ci-dessous pour créer ton accès à la plateforme et commencer ton parcours.</p>
+        <p>Bienvenue dans <strong>Déclic</strong>.</p>
+        <p>Je suis vraiment contente de t'accompagner sur ces 8 semaines.</p>
+        <p>Clique sur le lien ci-dessous pour créer ton accès à la plateforme :</p>
         <p style="margin: 32px 0;">
           <a href="${inscriptionUrl}"
              style="background:#2d5a27;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-size:16px;">
             Créer mon accès →
           </a>
         </p>
-        <p>À très vite. — Lysa</p>
+        <p>Une fois ton compte créé, tu pourras remplir ton questionnaire de démarrage — prends le temps qu'il te faut, il n'y a pas de bonne ou mauvaise réponse, je le lis avec attention.</p>
+        <p>Une fois ton questionnaire complété, compte environ une semaine pour que je prépare ton programme personnalisé sur mesure — sport, émotionnel, et nutrition.</p>
+        <p>Si tu as la moindre question d'ici là, écris-moi directement sur WhatsApp : <a href="https://wa.me/33650947117">https://wa.me/33650947117</a></p>
+        <p>À très vite.<br>— Lysa 🌿</p>
       `,
     }),
   })
