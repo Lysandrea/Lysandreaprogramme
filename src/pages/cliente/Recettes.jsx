@@ -1,40 +1,29 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext.jsx'
-import { IS_MOCK, fetchAiProgramme, fetchBilansJourNums } from '../../lib/supabase.js'
+import { IS_MOCK, fetchAiProgramme } from '../../lib/supabase.js'
 
-/* 8 weeks × 2 recipes each */
-const RECETTES = Array.from({ length: 8 }, (_, i) => {
-  const sem = i + 1
-  return [
-    { sem, type: 'A', titre: `Recette A — Semaine ${sem}` },
-    { sem, type: 'B', titre: `Recette B — Semaine ${sem}`, bonus: true },
-  ]
-}).flat()
-
-function bilansInWeek(bilansJourNums, sem) {
-  const from = (sem - 1) * 7 + 1
-  const to   = sem * 7
-  return bilansJourNums.filter(n => n >= from && n <= to).length
-}
+const RECETTES = [
+  { sem: 1, titre: 'Recette de la semaine 1' },
+  { sem: 2, titre: 'Recette de la semaine 2' },
+  { sem: 3, titre: 'Recette de la semaine 3' },
+  { sem: 4, titre: 'Recette de la semaine 4' },
+  { sem: 5, titre: 'Recette de la semaine 5' },
+  { sem: 6, titre: 'Recette de la semaine 6' },
+  { sem: 7, titre: 'Recette de la semaine 7' },
+  { sem: 8, titre: 'Recette de la semaine 8' },
+]
 
 export default function Recettes() {
   const { user, profile } = useAuth()
   const currentSem = Math.min(Math.ceil((profile?.current_day ?? 1) / 7), 8)
 
-  const [publie,          setPublie]          = useState(false)
-  const [bilansJourNums,  setBilansJourNums]  = useState([])
-  const [loading,         setLoading]         = useState(true)
+  const [publie,  setPublie]  = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!user || IS_MOCK) { setLoading(false); return }
-    Promise.all([
-      fetchAiProgramme(user.id),
-      fetchBilansJourNums(user.id),
-    ])
-      .then(([prog, bilans]) => {
-        setPublie(prog?.statut === 'publie')
-        setBilansJourNums(bilans)
-      })
+    fetchAiProgramme(user.id)
+      .then(prog => setPublie(prog?.statut === 'publie'))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [user])
@@ -43,7 +32,7 @@ export default function Recettes() {
 
   if (!publie) return (
     <div style={s.page}>
-      <h1 style={s.title}>Mes recettes</h1>
+      <h1 style={s.title}>Le rendez-vous gourmand</h1>
       <div style={s.gate}>
         <span style={{ fontSize: '2rem' }}>🔒</span>
         <p style={s.gateText}>Disponible dès la publication de ton programme personnalisé.</p>
@@ -53,34 +42,33 @@ export default function Recettes() {
 
   return (
     <div style={s.page}>
-      <h1 style={s.title}>Mes recettes</h1>
-      <p style={s.intro}>
-        Une recette se débloque chaque semaine. La recette bonus 🎁 se débloque dès ton 3ème bilan de la semaine.
-      </p>
+      <h1 style={s.title}>Le rendez-vous gourmand</h1>
+      <p style={s.intro}>Une recette se débloque chaque semaine au fil de ton programme.</p>
 
       <div style={s.list}>
-        {RECETTES.map(({ sem, type, titre, bonus }) => {
-          const unlocked = bonus
-            ? bilansInWeek(bilansJourNums, sem) >= 3
-            : sem <= currentSem
-
+        {RECETTES.map(({ sem, titre }) => {
+          const unlocked = sem <= currentSem
           return (
-            <div key={`${sem}-${type}`} style={{ ...s.card, ...(!unlocked ? s.cardLocked : {}) }}>
-              <div style={s.cardHeader}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s3)' }}>
-                  <span style={{ ...s.semBadge, ...(!unlocked ? s.badgeLocked : {}) }}>S{sem}</span>
-                  {bonus && <span style={s.bonusBadge}>🎁 Bonus</span>}
-                </div>
-                {!unlocked && <span>🔒</span>}
+            <div key={sem} style={{ ...s.card, ...(!unlocked ? s.cardLocked : {}) }}>
+              <div style={s.cardLeft}>
+                <div style={{ ...s.semBadge, ...(!unlocked ? s.badgeLocked : {}) }}>S{sem}</div>
               </div>
-              <h3 style={{ ...s.cardTitle, ...(!unlocked ? s.textLocked : {}) }}>{titre}</h3>
-              <p style={{ ...s.cardDesc, ...(!unlocked ? s.textLocked : {}) }}>
-                {unlocked
-                  ? 'Recette à venir — contenu en cours d\'ajout.'
-                  : bonus
-                    ? `Débloqué après 3 bilans en semaine ${sem}`
-                    : `Débloqué à la semaine ${sem}`}
-              </p>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={s.cardTop}>
+                  <p style={{ ...s.cardTitle, ...(!unlocked ? s.textLocked : {}) }}>{titre}</p>
+                  {!unlocked && <span style={s.lock}>🔒</span>}
+                </div>
+                {unlocked ? (
+                  <>
+                    <p style={s.cardDesc}>Recette à venir — contenu en cours d'ajout.</p>
+                    <div style={s.cardMeta}>
+                      <span style={s.metaItem}>🍲 Semaine {sem}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p style={{ ...s.cardDesc, ...s.textLocked }}>Déblocage semaine {sem}</p>
+                )}
+              </div>
             </div>
           )
         })}
@@ -90,19 +78,22 @@ export default function Recettes() {
 }
 
 const s = {
-  page:       { padding: 'var(--s8) var(--s6)', maxWidth: 700 },
+  page:       { padding: 'var(--s8) var(--s6)', maxWidth: 640 },
   title:      { fontFamily: 'var(--serif)', fontSize: 'var(--tx-2xl)', color: 'var(--forest)', fontWeight: 400, marginBottom: 'var(--s3)' },
-  intro:      { fontSize: 'var(--tx-sm)', color: 'var(--stone)', marginBottom: 'var(--s7)', lineHeight: 1.6 },
+  intro:      { fontSize: 'var(--tx-sm)', color: 'var(--stone)', marginBottom: 'var(--s7)' },
   gate:       { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--s4)', padding: 'var(--s10)', background: 'var(--sand)', borderRadius: 'var(--r-lg)', textAlign: 'center' },
   gateText:   { fontSize: 'var(--tx-sm)', color: 'var(--stone)', maxWidth: 320, lineHeight: 1.6, margin: 0 },
-  list:       { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--s5)' },
-  card:       { background: 'var(--white)', borderRadius: 'var(--r-md)', padding: 'var(--s6)', boxShadow: 'var(--shadow-sm)', display: 'flex', flexDirection: 'column', gap: 'var(--s3)' },
+  list:       { display: 'flex', flexDirection: 'column', gap: 'var(--s4)' },
+  card:       { background: 'var(--white)', borderRadius: 'var(--r-md)', padding: 'var(--s5) var(--s6)', boxShadow: 'var(--shadow-sm)', display: 'flex', gap: 'var(--s5)', alignItems: 'flex-start' },
   cardLocked: { opacity: .5 },
-  cardHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  semBadge:   { padding: '2px 10px', borderRadius: 99, background: 'var(--sage)', color: 'var(--forest)', fontSize: 10, fontWeight: 700, letterSpacing: '.04em' },
+  cardLeft:   { flexShrink: 0 },
+  semBadge:   { width: 36, height: 36, borderRadius: '50%', background: 'var(--sage)', color: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, letterSpacing: '.02em' },
   badgeLocked:{ background: 'var(--mist)', color: 'var(--stone)' },
-  bonusBadge: { fontSize: 10, color: 'var(--bark)', fontWeight: 500 },
+  cardTop:    { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 4 },
   cardTitle:  { fontSize: 'var(--tx-sm)', fontWeight: 600, color: 'var(--forest)', lineHeight: 1.4, margin: 0 },
   cardDesc:   { fontSize: 'var(--tx-xs)', color: 'var(--stone)', lineHeight: 1.55, margin: 0 },
   textLocked: { color: 'var(--stone)' },
+  lock:       { fontSize: 13, flexShrink: 0 },
+  cardMeta:   { display: 'flex', alignItems: 'center', marginTop: 'var(--s3)' },
+  metaItem:   { fontSize: 'var(--tx-xs)', color: 'var(--stone)' },
 }
