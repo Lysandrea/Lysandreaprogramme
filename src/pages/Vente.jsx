@@ -75,6 +75,7 @@ export default function Vente() {
               Déclic — 8 semaines pour enfin l'entendre,<br />
               et bouger avec lui, pas contre lui.
             </p>
+            <p style={s.heroTagline}>Un esprit sain dans un corps badass</p>
             <div style={s.heroCtaRow} className="v-hero-cta-row">
               <a href="#offre" style={s.ctaSecondary} className="v-cta-secondary" onClick={scrollToOffre}>
                 Découvrir le programme ↓
@@ -103,6 +104,11 @@ export default function Vente() {
             Des régimes. Des programmes en ligne. Des coachs. Des applications.
             Peut-être même que ça a marché —{' '}
             <Em>un peu, un temps</Em>.
+          </p>
+          <p style={s.internalVoice}>
+            Tu te dis peut-être : « Je n'arrive pas à m'y tenir. »<br />
+            « Je ne sais pas par où commencer. »<br />
+            « Je ne sais plus quoi faire. »
           </p>
           <p style={s.body}>
             Et puis c'est reparti comme avant. Tu t'es dit que tu n'étais
@@ -260,13 +266,15 @@ export default function Vente() {
         <div style={s.inner}>
           <div style={s.disclaimerCard} className="v-disclaimer-card">
             <p style={s.disclaimerText}>
-              Je ne suis pas thérapeute, ni nutritionniste. Ce n'est pas
-              un programme de performance, ni <Em>un régime déguisé</Em>.
+              Ce n'est pas un programme de plus à abandonner dans trois semaines.
             </p>
             <p style={s.disclaimerText}>
-              C'est un accompagnement sport et émotionnel, pensé pour
-              une seule chose : que tu arrêtes de{' '}
-              <Em>te battre contre ton corps</Em>.
+              C'est le moment où tu arrêtes de te battre contre ton corps —
+              et où tu commences enfin à avancer avec lui.
+            </p>
+            <p style={{ ...s.disclaimerText, fontStyle: 'normal', fontWeight: 600, color: 'var(--earth)' }}>
+              8 semaines pour retrouver confiance, énergie, et une relation
+              apaisée avec toi-même.
             </p>
           </div>
         </div>
@@ -345,6 +353,45 @@ export default function Vente() {
               question="Combien de temps par semaine il faut prévoir ?"
               answer="Environ 3 à 5 heures pour les séances sport, plus quelques minutes par jour pour les check-ins et ton journal. On construit à ton rythme — rien n'est figé."
             />
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 9.5 — LEAD MAGNET (white) ── */}
+      <section style={s.sectionWhite} className="v-section">
+        <div style={s.inner}>
+          <h2 style={{ ...s.sectionTitle, textAlign: 'center' }}>Pas encore prête à te lancer ?</h2>
+          <p style={{ ...s.body, textAlign: 'center', opacity: 0.8 }}>
+            Commence par ici — mon guide gratuit et mon podcast<br />
+            pour découvrir mon approche.
+          </p>
+          <div style={s.leadMagnetGrid} className="v-lead-magnet-grid">
+            <div style={s.leadMagnetCard}>
+              <span style={s.leadMagnetIcon}>📖</span>
+              <strong style={s.leadMagnetTitle}>Le guide gratuit</strong>
+              <p style={s.leadMagnetDesc}>Les bases pour commencer à changer ta relation à ton corps</p>
+              <a
+                href="https://94bcc678.sibforms.com/serve/MUIFAFJRejjbwMVSXnUPUdx2A7TfkRFu8BKbxBryVM1jN8z1hffu-gEspOg4srHyCemTljSc88-wF9oACM9gKTt4qMlRhrrBjXuVtd-wOX6JdW0M9JhpUU23MMk4ob9BHeR7m9YTtjJFy9O38yqfSYI32IHjoFBiXCuu10k0YLX6_doLtvbC5Z28fXUy3hCrQ_leK1dn6ZtnDfpfTQ=="
+                target="_blank"
+                rel="noopener noreferrer"
+                style={s.ctaLeadMagnet}
+              >
+                Télécharger →
+              </a>
+            </div>
+            <div style={s.leadMagnetCard}>
+              <span style={s.leadMagnetIcon}>🎙️</span>
+              <strong style={s.leadMagnetTitle}>Le podcast</strong>
+              <p style={s.leadMagnetDesc}>Écoute un épisode pour découvrir mon approche et ma voix</p>
+              <a
+                href="https://open.spotify.com/show/5liGrzBl0uiwExIgSI83Yi?si=5646fb32a5674a0f"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={s.ctaLeadMagnet}
+              >
+                Écouter sur Spotify →
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -751,6 +798,23 @@ const s = {
     lineHeight: 1.85,
     margin: 0,
   },
+  internalVoice: {
+    fontFamily: 'var(--font-sans)',
+    fontSize: 14,
+    color: 'var(--bark)',
+    fontStyle: 'italic',
+    lineHeight: 1.9,
+    margin: 0,
+    opacity: 0.8,
+  },
+  heroTagline: {
+    fontFamily: 'var(--font-serif)',
+    fontStyle: 'italic',
+    fontSize: 'clamp(15px, 2vw, 20px)',
+    color: 'var(--sage)',
+    margin: 0,
+    letterSpacing: '0.01em',
+  },
   bodyInverse: {
     fontFamily: 'var(--font-sans)',
     fontSize: 16,
@@ -907,6 +971,57 @@ const s = {
     color: 'rgba(253,250,246,0.5)',
     margin: 0,
     letterSpacing: '0.02em',
+  },
+
+  /* Lead magnet section */
+  leadMagnetGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 24,
+  },
+  leadMagnetCard: {
+    background: 'var(--white)',
+    border: '1px solid var(--sand)',
+    borderRadius: 14,
+    padding: '32px 28px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
+    alignItems: 'flex-start',
+  },
+  leadMagnetIcon: {
+    fontSize: 28,
+    lineHeight: 1,
+  },
+  leadMagnetTitle: {
+    fontFamily: 'var(--font-sans)',
+    fontSize: 16,
+    fontWeight: 600,
+    color: 'var(--earth)',
+  },
+  leadMagnetDesc: {
+    fontFamily: 'var(--font-sans)',
+    fontSize: 14,
+    color: 'var(--bark)',
+    lineHeight: 1.7,
+    margin: 0,
+    opacity: 0.85,
+    flex: 1,
+  },
+  ctaLeadMagnet: {
+    display: 'inline-block',
+    padding: '11px 22px',
+    borderRadius: 8,
+    border: '1.5px solid var(--sand)',
+    background: 'var(--white)',
+    color: 'var(--earth)',
+    fontFamily: 'var(--font-sans)',
+    fontSize: 13,
+    fontWeight: 500,
+    letterSpacing: '0.02em',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    marginTop: 4,
   },
 
   /* Section 9 — FAQ */
