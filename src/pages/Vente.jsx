@@ -47,6 +47,7 @@ export default function Vente() {
   }
 
   const STRIPE_URL = 'https://buy.stripe.com/28E28r2XvbAjaDj0330co00'
+  const CALENDLY_URL = 'https://calendly.com/lysaandrea/15min'
 
   return (
     <div style={s.page}>
@@ -80,8 +81,8 @@ export default function Vente() {
               <a href="#offre" style={s.ctaSecondary} className="v-cta-secondary" onClick={scrollToOffre}>
                 Découvrir le programme ↓
               </a>
-              <a href={STRIPE_URL} style={s.ctaTerracottaOutline} className="v-cta-outline">
-                Je réserve ma place ✦
+              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={s.ctaTerracottaOutline} className="v-cta-outline">
+                Je réserve mon appel gratuit →
               </a>
             </div>
           </div>
@@ -255,10 +256,10 @@ export default function Vente() {
 
       {/* ── CTA APRÈS L'OFFRE ── */}
       <div style={s.ctaInterlude}>
-        <a href={STRIPE_URL} style={s.ctaPrimary} className="v-cta-primary">
-          Je réserve ma place →
+        <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={s.ctaPrimary} className="v-cta-primary">
+          Je réserve mon appel gratuit →
         </a>
-        <p style={s.ctaInterludeNote}>10 places · Beta septembre 2026 · 179€</p>
+        <p style={s.ctaInterludeNote}>Gratuit · Sans engagement · 15 minutes</p>
       </div>
 
       {/* ── SECTION 6 — CE QUE CE N'EST PAS (white + sand card) ── */}
