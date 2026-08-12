@@ -308,7 +308,31 @@ export default function Vente() {
         </div>
       </section>
 
-      {/* ── SECTION 8 — LE PRIX (white, prominent forest card) ── */}
+      {/* ── SECTION 8 — BILAN OFFERT (white, subtle) ── */}
+      <section style={s.sectionWhite} className="v-section">
+        <div style={s.inner}>
+          <div style={s.bilanCard}>
+            <h2 style={{ ...s.sectionTitle, textAlign: 'center' }}>Tu hésites encore ?</h2>
+            <p style={{ ...s.body, textAlign: 'center', opacity: 0.85 }}>
+              Réserve un échange de 15 minutes avec moi — gratuit, sans engagement.
+              On regarde ensemble si Déclic est fait pour toi, et tu repars avec
+              au moins une piste concrète, quoi qu'il arrive ensuite.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <a
+                href="https://calendly.com/lysaandrea/15min"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={s.ctaGhostForest}
+              >
+                Je réserve mon échange gratuit
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 9 — LE PRIX (white, prominent forest card) ── */}
       <section style={s.sectionWhite} className="v-section">
         <div style={s.inner}>
           <h2 style={s.sectionTitle}>Une offre beta — parce que c'est un vrai début</h2>
@@ -1022,6 +1046,32 @@ const s = {
     cursor: 'pointer',
     textDecoration: 'none',
     marginTop: 4,
+  },
+
+  /* Section 8 — Bilan offert */
+  bilanCard: {
+    border: '1.5px solid var(--sand)',
+    borderRadius: 16,
+    padding: '52px 48px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 24,
+    background: 'var(--cream)',
+    textAlign: 'center',
+  },
+  ctaGhostForest: {
+    display: 'inline-block',
+    padding: '14px 32px',
+    borderRadius: 8,
+    border: '1.5px solid var(--forest)',
+    background: 'transparent',
+    color: 'var(--forest)',
+    fontFamily: 'var(--font-sans)',
+    fontSize: 14,
+    fontWeight: 500,
+    letterSpacing: '0.03em',
+    cursor: 'pointer',
+    textDecoration: 'none',
   },
 
   /* Section 9 — FAQ */
