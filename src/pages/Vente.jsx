@@ -478,6 +478,11 @@ const OFFRE_CARDS = [
     title: 'Des recettes qui font du bien',
     desc: "Des recettes saines et gourmandes, pensées pour manger avec plaisir, sans culpabilité, tout au long du programme.",
   },
+  {
+    icon: '🩹',
+    title: 'Pourquoi j\'ai mal',
+    desc: "Une bibliothèque à explorer à ton rythme : comprendre ce que chaque douleur, chaque tension raconte de toi.",
+  },
 ]
 
 /* ── Styles ── */
