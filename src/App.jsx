@@ -23,8 +23,9 @@ import PourquoiJaiMal    from './pages/cliente/PourquoiJaiMal.jsx'
 import PourquoiJaiMalZone from './pages/cliente/PourquoiJaiMalZone.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
-import ListeAttente   from './pages/coach/ListeAttente.jsx'
-import ApercuContenu  from './pages/coach/ApercuContenu.jsx'
+import ListeAttente      from './pages/coach/ListeAttente.jsx'
+import RecettesPreview   from './pages/coach/RecettesPreview.jsx'
+import PodcastsPreview   from './pages/coach/PodcastsPreview.jsx'
 
 /* ── Loading screen ── */
 function Spinner() {
@@ -129,8 +130,11 @@ export default function App() {
       <Route path="/coach/liste-attente" element={
         <ProtectedRoute allow="coach"><ListeAttente /></ProtectedRoute>
       } />
-      <Route path="/coach/apercu-contenu" element={
-        <ProtectedRoute allow="coach"><ApercuContenu /></ProtectedRoute>
+      <Route path="/coach/recettes-preview" element={
+        <ProtectedRoute allow="coach"><RecettesPreview /></ProtectedRoute>
+      } />
+      <Route path="/coach/podcasts-preview" element={
+        <ProtectedRoute allow="coach"><PodcastsPreview /></ProtectedRoute>
       } />
 
       {/* Fallback */}

@@ -5,9 +5,10 @@ import { useSidebar }           from '../contexts/SidebarContext.jsx'
 import { IS_MOCK, fetchUnreadNotificationsCount, fetchAiProgramme } from '../lib/supabase.js'
 
 const COACH_NAV = [
-  { label: 'Vue Coach',        to: '/coach',                    icon: '📋' },
-  { label: 'Liste d\'attente', to: '/coach/liste-attente',      icon: '📬' },
-  { label: 'Aperçu contenu',   to: '/coach/apercu-contenu',     icon: '👁️' },
+  { label: 'Vue Coach',          to: '/coach',                    icon: '📋' },
+  { label: 'Liste d\'attente',   to: '/coach/liste-attente',      icon: '📬' },
+  { label: 'Aperçu Recettes',    to: '/coach/recettes-preview',   icon: '🍲' },
+  { label: 'Aperçu Podcasts',    to: '/coach/podcasts-preview',   icon: '🎙️' },
 ]
 
 const CLIENTE_SECTIONS = [
