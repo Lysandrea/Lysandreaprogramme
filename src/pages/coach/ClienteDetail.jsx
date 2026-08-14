@@ -326,6 +326,12 @@ const COMMENT_OPTS = [
   { value: 'instagram', label: 'Instagram' }, { value: 'bouche_a_oreille', label: 'Bouche à oreille' },
   { value: 'podcast', label: 'Podcast' }, { value: 'autre', label: 'Autre' },
 ]
+const SYMPTOMES_OPTS = [
+  { value: 'non_impact',   label: 'Peu d\'impact' },
+  { value: 'regles',       label: 'Pendant les règles' },
+  { value: 'premenstruel', label: 'Phase pré-menstruelle (SPM)' },
+  { value: 'complet',      label: 'Tout au long du cycle' },
+]
 
 function IntakeSection({ title, children }) {
   return (
@@ -367,6 +373,7 @@ function QuestionnaireTab({ intake }) {
         <QRow label="Âge" value={r.age} />
         <QRow label="Ville / Pays" value={r.ville_pays} />
         <QRow label="WhatsApp" value={r.whatsapp} />
+        <QRow label="Email" value={r.email} />
       </IntakeSection>
 
       <IntakeSection title="🌟 Ce qui l'a amenée ici">
@@ -433,21 +440,24 @@ function QuestionnaireTab({ intake }) {
           <Pills values={r.diagnostic ?? []} all={DIAGNOSTIC_OPTS} />
           {r.diagnostic_autre && <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontStyle: 'italic' }}>{r.diagnostic_autre}</span>}
         </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <span style={{ fontSize: 'var(--tx-xs)', fontWeight: 600, color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.06em' }}>Symptômes cycle</span>
+          <Pills values={r.symptomes_cycle ?? []} all={SYMPTOMES_OPTS} />
+          {(r.symptomes_cycle ?? []).includes('regles') && r.symptomes_regles_detail && (
+            <QRow label="Règles — détail" value={r.symptomes_regles_detail} />
+          )}
+          {(r.symptomes_cycle ?? []).includes('premenstruel') && r.symptomes_premenstruel_detail && (
+            <QRow label="Phase pré-menstruelle — détail" value={r.symptomes_premenstruel_detail} />
+          )}
+          {(r.symptomes_cycle ?? []).includes('complet') && r.symptomes_complet_detail && (
+            <QRow label="Tout au long du cycle — détail" value={r.symptomes_complet_detail} />
+          )}
+        </div>
         <QRow label="Où elle en est dans son cycle" value={r.cycle_actuel} />
       </IntakeSection>
 
-      <IntakeSection title="💬 Pour finir">
-        <QRow label="Informations manquantes" value={r.informations_manquantes} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <span style={{ fontSize: 'var(--tx-xs)', fontWeight: 600, color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.06em' }}>Comment elle a connu Lysa</span>
-          <Pills values={r.comment_connue ?? []} all={COMMENT_OPTS} />
-          {r.comment_connue_autre && <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontStyle: 'italic' }}>{r.comment_connue_autre}</span>}
-        </div>
-        <QRow label="Questions avant de commencer" value={r.questions_avant} />
-      </IntakeSection>
-
       {r.nutrition && Object.values(r.nutrition).some(v => v) && (
-        <IntakeSection title="🥗 Nutrition">
+        <IntakeSection title="🥗 Nutrition & alimentation">
           <QRow label="Poids / Taille" value={r.nutrition.poids && r.nutrition.taille ? `${r.nutrition.poids} kg · ${r.nutrition.taille} cm` : r.nutrition.poids ?? r.nutrition.taille ?? null} />
           <QRow label="Objectif nutrition" value={r.nutrition.objectif_nutrition} />
           <QRow label="Relation à la nourriture" value={r.nutrition.relation_nourriture} />
@@ -485,6 +495,16 @@ function QuestionnaireTab({ intake }) {
           </div>
         </div>
       </div>
+
+      <IntakeSection title="💬 Pour finir">
+        <QRow label="Informations manquantes" value={r.informations_manquantes} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <span style={{ fontSize: 'var(--tx-xs)', fontWeight: 600, color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.06em' }}>Comment elle a connu Lysa</span>
+          <Pills values={r.comment_connue ?? []} all={COMMENT_OPTS} />
+          {r.comment_connue_autre && <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontStyle: 'italic' }}>{r.comment_connue_autre}</span>}
+        </div>
+        <QRow label="Questions avant de commencer" value={r.questions_avant} />
+      </IntakeSection>
     </div>
   )
 }
