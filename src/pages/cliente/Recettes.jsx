@@ -52,7 +52,7 @@ export function RecetteDetail({ sem, titre, content }) {
           <div style={recettesStyles.detailCol}>
             <h3 style={recettesStyles.colHeading}>Ingrédients</h3>
             <ul style={recettesStyles.ingredientList}>
-              {ingredientrecettesStyles.map((ing, i) => (
+              {ingredients.map((ing, i) => (
                 <li key={i} style={recettesStyles.ingredientItem}>{ing}</li>
               ))}
             </ul>
@@ -60,7 +60,7 @@ export function RecetteDetail({ sem, titre, content }) {
           <div style={recettesStyles.detailCol}>
             <h3 style={recettesStyles.colHeading}>Préparation</h3>
             <ol style={recettesStyles.stepList}>
-              {steprecettesStyles.map((step, i) => (
+              {steps.map((step, i) => (
                 <li key={i} style={recettesStyles.stepItem}>
                   <span style={recettesStyles.stepNum}>{i + 1}</span>
                   <span>{step}</span>
