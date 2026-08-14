@@ -446,6 +446,20 @@ function QuestionnaireTab({ intake }) {
         <QRow label="Questions avant de commencer" value={r.questions_avant} />
       </IntakeSection>
 
+      {r.nutrition && Object.values(r.nutrition).some(v => v) && (
+        <IntakeSection title="🥗 Nutrition">
+          <QRow label="Poids / Taille" value={r.nutrition.poids && r.nutrition.taille ? `${r.nutrition.poids} kg · ${r.nutrition.taille} cm` : r.nutrition.poids ?? r.nutrition.taille ?? null} />
+          <QRow label="Objectif nutrition" value={r.nutrition.objectif_nutrition} />
+          <QRow label="Relation à la nourriture" value={r.nutrition.relation_nourriture} />
+          <QRow label="Historique régimes" value={r.nutrition.historique_regimes} />
+          <QRow label="Allergies / intolérances" value={r.nutrition.allergies} />
+          <QRow label="Repas par jour" value={r.nutrition.repas_par_jour} />
+          <QRow label="Cuisine ou sur le pouce ?" value={r.nutrition.cuisine_ou_pouce} />
+          <QRow label="Aliments aimés / évités" value={r.nutrition.aliments_aimes_evites} />
+          <QRow label="Manger ses émotions" value={r.nutrition.manger_emotions} />
+        </IntakeSection>
+      )}
+
       {/* Roue de la Vie */}
       <div style={{ background: 'var(--white)', border: '1px solid var(--sand)', borderRadius: 'var(--r-lg)', padding: 'var(--s6)', boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
         <h4 style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-lg)', fontWeight: 400, color: 'var(--earth)', marginBottom: 'var(--s5)', paddingBottom: 'var(--s3)', borderBottom: '1px solid var(--sand)' }}>
