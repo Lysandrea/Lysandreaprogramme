@@ -184,6 +184,18 @@ export default function JourDetail() {
                   />
                 ))}
               </div>
+              <p style={{
+                marginTop: 'var(--s5)',
+                padding: 'var(--s4)',
+                background: 'var(--sand)',
+                borderRadius: 'var(--r-md)',
+                fontSize: 'var(--tx-xs)',
+                color: 'var(--stone)',
+                fontStyle: 'italic',
+                lineHeight: 1.6,
+              }}>
+                📸 Les photos et vidéos de démonstration ne sont pas encore disponibles dans cette version beta — elles arrivent en janvier. En attendant, n'hésite pas à me demander sur WhatsApp si un mouvement n'est pas clair pour toi.
+              </p>
             </Card>
           )}
 
