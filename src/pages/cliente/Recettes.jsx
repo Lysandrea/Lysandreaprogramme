@@ -43,7 +43,9 @@ export function RecetteDetail({ sem, titre, content }) {
   return (
     <div style={recettesStyles.detailCard}>
       <div style={recettesStyles.detailBadge}>S{sem}</div>
-      <img src={photo} alt={titre} style={recettesStyles.detailPhoto} />
+      <div style={recettesStyles.detailPhotoWrap}>
+        <img src={photo} alt={titre} style={recettesStyles.detailPhoto} />
+      </div>
       <div style={recettesStyles.detailBody}>
         <h2 style={recettesStyles.detailTitle}>{titre}</h2>
         <p style={recettesStyles.detailTagline}>{tagline}</p>
@@ -173,10 +175,11 @@ export const recettesStyles = {
   metaItem:   { fontSize: 'var(--tx-xs)', color: 'var(--stone)' },
 
   /* Full recipe card */
-  detailCard:    { background: 'var(--white)', borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden', position: 'relative' },
-  detailBadge:   { position: 'absolute', top: 14, left: 14, zIndex: 2, width: 34, height: 34, borderRadius: '50%', background: 'var(--sage)', color: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, letterSpacing: '.02em', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' },
-  detailPhoto:   { width: '100%', height: 280, objectFit: 'cover', display: 'block' },
-  detailBody:    { padding: 'var(--s7) var(--s7) var(--s8)', display: 'flex', flexDirection: 'column', gap: 'var(--s6)' },
+  detailCard:      { background: 'var(--white)', borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden', position: 'relative' },
+  detailBadge:     { position: 'absolute', top: 14, left: 14, zIndex: 2, width: 34, height: 34, borderRadius: '50%', background: 'var(--sage)', color: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, letterSpacing: '.02em', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' },
+  detailPhotoWrap: { background: 'var(--cream)', overflow: 'hidden' },
+  detailPhoto:     { width: '100%', aspectRatio: '4/3', objectFit: 'contain', maxHeight: 480, display: 'block' },
+  detailBody:      { padding: 'clamp(20px, 5vw, 32px)', paddingBottom: 'clamp(28px, 5vw, 40px)', display: 'flex', flexDirection: 'column', gap: 'clamp(20px, 3vw, 28px)' },
   detailTitle:   { fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)', fontWeight: 400, color: 'var(--forest)', lineHeight: 1.25, margin: 0 },
   detailTagline: { fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 'var(--tx-base)', color: 'var(--bark)', lineHeight: 1.7, margin: 0, opacity: 0.85 },
 
