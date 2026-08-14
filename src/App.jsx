@@ -24,6 +24,7 @@ import PourquoiJaiMalZone from './pages/cliente/PourquoiJaiMalZone.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
 import ListeAttente   from './pages/coach/ListeAttente.jsx'
+import ApercuContenu  from './pages/coach/ApercuContenu.jsx'
 
 /* ── Loading screen ── */
 function Spinner() {
@@ -127,6 +128,9 @@ export default function App() {
       } />
       <Route path="/coach/liste-attente" element={
         <ProtectedRoute allow="coach"><ListeAttente /></ProtectedRoute>
+      } />
+      <Route path="/coach/apercu-contenu" element={
+        <ProtectedRoute allow="coach"><ApercuContenu /></ProtectedRoute>
       } />
 
       {/* Fallback */}

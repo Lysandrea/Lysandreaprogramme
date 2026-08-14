@@ -1,6 +1,13 @@
 /* ── Vente.jsx mobile overrides ─────────────────────────────────────────── */
 /* All layout is inline-style on desktop; this file overrides for mobile.   */
 
+/* ── Témoignages: 4 cols desktop → 3 cols tablet ── */
+@media (max-width: 1024px) {
+  .v-temoignages-grid {
+    column-count: 3 !important;
+  }
+}
+
 @media (max-width: 768px) {
 
   /* ── Sections: reduce vertical padding, tighten horizontal ── */
@@ -95,5 +102,14 @@
   /* ── Disclaimer card: tighter padding ── */
   .v-disclaimer-card {
     padding: 28px 20px !important;
+  }
+
+  /* ── Témoignages: 2 cols on mobile ── */
+  .v-temoignages-grid {
+    column-count: 2 !important;
+    column-gap: 10px !important;
+  }
+  .v-temoignages-grid img {
+    margin-bottom: 10px !important;
   }
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { IS_MOCK, fetchAiProgramme } from '../../lib/supabase.js'
 
-const PODCASTS = [
+export const PODCASTS = [
   { sem: 1, titre: 'La confiance en soi' },
   { sem: 2, titre: "L'effet cumulé" },
   { sem: 3, titre: 'La zone de confort' },

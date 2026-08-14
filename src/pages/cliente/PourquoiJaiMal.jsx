@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { IS_MOCK, fetchAiProgramme } from '../../lib/supabase.js'
 
-const ZONES = [
+export const ZONES = [
   { label: 'Cheville',   emoji: '🦶' },
   { label: 'Genou',      emoji: '🦵' },
   { label: 'Dos',        emoji: '🔙' },

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { IS_MOCK, fetchAiProgramme } from '../../lib/supabase.js'
 
-const RECETTES = [
+export const RECETTES = [
   {
     sem: 1,
     titre: '🍌 Mon petit pot banane & chocolat',
@@ -38,31 +38,31 @@ const RECETTES = [
   { sem: 8, titre: 'Recette de la semaine 8' },
 ]
 
-function RecetteDetail({ sem, titre, content }) {
+export function RecetteDetail({ sem, titre, content }) {
   const { photo, tagline, ingredients, steps, note, tip } = content
   return (
-    <div style={s.detailCard}>
-      <div style={s.detailBadge}>S{sem}</div>
-      <img src={photo} alt={titre} style={s.detailPhoto} />
-      <div style={s.detailBody}>
-        <h2 style={s.detailTitle}>{titre}</h2>
-        <p style={s.detailTagline}>{tagline}</p>
+    <div style={recettesStyles.detailCard}>
+      <div style={recettesStyles.detailBadge}>S{sem}</div>
+      <img src={photo} alt={titre} style={recettesStyles.detailPhoto} />
+      <div style={recettesStyles.detailBody}>
+        <h2 style={recettesStyles.detailTitle}>{titre}</h2>
+        <p style={recettesStyles.detailTagline}>{tagline}</p>
 
-        <div style={s.detailColumns}>
-          <div style={s.detailCol}>
-            <h3 style={s.colHeading}>Ingrédients</h3>
-            <ul style={s.ingredientList}>
-              {ingredients.map((ing, i) => (
-                <li key={i} style={s.ingredientItem}>{ing}</li>
+        <div style={recettesStyles.detailColumns}>
+          <div style={recettesStyles.detailCol}>
+            <h3 style={recettesStyles.colHeading}>Ingrédients</h3>
+            <ul style={recettesStyles.ingredientList}>
+              {ingredientrecettesStyles.map((ing, i) => (
+                <li key={i} style={recettesStyles.ingredientItem}>{ing}</li>
               ))}
             </ul>
           </div>
-          <div style={s.detailCol}>
-            <h3 style={s.colHeading}>Préparation</h3>
-            <ol style={s.stepList}>
-              {steps.map((step, i) => (
-                <li key={i} style={s.stepItem}>
-                  <span style={s.stepNum}>{i + 1}</span>
+          <div style={recettesStyles.detailCol}>
+            <h3 style={recettesStyles.colHeading}>Préparation</h3>
+            <ol style={recettesStyles.stepList}>
+              {steprecettesStyles.map((step, i) => (
+                <li key={i} style={recettesStyles.stepItem}>
+                  <span style={recettesStyles.stepNum}>{i + 1}</span>
                   <span>{step}</span>
                 </li>
               ))}
@@ -70,11 +70,11 @@ function RecetteDetail({ sem, titre, content }) {
           </div>
         </div>
 
-        <div style={s.noteBox}>
-          <p style={s.noteText}>{note}</p>
+        <div style={recettesStyles.noteBox}>
+          <p style={recettesStyles.noteText}>{note}</p>
         </div>
-        <div style={s.tipBox}>
-          <p style={s.noteText}>{tip}</p>
+        <div style={recettesStyles.tipBox}>
+          <p style={recettesStyles.noteText}>{tip}</p>
         </div>
       </div>
     </div>
@@ -96,24 +96,24 @@ export default function Recettes() {
       .finally(() => setLoading(false))
   }, [user])
 
-  if (loading) return <div style={s.page}><p style={{ color: 'var(--stone)', fontSize: 'var(--tx-sm)' }}>Chargement…</p></div>
+  if (loading) return <div style={recettesStyles.page}><p style={{ color: 'var(--stone)', fontSize: 'var(--tx-sm)' }}>Chargement…</p></div>
 
   if (!publie) return (
-    <div style={s.page}>
-      <h1 style={s.title}>Le rendez-vous gourmand</h1>
-      <div style={s.gate}>
+    <div style={recettesStyles.page}>
+      <h1 style={recettesStyles.title}>Le rendez-vous gourmand</h1>
+      <div style={recettesStyles.gate}>
         <span style={{ fontSize: '2rem' }}>🔒</span>
-        <p style={s.gateText}>Disponible dès la publication de ton programme personnalisé.</p>
+        <p style={recettesStyles.gateText}>Disponible dès la publication de ton programme personnalisé.</p>
       </div>
     </div>
   )
 
   return (
-    <div style={s.page}>
-      <h1 style={s.title}>Le rendez-vous gourmand</h1>
-      <p style={s.intro}>Une recette se débloque chaque semaine au fil de ton programme.</p>
+    <div style={recettesStyles.page}>
+      <h1 style={recettesStyles.title}>Le rendez-vous gourmand</h1>
+      <p style={recettesStyles.intro}>Une recette se débloque chaque semaine au fil de ton programme.</p>
 
-      <div style={s.list}>
+      <div style={recettesStyles.list}>
         {RECETTES.map(({ sem, titre, content }) => {
           const unlocked = sem <= currentSem
 
@@ -122,24 +122,24 @@ export default function Recettes() {
           }
 
           return (
-            <div key={sem} style={{ ...s.card, ...(!unlocked ? s.cardLocked : {}) }}>
-              <div style={s.cardLeft}>
-                <div style={{ ...s.semBadge, ...(!unlocked ? s.badgeLocked : {}) }}>S{sem}</div>
+            <div key={sem} style={{ ...recettesStyles.card, ...(!unlocked ? recettesStyles.cardLocked : {}) }}>
+              <div style={recettesStyles.cardLeft}>
+                <div style={{ ...recettesStyles.semBadge, ...(!unlocked ? recettesStyles.badgeLocked : {}) }}>S{sem}</div>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={s.cardTop}>
-                  <p style={{ ...s.cardTitle, ...(!unlocked ? s.textLocked : {}) }}>{titre}</p>
-                  {!unlocked && <span style={s.lock}>🔒</span>}
+                <div style={recettesStyles.cardTop}>
+                  <p style={{ ...recettesStyles.cardTitle, ...(!unlocked ? recettesStyles.textLocked : {}) }}>{titre}</p>
+                  {!unlocked && <span style={recettesStyles.lock}>🔒</span>}
                 </div>
                 {unlocked ? (
                   <>
-                    <p style={s.cardDesc}>Recette à venir — contenu en cours d'ajout.</p>
-                    <div style={s.cardMeta}>
-                      <span style={s.metaItem}>🍲 Semaine {sem}</span>
+                    <p style={recettesStyles.cardDesc}>Recette à venir — contenu en cours d'ajout.</p>
+                    <div style={recettesStyles.cardMeta}>
+                      <span style={recettesStyles.metaItem}>🍲 Semaine {sem}</span>
                     </div>
                   </>
                 ) : (
-                  <p style={{ ...s.cardDesc, ...s.textLocked }}>Déblocage semaine {sem}</p>
+                  <p style={{ ...recettesStyles.cardDesc, ...recettesStyles.textLocked }}>Déblocage semaine {sem}</p>
                 )}
               </div>
             </div>
@@ -150,7 +150,7 @@ export default function Recettes() {
   )
 }
 
-const s = {
+export const recettesStyles = {
   page:       { padding: 'var(--s8) var(--s6)', maxWidth: 760 },
   title:      { fontFamily: 'var(--serif)', fontSize: 'var(--tx-2xl)', color: 'var(--forest)', fontWeight: 400, marginBottom: 'var(--s3)' },
   intro:      { fontSize: 'var(--tx-sm)', color: 'var(--stone)', marginBottom: 'var(--s7)' },

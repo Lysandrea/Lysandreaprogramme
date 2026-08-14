@@ -2,6 +2,26 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Vente.css'
 
+import temoignage01 from '../assets/temoignages/temoignage-01.jpg'
+import temoignage02 from '../assets/temoignages/temoignage-02.jpg'
+import temoignage03 from '../assets/temoignages/temoignage-03.jpg'
+import temoignage04 from '../assets/temoignages/temoignage-04.jpg'
+import temoignage05 from '../assets/temoignages/temoignage-05.jpg'
+import temoignage06 from '../assets/temoignages/temoignage-06.jpg'
+import temoignage07 from '../assets/temoignages/temoignage-07.jpg'
+import temoignage08 from '../assets/temoignages/temoignage-08.jpg'
+
+const TEMOIGNAGES = [
+  temoignage01,
+  temoignage02,
+  temoignage03,
+  temoignage04,
+  temoignage05,
+  temoignage06,
+  temoignage07,
+  temoignage08,
+]
+
 const BASE = 'https://omcednuoxfmhyfwmrmmp.supabase.co/storage/v1/object/public/photo-page-vente'
 
 /* ── FAQ accordion item ── */
@@ -305,6 +325,27 @@ export default function Vente() {
                 <Em>toi, ton corps</Em>, et un cadre bienveillant pour apprendre
                 à travailler avec lui — <Em>pas contre lui</Em>.</>}
             />
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 7.5 — TÉMOIGNAGES (white) ── */}
+      <section style={s.sectionWhite} className="v-section">
+        <div style={s.innerWide}>
+          <h2 style={{ ...s.sectionTitle, textAlign: 'center' }}>Ce qu'elles en disent</h2>
+          <p style={{ ...s.body, textAlign: 'center', opacity: 0.8, maxWidth: 560, margin: '0 auto' }}>
+            Des messages reçus spontanément, pendant ou après leur accompagnement.
+          </p>
+          <div style={s.temoignagesGrid} className="v-temoignages-grid">
+            {TEMOIGNAGES.map((src, i) => (
+              <img
+                key={src}
+                src={src}
+                alt={`Témoignage client ${i + 1} sur le coaching de Lysandréa`}
+                style={s.temoignageImg}
+                loading="lazy"
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -1052,6 +1093,21 @@ const s = {
     cursor: 'pointer',
     textDecoration: 'none',
     marginTop: 4,
+  },
+
+  /* Section 7.5 — Témoignages */
+  temoignagesGrid: {
+    columnCount: 4,
+    columnGap: 16,
+  },
+  temoignageImg: {
+    width: '100%',
+    display: 'block',
+    marginBottom: 16,
+    borderRadius: 14,
+    border: '1px solid var(--sand)',
+    boxShadow: '0 6px 20px rgba(61,79,60,0.08)',
+    breakInside: 'avoid',
   },
 
   /* Section 8 — Bilan offert */
