@@ -1,7 +1,8 @@
 import { useState, useEffect }                    from 'react'
 import { useParams, useNavigate, useLocation }    from 'react-router-dom'
 import {
-  IS_MOCK, fetchClienteProfile, fetchJours, fetchBilans,
+  IS_MOCK, supabase,
+  fetchClienteProfile, fetchJours, fetchBilans,
   desbloquerSemaine, fetchIntakeResponses, saveReponseCoach,
   fetchAiProgramme, publishAiProgramme, saveAiProgrammeExercices,
   publishNutritionConseils,
@@ -736,6 +737,17 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
         questions_personnalisees: questions,
       })
       onPublished({ ...aiProgramme, profil_resume: profil, programme, questions_personnalisees: questions, statut: 'publie', publie_at: new Date().toISOString() })
+
+      // Notify cliente by email (fire & forget — don't block on failure)
+      if (!IS_MOCK && intake?.email) {
+        supabase.functions.invoke('notify-cliente-programme-pret', {
+          body: {
+            clienteId,
+            clienteEmail:  intake.email,
+            clientePrenom: intake.prenom_surnom ?? intake.prenom ?? 'toi',
+          },
+        }).catch(err => console.warn('[handlePublish] email notification failed:', err?.message))
+      }
     } catch (err) {
       setPubError(err.message ?? 'Erreur lors de la publication.')
     } finally {
