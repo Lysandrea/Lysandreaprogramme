@@ -18,7 +18,7 @@ export default function Podcast() {
       <section style={s.hero}>
         <div style={s.inner}>
           <p style={s.eyebrow}>Écouter gratuitement</p>
-          <h1 style={s.heroTitle}>Mon podcast</h1>
+          <h1 style={s.heroTitle}>Univers, le podcast</h1>
           <p style={s.heroSub}>
             Ce podcast s'adresse à des personnes comme toi, cherchant à évoluer,
             à dépasser leurs limites et à comprendre les rouages de leur âme.
