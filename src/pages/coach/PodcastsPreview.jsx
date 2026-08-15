@@ -13,7 +13,7 @@ export default function PodcastsPreview() {
       </p>
 
       <div style={s.list}>
-        {PODCASTS.map(({ sem, titre, audioUrl }) => (
+        {PODCASTS.map(({ sem, titre, audioUrl, description }) => (
           <div key={sem} style={s.card}>
             <div style={s.cardLeft}>
               <div style={s.semBadge}>S{sem}</div>
@@ -23,6 +23,7 @@ export default function PodcastsPreview() {
                 <p style={s.cardTitle}>{titre}</p>
                 {!audioUrl && <span style={s.todo}>À enregistrer</span>}
               </div>
+              {description && <p style={s.description}>{description}</p>}
               <p style={s.semLabel}>🎙️ Semaine {sem}</p>
               <PodcastPlayer audioUrl={audioUrl} />
             </div>
@@ -44,7 +45,8 @@ const s = {
   cardLeft:  { flexShrink: 0, paddingTop: 3 },
   semBadge:  { width: 36, height: 36, borderRadius: '50%', background: 'var(--sage)', color: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, letterSpacing: '.02em' },
   cardTop:   { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 4 },
-  cardTitle: { fontSize: 'var(--tx-sm)', fontWeight: 600, color: 'var(--forest)', lineHeight: 1.4, margin: 0 },
-  semLabel:  { fontSize: 'var(--tx-xs)', color: 'var(--stone)', margin: 0 },
+  cardTitle:   { fontSize: 'var(--tx-sm)', fontWeight: 600, color: 'var(--forest)', lineHeight: 1.4, margin: 0 },
+  description: { fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 'var(--tx-base)', color: 'var(--bark)', lineHeight: 1.7, margin: '6px 0 8px', opacity: 0.85 },
+  semLabel:    { fontSize: 'var(--tx-xs)', color: 'var(--stone)', margin: 0 },
   todo:      { fontSize: 10, background: 'rgba(192,120,96,.12)', color: 'var(--terracotta)', padding: '3px 10px', borderRadius: 99, fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap' },
 }
