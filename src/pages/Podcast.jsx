@@ -4,9 +4,9 @@ import PublicNav from '../components/PublicNav.jsx'
 const SPOTIFY_URL = 'https://open.spotify.com/show/5liGrzBl0uiwExIgSI83Yi?si=5646fb32a5674a0f'
 
 const PLATFORMS = [
-  { name: 'Spotify',        url: SPOTIFY_URL, available: true  },
-  { name: 'Apple Podcasts', url: null,         available: false },
-  { name: 'Deezer',         url: null,         available: false },
+  { name: 'Spotify',        url: SPOTIFY_URL,                                          available: true },
+  { name: 'Apple Podcasts', url: 'https://podcasts.apple.com/fr/podcast/univers/id1691448467', available: true },
+  { name: 'Deezer',         url: 'https://www.deezer.com/fr/show/1000046155',          available: true },
 ]
 
 export default function Podcast() {
@@ -20,10 +20,15 @@ export default function Podcast() {
           <p style={s.eyebrow}>Écouter gratuitement</p>
           <h1 style={s.heroTitle}>Mon podcast</h1>
           <p style={s.heroSub}>
-            Coaching sportif et émotionnel — sans bullshit.
-            Chaque épisode, on aborde ce que tu vis vraiment : la confiance en toi,
-            l'effet cumulé des petits efforts, ta zone de confort,
-            l'exigence bienveillante. À écouter quand tu en as besoin, où tu veux.
+            Ce podcast s'adresse à des personnes comme toi, cherchant à évoluer,
+            à dépasser leurs limites et à comprendre les rouages de leur âme.
+            C'est un espace pour discuter, réfléchir, rire et grandir ensemble.
+            Je te propose une pause dans ton quotidien, un moment authentique
+            et un voyage unique où chaque épisode est une nouvelle exploration.
+          </p>
+          <p style={s.heroSub}>
+            Fitness, Développement personnel, Mindset et coaching —
+            bienvenue dans mon Univers.
           </p>
           <a href={SPOTIFY_URL} target="_blank" rel="noopener noreferrer" style={s.ctaPrimary}>
             Écouter sur Spotify →
