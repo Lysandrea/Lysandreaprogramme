@@ -331,9 +331,9 @@ export default function Vente() {
       {/* ── SECTION 7.5 — TÉMOIGNAGES (white) ── */}
       <section style={s.sectionWhite} className="v-section">
         <div style={s.innerWide}>
-          <h2 style={{ ...s.sectionTitle, textAlign: 'center' }}>Ce qu'elles en disent</h2>
+          <h2 style={{ ...s.sectionTitle, textAlign: 'center' }}>Que du love ✦</h2>
           <p style={{ ...s.body, textAlign: 'center', opacity: 0.8, maxWidth: 560, margin: '0 auto' }}>
-            Des messages reçus spontanément, pendant ou après leur accompagnement.
+            Ce qu'elles vivent, dans leurs mots.
           </p>
           <div style={s.temoignagesGrid} className="v-temoignages-grid">
             {TEMOIGNAGES.map((src, i) => (
