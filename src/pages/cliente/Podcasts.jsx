@@ -19,11 +19,23 @@ export function PodcastPlayer({ audioUrl }) {
 
   useEffect(() => {
     if (!audioUrl || IS_MOCK) return
+    console.log('[PodcastPlayer] createSignedUrl — path:', audioUrl)
     supabase.storage
       .from('podcasts-prives')
       .createSignedUrl(audioUrl, 3600)
       .then(({ data, error }) => {
-        if (error) { setLoadError(true); return }
+        if (error) {
+          console.error('[PodcastPlayer] createSignedUrl error:', {
+            message:    error.message,
+            statusCode: error.statusCode,
+            name:       error.name,
+            error,
+          })
+          console.log('[PodcastPlayer] data on error:', data)
+          setLoadError(true)
+          return
+        }
+        console.log('[PodcastPlayer] signed URL ok:', data.signedUrl)
         setSignedUrl(data.signedUrl)
       })
   }, [audioUrl])
