@@ -63,16 +63,30 @@ export async function saveBilan(clienteId, jourNum, answers, seanceFaite = true)
 
   const { data: prof } = await supabase
     .from('profiles')
-    .select('current_day')
+    .select('current_day, coach_id, prenom')
     .eq('id', clienteId)
     .single()
 
   if (prof && prof.current_day <= jourNum) {
+    const newDay = jourNum + 1
     const { error: e3 } = await supabase
       .from('profiles')
-      .update({ current_day: jourNum + 1 })
+      .update({ current_day: newDay })
       .eq('id', clienteId)
     if (e3) { console.error('[saveBilan] update current_day :', e3); throw e3 }
+
+    // Notify coach when cliente enters week 4 for the first time (day 22)
+    if (newDay === 22 && prof.coach_id) {
+      const prenom = prof.prenom ?? 'Ta cliente'
+      await supabase
+        .from('notifications')
+        .insert({
+          coach_id:   prof.coach_id,
+          cliente_id: clienteId,
+          message:    `${prenom} entame sa semaine 4 — pense à caler son appel de suivi 📞`,
+          type:       'semaine_4',
+        })
+    }
   }
 }
 

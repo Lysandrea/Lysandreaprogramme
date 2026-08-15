@@ -31,7 +31,11 @@ Deno.serve(async (req) => {
 
     const text = `${clientePrenom}, ton programme personnalisé est prêt.
 
-J'ai pris le temps de créer quelque chose sur mesure pour toi — ton programme sport, tes conseils nutrition, tout t'attend sur ta plateforme.
+On commence ce travail ensemble — et il est important qu'on puisse l'ajuster au fil des semaines pour que tu en profites pleinement, à sa juste valeur.
+
+N'hésite pas à m'écrire dès la fin de ta première semaine s'il y a des ajustements à faire. C'est pour ça que je suis disponible sur WhatsApp.
+
+On prévoit aussi un petit appel à la fin de ta 4ème semaine pour faire le point ensemble et ajuster la suite si besoin.
 
 Connecte-toi dès maintenant pour découvrir ta première semaine :
 ${LOGIN_URL}
@@ -64,7 +68,13 @@ ${LOGIN_URL}
                 <strong>${clientePrenom}</strong>, ton programme personnalisé est prêt.
               </p>
               <p style="margin:0 0 20px;font-size:15px;color:#8B7355;line-height:1.8;">
-                J'ai pris le temps de créer quelque chose sur mesure pour toi — ton programme sport, tes conseils nutrition, tout t'attend sur ta plateforme.
+                On commence ce travail ensemble — et il est important qu'on puisse l'ajuster au fil des semaines pour que tu en profites pleinement, à sa juste valeur.
+              </p>
+              <p style="margin:0 0 20px;font-size:15px;color:#8B7355;line-height:1.8;">
+                N'hésite pas à m'écrire dès la fin de ta première semaine s'il y a des ajustements à faire. C'est pour ça que je suis disponible sur WhatsApp.
+              </p>
+              <p style="margin:0 0 36px;font-size:15px;color:#8B7355;line-height:1.8;">
+                On prévoit aussi un petit appel à la fin de ta 4ème semaine pour faire le point ensemble et ajuster la suite si besoin.
               </p>
               <p style="margin:0 0 36px;font-size:15px;color:#8B7355;line-height:1.8;">
                 Connecte-toi dès maintenant pour découvrir ta première semaine :
