@@ -289,6 +289,13 @@ function ExerciceRow({ ex, state, onChange }) {
             )}
           </div>
 
+          {/* Description mouvement (coach) */}
+          {ex.description && (
+            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 'var(--tx-xs)', color: 'var(--bark)', marginBottom: 'var(--s3)', lineHeight: 1.6, opacity: 0.85 }}>
+              {ex.description}
+            </p>
+          )}
+
           {/* Commentaire coach (from AI) */}
           {ex.commentaire && (
             <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--sage)', marginBottom: 'var(--s3)', fontStyle: 'italic' }}>

@@ -807,7 +807,7 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
   function addExercice(sIndex, jIndex) {
     setProgramme(prev => {
       const next = JSON.parse(JSON.stringify(prev))
-      next[sIndex].jours[jIndex].exercices.push({ nom: '', series: 3, reps: '', repos: '' })
+      next[sIndex].jours[jIndex].exercices.push({ nom: '', series: 3, reps: '', repos: '', description: '' })
       return next
     })
   }
@@ -1067,45 +1067,56 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
                     {/* Exercices */}
                     <div style={{ marginTop: 'var(--s2)', display: 'flex', flexDirection: 'column', gap: 6 }}>
                       {(jour.exercices ?? []).map((ex, eIndex) => (
-                        <div key={eIndex} style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                          <input
-                            value={ex.nom ?? ''}
-                            onChange={e => updateExercice(sIndex, jIndex, eIndex, 'nom', e.target.value)}
-                            placeholder="Ex: Squat, Fente..."
-                            style={{ ...sIA.input, flex: 2, minWidth: 120 }}
+                        <div key={eIndex} style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '6px 8px', background: 'rgba(0,0,0,.02)', borderRadius: 'var(--r-sm)', border: '1px solid var(--sand)' }}>
+                          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                            <input
+                              value={ex.nom ?? ''}
+                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'nom', e.target.value)}
+                              placeholder="Ex: Squat gobelet, Fente marchée..."
+                              style={{ ...sIA.input, flex: 2, minWidth: 120 }}
+                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                            />
+                            <input
+                              value={ex.series ?? ''}
+                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'series', Number(e.target.value))}
+                              type="number"
+                              placeholder="3"
+                              style={{ ...sIA.input, width: 52 }}
+                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                            />
+                            <input
+                              value={ex.reps ?? ''}
+                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'reps', e.target.value)}
+                              placeholder="10-12"
+                              style={{ ...sIA.input, width: 64 }}
+                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                            />
+                            <input
+                              value={ex.repos ?? ''}
+                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'repos', e.target.value)}
+                              placeholder="60s"
+                              style={{ ...sIA.input, width: 56 }}
+                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                            />
+                            <button
+                              onClick={() => removeExercice(sIndex, jIndex, eIndex)}
+                              title="Supprimer"
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--stone)', fontSize: 18, padding: '2px 6px', lineHeight: 1, flexShrink: 0 }}
+                            >×</button>
+                          </div>
+                          <textarea
+                            value={ex.description ?? ''}
+                            onChange={e => updateExercice(sIndex, jIndex, eIndex, 'description', e.target.value)}
+                            placeholder="Description (optionnel) — Explique le mouvement si besoin..."
+                            rows={2}
+                            style={{ ...sIA.input, width: '100%', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'var(--sans)', fontSize: 'var(--tx-xs)', lineHeight: 1.5 }}
                             onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
                             onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
                           />
-                          <input
-                            value={ex.series ?? ''}
-                            onChange={e => updateExercice(sIndex, jIndex, eIndex, 'series', Number(e.target.value))}
-                            type="number"
-                            placeholder="3"
-                            style={{ ...sIA.input, width: 52 }}
-                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                          />
-                          <input
-                            value={ex.reps ?? ''}
-                            onChange={e => updateExercice(sIndex, jIndex, eIndex, 'reps', e.target.value)}
-                            placeholder="10-12"
-                            style={{ ...sIA.input, width: 64 }}
-                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                          />
-                          <input
-                            value={ex.repos ?? ''}
-                            onChange={e => updateExercice(sIndex, jIndex, eIndex, 'repos', e.target.value)}
-                            placeholder="60s"
-                            style={{ ...sIA.input, width: 56 }}
-                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                          />
-                          <button
-                            onClick={() => removeExercice(sIndex, jIndex, eIndex)}
-                            title="Supprimer"
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--stone)', fontSize: 18, padding: '2px 6px', lineHeight: 1, flexShrink: 0 }}
-                          >×</button>
                         </div>
                       ))}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s3)', marginTop: 4, flexWrap: 'wrap' }}>
