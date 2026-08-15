@@ -171,6 +171,18 @@ export async function saveIntakeResponses(clienteId, reponses) {
   if (error) throw error
 }
 
+export async function saveRoueFinale(clienteId, roueFin) {
+  const existing = await fetchIntakeResponses(clienteId)
+  const updated  = { ...existing, roue_de_vie_finale: roueFin }
+  const { error } = await supabase
+    .from('intake_responses')
+    .upsert(
+      { cliente_id: clienteId, reponses: updated, updated_at: new Date().toISOString() },
+      { onConflict: 'cliente_id' }
+    )
+  if (error) throw error
+}
+
 export async function fetchIntakeResponses(clienteId) {
   const { data, error } = await supabase
     .from('intake_responses')

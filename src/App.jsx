@@ -23,6 +23,7 @@ import Attente           from './pages/cliente/Attente.jsx'
 import ConseilsNutrition  from './pages/cliente/ConseilsNutrition.jsx'
 import PourquoiJaiMal    from './pages/cliente/PourquoiJaiMal.jsx'
 import PourquoiJaiMalZone from './pages/cliente/PourquoiJaiMalZone.jsx'
+import RoueFinale         from './pages/cliente/RoueFinale.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
 import ListeAttente      from './pages/coach/ListeAttente.jsx'
@@ -107,6 +108,9 @@ export default function App() {
       } />
       <Route path="/recettes" element={
         <ProtectedRoute allow="cliente"><Recettes /></ProtectedRoute>
+      } />
+      <Route path="/roue-finale" element={
+        <ProtectedRoute allow="cliente"><RoueFinale /></ProtectedRoute>
       } />
       <Route path="/lettre-fin" element={
         <ProtectedRoute allow="cliente"><LettreFin /></ProtectedRoute>

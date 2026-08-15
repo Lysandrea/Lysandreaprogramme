@@ -45,8 +45,9 @@ const CLIENTE_SECTIONS = [
   {
     title: 'Fin de programme',
     items: [
-      { label: 'Ma lettre de fin', to: '/lettre-fin', icon: '📝', lockable: true },
-      { label: 'Laisser un avis',  to: '/avis',       icon: '⭐', lockable: true },
+      { label: 'Ma roue finale ✦',  to: '/roue-finale', icon: '🌀', lockable: true },
+      { label: 'Ma lettre de fin',  to: '/lettre-fin',  icon: '📝', lockable: true },
+      { label: 'Laisser un avis',   to: '/avis',        icon: '⭐', lockable: true },
     ],
   },
 ]
