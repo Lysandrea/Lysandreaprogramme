@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx'
 import { IS_MOCK, fetchAiProgramme, supabase } from '../../lib/supabase.js'
 
 export const PODCASTS = [
-  { sem: 1, titre: 'La confiance en soi',               audioUrl: '1_LA CONFIANCE EN SOI.mp3' },
+  { sem: 1, titre: 'La confiance en soi',               audioUrl: '1_CONFIANCE EN SOI.mp3' },
   { sem: 2, titre: "L'effet cumulé",                     audioUrl: "2_L'EFFET CUMULE.mp3" },
   { sem: 3, titre: 'La zone de confort',                 audioUrl: '3_LA ZONE DE CONFORT.mp3' },
   { sem: 4, titre: "L'exigence",                         audioUrl: "4_L'EXIGENCE.mp3" },
