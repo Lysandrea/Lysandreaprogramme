@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Vente.css'
+import PublicNav from '../components/PublicNav.jsx'
 
 import temoignage01 from '../assets/temoignages/temoignage-01.jpg'
 import temoignage02 from '../assets/temoignages/temoignage-02.jpg'
@@ -72,10 +73,8 @@ export default function Vente() {
   return (
     <div style={s.page}>
 
-      {/* ── TOP NAV — espace membres ── */}
-      <div style={s.topNav}>
-        <Link to="/login" style={s.topNavLink}>Mon espace Déclic →</Link>
-      </div>
+      {/* ── TOP NAV — mini-site ── */}
+      <PublicNav />
 
       {/* ── SECTION 1 — HERO (forest gradient) ── */}
       <section style={s.hero} className="v-hero">

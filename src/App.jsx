@@ -3,6 +3,8 @@ import { useAuth } from './contexts/AuthContext.jsx'
 
 import ComingSoon     from './pages/ComingSoon.jsx'
 import Vente          from './pages/Vente.jsx'
+import Podcast        from './pages/Podcast.jsx'
+import Guide          from './pages/Guide.jsx'
 import Login          from './pages/auth/Login.jsx'
 import Inscription    from './pages/auth/Inscription.jsx'
 import Onboarding     from './pages/cliente/Onboarding.jsx'
@@ -63,6 +65,8 @@ export default function App() {
       {/* Public */}
       <Route path="/" element={new Date() >= new Date('2026-08-01T00:00:00+02:00') ? <Vente /> : <ComingSoon />} />
       <Route path="/vente" element={<Vente />} />
+      <Route path="/podcast" element={<Podcast />} />
+      <Route path="/guide" element={<Guide />} />
       <Route path="/login" element={<Login />} />
       <Route path="/inscription" element={<Inscription />} />
 
