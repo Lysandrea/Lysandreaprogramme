@@ -89,6 +89,7 @@ export default function Recettes() {
 
   const [publie,  setPublie]  = useState(false)
   const [loading, setLoading] = useState(true)
+  const [openSem, setOpenSem] = useState(null)
 
   useEffect(() => {
     if (!user || IS_MOCK) { setLoading(false); return }
@@ -120,7 +121,27 @@ export default function Recettes() {
           const unlocked = sem <= currentSem
 
           if (unlocked && content) {
-            return <RecetteDetail key={sem} sem={sem} titre={titre} content={content} />
+            const isOpen = openSem === sem
+            return (
+              <div key={sem} style={recettesStyles.recetteGroup}>
+                <button
+                  style={isOpen ? recettesStyles.rowBtnOpen : recettesStyles.rowBtn}
+                  onClick={() => setOpenSem(isOpen ? null : sem)}
+                  onMouseEnter={e => { if (!isOpen) e.currentTarget.style.background = 'var(--cream)' }}
+                  onMouseLeave={e => { if (!isOpen) e.currentTarget.style.background = 'var(--white)' }}
+                >
+                  <div style={recettesStyles.semBadge}>S{sem}</div>
+                  <p style={recettesStyles.rowTitle}>{titre}</p>
+                  {content.photo && <img src={content.photo} alt="" style={recettesStyles.rowThumb} />}
+                  <span style={recettesStyles.rowChevron}>{isOpen ? '↑' : '↓'}</span>
+                </button>
+                {isOpen && (
+                  <div style={recettesStyles.detailCardWrap}>
+                    <RecetteDetail sem={sem} titre={titre} content={content} />
+                  </div>
+                )}
+              </div>
+            )
           }
 
           return (
@@ -173,6 +194,15 @@ export const recettesStyles = {
   lock:       { fontSize: 13, flexShrink: 0 },
   cardMeta:   { display: 'flex', alignItems: 'center', marginTop: 'var(--s3)' },
   metaItem:   { fontSize: 'var(--tx-xs)', color: 'var(--stone)' },
+
+  /* Accordion row (unlocked recipe, collapsed) */
+  recetteGroup:   { display: 'flex', flexDirection: 'column' },
+  rowBtn:         { background: 'var(--white)', border: '1px solid var(--sand)', borderRadius: 'var(--r-md)', padding: 'var(--s4) var(--s5)', display: 'flex', alignItems: 'center', gap: 'var(--s4)', cursor: 'pointer', width: '100%', textAlign: 'left', transition: 'background 120ms ease' },
+  rowBtnOpen:     { background: 'var(--white)', border: '1px solid var(--sand)', borderBottom: 'none', borderRadius: 'var(--r-md) var(--r-md) 0 0', padding: 'var(--s4) var(--s5)', display: 'flex', alignItems: 'center', gap: 'var(--s4)', cursor: 'pointer', width: '100%', textAlign: 'left' },
+  rowTitle:       { flex: 1, minWidth: 0, fontSize: 'var(--tx-sm)', fontWeight: 600, color: 'var(--forest)', margin: 0, lineHeight: 1.4 },
+  rowThumb:       { width: 48, height: 48, borderRadius: 'var(--r-sm)', objectFit: 'cover', flexShrink: 0 },
+  rowChevron:     { flexShrink: 0, color: 'var(--stone)', fontSize: 'var(--tx-xs)', userSelect: 'none', width: 16, textAlign: 'center' },
+  detailCardWrap: { borderRadius: '0 0 var(--r-lg) var(--r-lg)', overflow: 'hidden', border: '1px solid var(--sand)', borderTop: 'none' },
 
   /* Full recipe card */
   detailCard:      { background: 'var(--white)', borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden', position: 'relative' },

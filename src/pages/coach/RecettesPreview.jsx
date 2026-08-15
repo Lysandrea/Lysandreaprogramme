@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { RECETTES, RecetteDetail, recettesStyles as rs } from '../cliente/Recettes.jsx'
 
 export default function RecettesPreview() {
+  const [openSem, setOpenSem] = useState(null)
+
   return (
     <div style={s.page}>
       <div style={s.header}>
@@ -15,7 +18,27 @@ export default function RecettesPreview() {
       <div style={rs.list}>
         {RECETTES.map(({ sem, titre, content }) => {
           if (content) {
-            return <RecetteDetail key={sem} sem={sem} titre={titre} content={content} />
+            const isOpen = openSem === sem
+            return (
+              <div key={sem} style={rs.recetteGroup}>
+                <button
+                  style={isOpen ? rs.rowBtnOpen : rs.rowBtn}
+                  onClick={() => setOpenSem(isOpen ? null : sem)}
+                  onMouseEnter={e => { if (!isOpen) e.currentTarget.style.background = 'var(--cream)' }}
+                  onMouseLeave={e => { if (!isOpen) e.currentTarget.style.background = 'var(--white)' }}
+                >
+                  <div style={rs.semBadge}>S{sem}</div>
+                  <p style={rs.rowTitle}>{titre}</p>
+                  {content.photo && <img src={content.photo} alt="" style={rs.rowThumb} />}
+                  <span style={rs.rowChevron}>{isOpen ? '↑' : '↓'}</span>
+                </button>
+                {isOpen && (
+                  <div style={rs.detailCardWrap}>
+                    <RecetteDetail sem={sem} titre={titre} content={content} />
+                  </div>
+                )}
+              </div>
+            )
           }
 
           return (
