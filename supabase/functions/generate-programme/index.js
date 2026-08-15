@@ -76,7 +76,7 @@ CONTRAINTES STRICTES :
 - questions_personnalisees : exactement 3 questions, courtes.
 - Le tableau "programme" contient exactement 8 objets (semaines 1 à 8).
 - Chaque semaine a le même nombre de jours, calé sur la fréquence déclarée de la cliente.
-- Chaque séance a entre 3 et 5 exercices, avec nom, séries, reps et temps de repos réalistes et adaptés au niveau et matériel de la cliente.
+- Chaque séance a entre 4 et 5 exercices, avec nom, séries, reps et temps de repos réalistes et adaptés au niveau et matériel de la cliente.
 - charge_notes et commentaire restent des chaînes vides "" (la coach les complète manuellement). fait est toujours false.
 - Ne jamais inclure d'exercice sollicitant une zone listée dans zones_eviter.
 - Sois précise sur les noms d'exercices (ex: "Squat gobelet", "Fente marchée", "Gainage ventral", pas juste "Squat").
@@ -153,7 +153,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 8192,
+        max_tokens: 16000,
         system: SYSTEM_PROMPT,
         messages: [
           {
