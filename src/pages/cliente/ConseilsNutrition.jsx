@@ -57,11 +57,6 @@ export default function ConseilsNutrition() {
             </div>
           ) : (
             <>
-              {/* Profil résumé */}
-              <Card title="Ton profil nutritionnel">
-                <p style={s.profileText}>{nutrition.profil_resume}</p>
-              </Card>
-
               {/* Grands principes */}
               <Card title="Mes grands principes">
                 <div style={s.principlesList}>
@@ -139,7 +134,6 @@ const s = {
     fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)', fontWeight: 400, color: 'var(--earth)',
   },
   emptyMsg: { fontSize: 'var(--tx-sm)', color: 'var(--stone)', lineHeight: 1.7, maxWidth: 380 },
-  profileText: { fontSize: 'var(--tx-sm)', color: 'var(--bark)', lineHeight: 1.75 },
   principlesList: { display: 'flex', flexDirection: 'column', gap: 'var(--s3)', marginTop: 'var(--s2)' },
   principleRow: { display: 'flex', gap: 'var(--s3)', alignItems: 'flex-start' },
   bullet: { color: 'var(--forest)', fontSize: 'var(--tx-sm)', flexShrink: 0, marginTop: 2 },

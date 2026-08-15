@@ -42,7 +42,6 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
     }
   ],
   "conseils_nutrition": {
-    "profil_resume": "string — 2-3 phrases sur son profil nutritionnel",
     "principes": ["string", "string", "string", "string", "string"],
     "repas_type": {
       "petit_dejeuner": "string",
@@ -56,7 +55,6 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
 }
 
 CONTRAINTES STRICTES :
-- profil_resume : 3-4 phrases maximum.
 - questions_personnalisees : exactement 3 questions, courtes.
 - Le tableau "programme" contient exactement 8 objets (semaines 1 à 8).
 - Chaque semaine a le même nombre de jours, calé sur la fréquence déclarée de la cliente.
