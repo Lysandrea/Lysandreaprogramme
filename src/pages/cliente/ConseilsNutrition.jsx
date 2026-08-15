@@ -16,7 +16,7 @@ export default function ConseilsNutrition() {
     if (IS_MOCK) { setLoading(false); return }
     fetchAiProgramme(user.id)
       .then(prog => {
-        if (prog?.statut === 'publie' && prog?.conseils_nutrition) {
+        if (prog?.nutrition_statut === 'publie' && prog?.conseils_nutrition) {
           setNutrition(prog.conseils_nutrition)
         }
       })

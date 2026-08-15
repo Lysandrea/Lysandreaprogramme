@@ -4,6 +4,7 @@ import {
   IS_MOCK, fetchClienteProfile, fetchJours, fetchBilans,
   desbloquerSemaine, fetchIntakeResponses, saveReponseCoach,
   fetchAiProgramme, publishAiProgramme, saveAiProgrammeExercices,
+  publishNutritionConseils,
   generateSemaineExercices,
 } from '../../lib/supabase.js'
 import Sidebar   from '../../components/Sidebar.jsx'
@@ -697,12 +698,16 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
   const [pubError,        setPubError]        = useState(null)
   const [expanded,        setExpanded]        = useState({})
   const [jourSaveStates,  setJourSaveStates]  = useState({})
-  const [genStates,       setGenStates]       = useState({})
+  const [genStates,            setGenStates]            = useState({})
+  const [nutrition,            setNutrition]            = useState(aiProgramme?.conseils_nutrition ?? {})
+  const [publishingNutrition,  setPublishingNutrition]  = useState(false)
+  const [pubNutritionError,    setPubNutritionError]    = useState(null)
 
   useEffect(() => {
     setProfil(aiProgramme?.profil_resume ?? '')
     setProgramme(aiProgramme?.programme ?? [])
     setQuestions(aiProgramme?.questions_personnalisees ?? [])
+    setNutrition(aiProgramme?.conseils_nutrition ?? {})
   }, [aiProgramme])
 
   if (!aiProgramme) {
@@ -718,7 +723,8 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
     )
   }
 
-  const isPublished = aiProgramme.statut === 'publie'
+  const isPublished          = aiProgramme.statut === 'publie'
+  const isNutritionPublished = aiProgramme.nutrition_statut === 'publie'
 
   async function handlePublish() {
     setPublishing(true)
@@ -735,6 +741,43 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
     } finally {
       setPublishing(false)
     }
+  }
+
+  async function handlePublishNutrition() {
+    setPublishingNutrition(true)
+    setPubNutritionError(null)
+    try {
+      await publishNutritionConseils(aiProgramme.id, nutrition)
+      onPublished({ ...aiProgramme, conseils_nutrition: nutrition, nutrition_statut: 'publie' })
+    } catch (err) {
+      setPubNutritionError(err.message ?? 'Erreur lors de la publication.')
+    } finally {
+      setPublishingNutrition(false)
+    }
+  }
+
+  function updateNutritionPrincipe(i, value) {
+    setNutrition(prev => {
+      const principes = [...(prev.principes ?? [])]
+      principes[i] = value
+      return { ...prev, principes }
+    })
+  }
+
+  function updateNutritionRepas(key, value) {
+    setNutrition(prev => ({ ...prev, repas_type: { ...(prev.repas_type ?? {}), [key]: value } }))
+  }
+
+  function updateNutritionEviter(i, value) {
+    setNutrition(prev => {
+      const a_eviter = [...(prev.a_eviter ?? [])]
+      a_eviter[i] = value
+      return { ...prev, a_eviter }
+    })
+  }
+
+  function updateNutritionMessage(value) {
+    setNutrition(prev => ({ ...prev, message_lysa: value }))
   }
 
   function updateExercice(sIndex, jIndex, eIndex, field, value) {
@@ -1112,6 +1155,150 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
           {pubError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubError}</p>}
         </div>
       )}
+
+      {/* ═══════════════ Conseils Nutrition ═══════════════ */}
+      <div style={{ paddingTop: 'var(--s6)', borderTop: '2px solid var(--sand)', marginTop: 'var(--s4)', display: 'flex', flexDirection: 'column', gap: 'var(--s5)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--s3)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s3)' }}>
+            <h3 style={{ fontFamily: 'var(--serif)', fontSize: 'var(--tx-xl)', fontWeight: 400, color: 'var(--earth)' }}>
+              🥗 Conseils Nutrition
+            </h3>
+            {isNutritionPublished && (
+              <span style={{ fontSize: 'var(--tx-xs)', padding: '3px 10px', borderRadius: 99, background: 'rgba(107,127,94,.15)', color: 'var(--moss)', fontWeight: 600 }}>
+                Publié ✓
+              </span>
+            )}
+          </div>
+          {!isNutritionPublished && nutrition && Object.keys(nutrition).length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-end' }}>
+              <Button variant="sage" loading={publishingNutrition} onClick={handlePublishNutrition}>
+                Valider et publier la nutrition ✦
+              </Button>
+              {pubNutritionError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubNutritionError}</p>}
+            </div>
+          )}
+        </div>
+
+        {!nutrition || Object.keys(nutrition).length === 0 ? (
+          <div style={{ background: 'var(--sand)', borderRadius: 'var(--r-md)', padding: 'var(--s6)', textAlign: 'center' }}>
+            <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)' }}>Les conseils nutrition seront disponibles après génération du programme IA.</p>
+          </div>
+        ) : (
+          <>
+            {/* Grands principes */}
+            <div style={sIA.card}>
+              <h4 style={sIA.cardTitle}>Mes grands principes</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
+                {(nutrition.principes ?? []).map((p, i) => (
+                  isNutritionPublished ? (
+                    <div key={i} style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'flex-start' }}>
+                      <span style={{ color: 'var(--forest)', flexShrink: 0 }}>✦</span>
+                      <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.65, margin: 0 }}>{p}</p>
+                    </div>
+                  ) : (
+                    <div key={i} style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
+                      <span style={{ color: 'var(--stone)', flexShrink: 0, fontSize: 'var(--tx-xs)', minWidth: 16 }}>{i + 1}.</span>
+                      <input
+                        value={p}
+                        onChange={e => updateNutritionPrincipe(i, e.target.value)}
+                        style={{ ...sIA.input, flex: 1 }}
+                        onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                        onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                      />
+                    </div>
+                  )
+                ))}
+              </div>
+            </div>
+
+            {/* Exemples de repas */}
+            <div style={sIA.card}>
+              <h4 style={sIA.cardTitle}>Exemples de repas</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--s4)' }}>
+                {[
+                  { key: 'petit_dejeuner', label: 'Petit-déjeuner', emoji: '☀️' },
+                  { key: 'dejeuner',       label: 'Déjeuner',       emoji: '🥗' },
+                  { key: 'diner',          label: 'Dîner',          emoji: '🌙' },
+                  { key: 'collation',      label: 'Collation',      emoji: '🍎' },
+                ].map(({ key, label, emoji }) => (
+                  <div key={key} style={{ background: 'var(--cream)', borderRadius: 'var(--r-md)', padding: 'var(--s4)' }}>
+                    <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 'var(--s2)' }}>
+                      {emoji} {label}
+                    </p>
+                    {isNutritionPublished ? (
+                      <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.65, margin: 0 }}>{nutrition.repas_type?.[key] ?? '—'}</p>
+                    ) : (
+                      <textarea
+                        value={nutrition.repas_type?.[key] ?? ''}
+                        onChange={e => updateNutritionRepas(key, e.target.value)}
+                        rows={3}
+                        style={sIA.textarea}
+                        onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                        onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* À éviter */}
+            {(nutrition.a_eviter ?? []).length > 0 && (
+              <div style={sIA.card}>
+                <h4 style={sIA.cardTitle}>Ce que j'évite</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
+                  {nutrition.a_eviter.map((item, i) => (
+                    isNutritionPublished ? (
+                      <div key={i} style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'flex-start' }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--terracotta)', flexShrink: 0, marginTop: 8, display: 'inline-block' }} />
+                        <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.65, margin: 0 }}>{item}</p>
+                      </div>
+                    ) : (
+                      <div key={i} style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
+                        <span style={{ color: 'var(--stone)', flexShrink: 0, fontSize: 'var(--tx-xs)', minWidth: 16 }}>{i + 1}.</span>
+                        <input
+                          value={item}
+                          onChange={e => updateNutritionEviter(i, e.target.value)}
+                          style={{ ...sIA.input, flex: 1 }}
+                          onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                          onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                        />
+                      </div>
+                    )
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Message Lysa */}
+            <div style={sIA.card}>
+              <h4 style={sIA.cardTitle}>💌 Message Lysa</h4>
+              {isNutritionPublished ? (
+                <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.7, fontStyle: 'italic', margin: 0 }}>{nutrition.message_lysa}</p>
+              ) : (
+                <textarea
+                  value={nutrition.message_lysa ?? ''}
+                  onChange={e => updateNutritionMessage(e.target.value)}
+                  rows={5}
+                  style={sIA.textarea}
+                  onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                  onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                />
+              )}
+            </div>
+
+            {/* Publish CTA nutrition */}
+            {!isNutritionPublished && (
+              <div style={{ paddingTop: 'var(--s4)', borderTop: '1px solid var(--sand)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-start' }}>
+                <Button variant="sage" loading={publishingNutrition} onClick={handlePublishNutrition}>
+                  Valider et publier la nutrition ✦
+                </Button>
+                {pubNutritionError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubNutritionError}</p>}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }

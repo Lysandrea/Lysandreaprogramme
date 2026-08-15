@@ -373,6 +373,14 @@ export async function publishAiProgramme(programmeId, { profil_resume, programme
   if (error) throw error
 }
 
+export async function publishNutritionConseils(programmeId, conseils_nutrition) {
+  const { error } = await supabase
+    .from('ai_programmes')
+    .update({ conseils_nutrition, nutrition_statut: 'publie' })
+    .eq('id', programmeId)
+  if (error) throw error
+}
+
 export async function generateSemaineExercices(payload) {
   const { data, error } = await supabase.functions.invoke('generate-semaine-exercices', {
     body: payload,
