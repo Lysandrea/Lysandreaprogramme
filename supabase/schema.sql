@@ -170,12 +170,22 @@ create or replace function public.handle_new_user()
 returns trigger
 language plpgsql security definer set search_path = public
 as $$
+declare
+  v_role    text;
+  v_coach   uuid;
 begin
-  insert into public.profiles (id, prenom, role)
+  v_role := coalesce(new.raw_user_meta_data->>'role', 'cliente');
+
+  if v_role = 'cliente' then
+    select id into v_coach from public.profiles where role = 'coach' limit 1;
+  end if;
+
+  insert into public.profiles (id, prenom, role, coach_id)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'prenom', split_part(new.email, '@', 1)),
-    coalesce(new.raw_user_meta_data->>'role', 'cliente')
+    v_role,
+    v_coach
   )
   on conflict (id) do nothing;
   return new;
