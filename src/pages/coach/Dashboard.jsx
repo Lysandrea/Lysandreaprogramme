@@ -85,7 +85,7 @@ export default function CoachDashboard() {
                       prenom={clienteMap[n.cliente_id] ?? 'Cliente'}
                       isLast={i === groupedNotifs.length - 1}
                       onRead={handleMarkRead}
-                      onView={() => navigate(`/coach/cliente/${n.cliente_id}`, { state: { tab: 'questionnaire' } })}
+                      onView={() => { handleMarkRead(n.id); navigate(`/coach/cliente/${n.cliente_id}`, { state: { tab: 'questionnaire' } }) }}
                     />
                   ))}
                 </div>

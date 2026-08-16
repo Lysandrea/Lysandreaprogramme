@@ -305,6 +305,15 @@ export async function saveLetter(clienteId, contenu) {
    Helpers — Avis
    ════════════════════════════════════════════════ */
 
+export async function fetchAllAvis() {
+  const { data, error } = await supabase
+    .from('avis')
+    .select('*, profiles(prenom)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data ?? []
+}
+
 export async function fetchAvis(clienteId) {
   const { data, error } = await supabase
     .from('avis')

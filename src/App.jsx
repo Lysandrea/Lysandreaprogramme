@@ -27,8 +27,10 @@ import RoueFinale         from './pages/cliente/RoueFinale.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
 import ListeAttente      from './pages/coach/ListeAttente.jsx'
-import RecettesPreview   from './pages/coach/RecettesPreview.jsx'
-import PodcastsPreview   from './pages/coach/PodcastsPreview.jsx'
+import RecettesPreview        from './pages/coach/RecettesPreview.jsx'
+import PodcastsPreview        from './pages/coach/PodcastsPreview.jsx'
+import PourquoiJaiMalPreview  from './pages/coach/PourquoiJaiMalPreview.jsx'
+import AvisClientes           from './pages/coach/AvisClientes.jsx'
 
 /* ── Loading screen ── */
 function Spinner() {
@@ -143,6 +145,12 @@ export default function App() {
       } />
       <Route path="/coach/podcasts-preview" element={
         <ProtectedRoute allow="coach"><PodcastsPreview /></ProtectedRoute>
+      } />
+      <Route path="/coach/pourquoi-jai-mal" element={
+        <ProtectedRoute allow="coach"><PourquoiJaiMalPreview /></ProtectedRoute>
+      } />
+      <Route path="/coach/avis" element={
+        <ProtectedRoute allow="coach"><AvisClientes /></ProtectedRoute>
       } />
 
       {/* Fallback */}

@@ -9,6 +9,8 @@ const COACH_NAV = [
   { label: 'Liste d\'attente',   to: '/coach/liste-attente',      icon: '📬' },
   { label: 'Aperçu Recettes',    to: '/coach/recettes-preview',   icon: '🍲' },
   { label: 'Aperçu Podcasts',    to: '/coach/podcasts-preview',   icon: '🎙️' },
+  { label: 'Pourquoi j\'ai mal', to: '/coach/pourquoi-jai-mal',   icon: '🩹' },
+  { label: 'Avis clientes',      to: '/coach/avis',               icon: '⭐' },
 ]
 
 const CLIENTE_SECTIONS = [
