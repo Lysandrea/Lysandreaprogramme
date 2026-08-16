@@ -100,8 +100,8 @@ export default function Vente() {
               <a href="#offre" style={s.ctaSecondary} className="v-cta-secondary" onClick={scrollToOffre}>
                 Découvrir le programme ↓
               </a>
-              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={s.ctaTerracottaOutline} className="v-cta-outline">
-                Je réserve mon appel gratuit →
+              <a href={STRIPE_URL} target="_blank" rel="noopener noreferrer" style={s.ctaTerracottaOutline} className="v-cta-outline">
+                Je réserve ma place →
               </a>
             </div>
           </div>
