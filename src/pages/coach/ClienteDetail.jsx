@@ -738,8 +738,8 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
       })
       onPublished({ ...aiProgramme, profil_resume: profil, programme, questions_personnalisees: questions, statut: 'publie', publie_at: new Date().toISOString() })
 
-      // Notify cliente by email (fire & forget — don't block on failure)
-      if (!IS_MOCK && intake?.email) {
+      // Only email on first publish — not on re-publish/update
+      if (!IS_MOCK && intake?.email && !isPublished) {
         supabase.functions.invoke('notify-cliente-programme-pret', {
           body: {
             clienteId,
@@ -896,31 +896,25 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
             </span>
           )}
         </div>
-        {!isPublished && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-end' }}>
-            <Button variant="terracotta" loading={publishing} onClick={handlePublish}>
-              Valider et publier sur son profil ✦
-            </Button>
-            {pubError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubError}</p>}
-          </div>
-        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-end' }}>
+          <Button variant="terracotta" loading={publishing} onClick={handlePublish}>
+            Republier ✦
+          </Button>
+          {pubError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubError}</p>}
+        </div>
       </div>
 
       {/* Profil résumé */}
       <div style={sIA.card}>
         <h4 style={sIA.cardTitle}>🧠 Profil émotionnel</h4>
-        {isPublished ? (
-          <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{profil}</p>
-        ) : (
-          <textarea
-            value={profil}
-            onChange={e => setProfil(e.target.value)}
-            rows={6}
-            style={sIA.textarea}
-            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-          />
-        )}
+        <textarea
+          value={profil}
+          onChange={e => setProfil(e.target.value)}
+          rows={6}
+          style={sIA.textarea}
+          onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+          onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+        />
       </div>
 
       {/* Questions personnalisées */}
@@ -932,31 +926,22 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
               <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em' }}>
                 Question {i + 1}
               </p>
-              {isPublished ? (
-                <>
-                  <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', fontWeight: 500 }}>{q.question}</p>
-                  <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontStyle: 'italic' }}>{q.placeholder}</p>
-                </>
-              ) : (
-                <>
-                  <input
-                    value={q.question ?? ''}
-                    onChange={e => updateQuestion(i, 'question', e.target.value)}
-                    placeholder="La question…"
-                    style={sIA.input}
-                    onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                    onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                  />
-                  <input
-                    value={q.placeholder ?? ''}
-                    onChange={e => updateQuestion(i, 'placeholder', e.target.value)}
-                    placeholder="Placeholder de réponse…"
-                    style={{ ...sIA.input, fontStyle: 'italic', opacity: .75 }}
-                    onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                    onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                  />
-                </>
-              )}
+              <input
+                value={q.question ?? ''}
+                onChange={e => updateQuestion(i, 'question', e.target.value)}
+                placeholder="La question…"
+                style={sIA.input}
+                onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+              />
+              <input
+                value={q.placeholder ?? ''}
+                onChange={e => updateQuestion(i, 'placeholder', e.target.value)}
+                placeholder="Placeholder de réponse…"
+                style={{ ...sIA.input, fontStyle: 'italic', opacity: .75 }}
+                onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+              />
             </div>
           ))}
         </div>
@@ -979,7 +964,7 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
                   <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.08em' }}>
                     Semaine {sem.semaine}
                   </span>
-                  {!isPublished && semaineHasNoExercices(sem) && (() => {
+                  {semaineHasNoExercices(sem) && (() => {
                     const gs = genStates[sIndex]
                     return (
                       <button
@@ -1004,19 +989,15 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
                     )
                   })()}
                 </div>
-                {isPublished ? (
-                  <p style={{ fontSize: 'var(--tx-sm)', fontWeight: 500, color: 'var(--earth)', marginTop: 2 }}>{sem.theme}</p>
-                ) : (
-                  <input
-                    value={sem.theme ?? ''}
-                    onChange={e => { e.stopPropagation(); updateSemaine(sIndex, 'theme', e.target.value) }}
-                    onClick={e => e.stopPropagation()}
-                    placeholder="Thème de la semaine…"
-                    style={{ ...sIA.input, marginTop: 4, fontWeight: 500 }}
-                    onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                    onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                  />
-                )}
+                <input
+                  value={sem.theme ?? ''}
+                  onChange={e => { e.stopPropagation(); updateSemaine(sIndex, 'theme', e.target.value) }}
+                  onClick={e => e.stopPropagation()}
+                  placeholder="Thème de la semaine…"
+                  style={{ ...sIA.input, marginTop: 4, fontWeight: 500 }}
+                  onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                  onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                />
               </div>
               <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>
                 {expanded[sIndex] ? '▲' : '▼'}
@@ -1026,54 +1007,41 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
             {expanded[sIndex] && (
               <div style={{ padding: 'var(--s4)', display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
                 {/* Intention semaine */}
-                {isPublished ? (
-                  <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontStyle: 'italic', lineHeight: 1.6 }}>
-                    {sem.intention}
-                  </p>
-                ) : (
-                  <textarea
-                    value={sem.intention ?? ''}
-                    onChange={e => updateSemaine(sIndex, 'intention', e.target.value)}
-                    placeholder="Intention de la semaine…"
-                    rows={2}
-                    style={{ ...sIA.textarea, fontSize: 'var(--tx-xs)' }}
-                    onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                    onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                  />
-                )}
+                <textarea
+                  value={sem.intention ?? ''}
+                  onChange={e => updateSemaine(sIndex, 'intention', e.target.value)}
+                  placeholder="Intention de la semaine…"
+                  rows={2}
+                  style={{ ...sIA.textarea, fontSize: 'var(--tx-xs)' }}
+                  onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                  onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                />
 
                 {/* Jours */}
                 {(sem.jours ?? []).map((jour, jIndex) => (
                   <div key={jIndex} style={{ background: 'var(--cream)', borderRadius: 'var(--r-md)', padding: 'var(--s4)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s3)', marginBottom: 'var(--s3)', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', minWidth: 40 }}>J{jour.jour}</span>
-                      {isPublished ? (
-                        <>
-                          <span style={{ fontWeight: 600, color: 'var(--earth)', fontSize: 'var(--tx-sm)' }}>{jour.nom}</span>
-                          <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>· {jour.duree} min · {jour.type}</span>
-                        </>
-                      ) : (
-                        <>
-                          <input
-                            value={jour.nom ?? ''}
-                            onChange={e => updateJour(sIndex, jIndex, 'nom', e.target.value)}
-                            placeholder="Nom de la séance…"
-                            style={{ ...sIA.input, flex: 1, minWidth: 120 }}
-                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                          />
-                          <input
-                            value={jour.duree ?? ''}
-                            onChange={e => updateJour(sIndex, jIndex, 'duree', Number(e.target.value))}
-                            type="number"
-                            placeholder="Durée"
-                            style={{ ...sIA.input, width: 64 }}
-                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                          />
-                          <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>min</span>
-                        </>
-                      )}
+                      <>
+                        <input
+                          value={jour.nom ?? ''}
+                          onChange={e => updateJour(sIndex, jIndex, 'nom', e.target.value)}
+                          placeholder="Nom de la séance…"
+                          style={{ ...sIA.input, flex: 1, minWidth: 120 }}
+                          onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                          onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                        />
+                        <input
+                          value={jour.duree ?? ''}
+                          onChange={e => updateJour(sIndex, jIndex, 'duree', Number(e.target.value))}
+                          type="number"
+                          placeholder="Durée"
+                          style={{ ...sIA.input, width: 64 }}
+                          onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                          onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                        />
+                        <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>min</span>
+                      </>
                     </div>
 
                     {/* Exercices */}
@@ -1170,14 +1138,12 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
       </div>
 
       {/* Publish CTA at bottom */}
-      {!isPublished && (
-        <div style={{ paddingTop: 'var(--s4)', borderTop: '1px solid var(--sand)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-start' }}>
-          <Button variant="terracotta" loading={publishing} onClick={handlePublish}>
-            Valider et publier sur son profil ✦
-          </Button>
-          {pubError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubError}</p>}
-        </div>
-      )}
+      <div style={{ paddingTop: 'var(--s4)', borderTop: '1px solid var(--sand)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-start' }}>
+        <Button variant="terracotta" loading={publishing} onClick={handlePublish}>
+          Republier ✦
+        </Button>
+        {pubError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubError}</p>}
+      </div>
 
       {/* ═══════════════ Conseils Nutrition ═══════════════ */}
       <div style={{ paddingTop: 'var(--s6)', borderTop: '2px solid var(--sand)', marginTop: 'var(--s4)', display: 'flex', flexDirection: 'column', gap: 'var(--s5)' }}>
@@ -1192,10 +1158,10 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
               </span>
             )}
           </div>
-          {!isNutritionPublished && nutrition && Object.keys(nutrition).length > 0 && (
+          {nutrition && Object.keys(nutrition).length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-end' }}>
               <Button variant="sage" loading={publishingNutrition} onClick={handlePublishNutrition}>
-                Valider et publier la nutrition ✦
+                Republier ✦
               </Button>
               {pubNutritionError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubNutritionError}</p>}
             </div>
@@ -1213,23 +1179,16 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
               <h4 style={sIA.cardTitle}>Mes grands principes</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
                 {(nutrition.principes ?? []).map((p, i) => (
-                  isNutritionPublished ? (
-                    <div key={i} style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'flex-start' }}>
-                      <span style={{ color: 'var(--forest)', flexShrink: 0 }}>✦</span>
-                      <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.65, margin: 0 }}>{p}</p>
-                    </div>
-                  ) : (
-                    <div key={i} style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
-                      <span style={{ color: 'var(--stone)', flexShrink: 0, fontSize: 'var(--tx-xs)', minWidth: 16 }}>{i + 1}.</span>
-                      <input
-                        value={p}
-                        onChange={e => updateNutritionPrincipe(i, e.target.value)}
-                        style={{ ...sIA.input, flex: 1 }}
-                        onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                        onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                      />
-                    </div>
-                  )
+                  <div key={i} style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--stone)', flexShrink: 0, fontSize: 'var(--tx-xs)', minWidth: 16 }}>{i + 1}.</span>
+                    <input
+                      value={p}
+                      onChange={e => updateNutritionPrincipe(i, e.target.value)}
+                      style={{ ...sIA.input, flex: 1 }}
+                      onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                      onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
@@ -1248,18 +1207,14 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
                     <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 'var(--s2)' }}>
                       {emoji} {label}
                     </p>
-                    {isNutritionPublished ? (
-                      <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.65, margin: 0 }}>{nutrition.repas_type?.[key] ?? '—'}</p>
-                    ) : (
-                      <textarea
-                        value={nutrition.repas_type?.[key] ?? ''}
-                        onChange={e => updateNutritionRepas(key, e.target.value)}
-                        rows={3}
-                        style={sIA.textarea}
-                        onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                        onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                      />
-                    )}
+                    <textarea
+                      value={nutrition.repas_type?.[key] ?? ''}
+                      onChange={e => updateNutritionRepas(key, e.target.value)}
+                      rows={3}
+                      style={sIA.textarea}
+                      onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                      onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                    />
                   </div>
                 ))}
               </div>
@@ -1271,23 +1226,16 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
                 <h4 style={sIA.cardTitle}>Ce que j'évite</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
                   {nutrition.a_eviter.map((item, i) => (
-                    isNutritionPublished ? (
-                      <div key={i} style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'flex-start' }}>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--terracotta)', flexShrink: 0, marginTop: 8, display: 'inline-block' }} />
-                        <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.65, margin: 0 }}>{item}</p>
-                      </div>
-                    ) : (
-                      <div key={i} style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
-                        <span style={{ color: 'var(--stone)', flexShrink: 0, fontSize: 'var(--tx-xs)', minWidth: 16 }}>{i + 1}.</span>
-                        <input
-                          value={item}
-                          onChange={e => updateNutritionEviter(i, e.target.value)}
-                          style={{ ...sIA.input, flex: 1 }}
-                          onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                          onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                        />
-                      </div>
-                    )
+                    <div key={i} style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
+                      <span style={{ color: 'var(--stone)', flexShrink: 0, fontSize: 'var(--tx-xs)', minWidth: 16 }}>{i + 1}.</span>
+                      <input
+                        value={item}
+                        onChange={e => updateNutritionEviter(i, e.target.value)}
+                        style={{ ...sIA.input, flex: 1 }}
+                        onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                        onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                      />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -1296,29 +1244,23 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
             {/* Message Lysa */}
             <div style={sIA.card}>
               <h4 style={sIA.cardTitle}>💌 Message Lysa</h4>
-              {isNutritionPublished ? (
-                <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', lineHeight: 1.7, fontStyle: 'italic', margin: 0 }}>{nutrition.message_lysa}</p>
-              ) : (
-                <textarea
-                  value={nutrition.message_lysa ?? ''}
-                  onChange={e => updateNutritionMessage(e.target.value)}
-                  rows={5}
-                  style={sIA.textarea}
-                  onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                  onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                />
-              )}
+              <textarea
+                value={nutrition.message_lysa ?? ''}
+                onChange={e => updateNutritionMessage(e.target.value)}
+                rows={5}
+                style={sIA.textarea}
+                onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+              />
             </div>
 
             {/* Publish CTA nutrition */}
-            {!isNutritionPublished && (
-              <div style={{ paddingTop: 'var(--s4)', borderTop: '1px solid var(--sand)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-start' }}>
-                <Button variant="sage" loading={publishingNutrition} onClick={handlePublishNutrition}>
-                  Valider et publier la nutrition ✦
-                </Button>
-                {pubNutritionError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubNutritionError}</p>}
-              </div>
-            )}
+            <div style={{ paddingTop: 'var(--s4)', borderTop: '1px solid var(--sand)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)', alignItems: 'flex-start' }}>
+              <Button variant="sage" loading={publishingNutrition} onClick={handlePublishNutrition}>
+                Republier ✦
+              </Button>
+              {pubNutritionError && <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--terracotta)' }}>⚠ {pubNutritionError}</p>}
+            </div>
           </>
         )}
       </div>
