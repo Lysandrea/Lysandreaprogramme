@@ -1044,8 +1044,19 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
                       </>
                     </div>
 
+                    {/* Intention de la séance */}
+                    <textarea
+                      value={jour.intention ?? ''}
+                      onChange={e => updateJour(sIndex, jIndex, 'intention', e.target.value)}
+                      placeholder="Intention de la séance…"
+                      rows={2}
+                      style={{ ...sIA.textarea, fontSize: 'var(--tx-xs)', marginBottom: 'var(--s2)' }}
+                      onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                      onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                    />
+
                     {/* Exercices */}
-                    <div style={{ marginTop: 'var(--s2)', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                       {(jour.exercices ?? []).map((ex, eIndex) => (
                         <div key={eIndex} style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '6px 8px', background: 'rgba(0,0,0,.02)', borderRadius: 'var(--r-sm)', border: '1px solid var(--sand)' }}>
                           <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
