@@ -179,7 +179,35 @@ export const RECETTES = [
       tip: '💡 Pour la version banane, tu peux ajouter 1 c. à café de beurre de cacahuète pour une texture encore plus gourmande. Pour la version fruits rouges, quelques gouttes de jus de citron permettent de relever naturellement les saveurs. 🍋',
     },
   },
-  { sem: 7, titre: 'Recette de la semaine 7' },
+  {
+    sem: 7,
+    titre: '🍙 Rice balls au thon & avocat',
+    content: {
+      photo: 'https://omcednuoxfmhyfwmrmmp.supabase.co/storage/v1/object/public/photo-recettes/RICE%20BALL.png',
+      tagline: 'Des petites bouchées de riz gourmandes et faciles à transporter, parfaites pour un déjeuner nomade, une lunchbox ou une collation salée après le sport. 🥑🐟',
+      ingredients: [
+        '🍚 70 g de riz cru',
+        '🐟 80 g de thon au naturel, égoutté',
+        '🥑 ½ avocat',
+        '🧀 30 g de fromage frais type St Môret',
+        '🌱 1 c. à café de graines de sésame',
+        '🍋 Quelques gouttes de jus de citron',
+        '🧂 Sel & poivre',
+        '🌿 Ciboulette ou herbes fraîches — facultatif',
+      ],
+      steps: [
+        'Fais cuire le riz selon les indications du paquet. Une fois cuit, laisse-le refroidir quelques minutes.',
+        'Dans un bol, écrase l\'avocat avec le fromage frais et quelques gouttes de jus de citron.',
+        'Ajoute le thon émietté, les graines de sésame, un peu de sel, de poivre et de ciboulette. Mélange délicatement.',
+        'Humidifie légèrement tes mains puis prends une petite quantité de riz dans la paume. Fais un creux au centre et ajoute une petite cuillère de préparation au thon et à l\'avocat.',
+        'Referme avec un peu de riz puis façonne délicatement en boule en serrant suffisamment pour que les bouchées tiennent bien.',
+        'Répète l\'opération jusqu\'à utiliser toute la préparation.',
+        'Place les rice balls au réfrigérateur pendant 20 à 30 minutes avant de les déguster.',
+      ],
+      note: '🍙 Le déjeuner nomade qui change du traditionnel sandwich.',
+      tip: '💡 Prépare-les la veille et conserve-les dans une boîte hermétique au réfrigérateur. Tu peux aussi ajouter un peu de sauce soja au moment de les manger pour une petite touche asiatique. 🤎',
+    },
+  },
   { sem: 8, titre: 'Recette de la semaine 8' },
 ]
 
