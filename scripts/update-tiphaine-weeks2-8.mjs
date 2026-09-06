@@ -38,11 +38,10 @@ const ex = (nom, series, reps, repos) => ({
 
 const B1_S1 = {
   jour: 1,
-  nom: 'Séance 1',
-  nom_complet: 'Haut du corps A — Force sous tension & Transfert',
+  nom: 'Séance 1 — Haut du corps A',
   duree: 60,
   type: 'Force — Haut du corps',
-  intention: '💪 On construit la force qui te portera vers ton handstand. Chaque traction compte. 🌿',
+  intention: "💪 On construit la base avec sérieux — chaque traction compte vraiment. Donne le meilleur de toi aujourd'hui. Sois fière de l'effort que tu poses. 🌿",
   exercices: [
     ex('Tractions strictes (pronation)',       4, '6-7',         '2min'),
     ex('Développé militaire debout (OHP)',      4, '6-8',         '2min'),
@@ -54,11 +53,10 @@ const B1_S1 = {
 
 const B1_S2 = {
   jour: 2,
-  nom: 'Séance 2',
-  nom_complet: 'Bas du corps — Force unilatérale & Stabilité',
+  nom: 'Séance 2 — Bas du corps',
   duree: 60,
   type: 'Force — Bas du corps',
-  intention: '🦵 Un corps stable, c\'est un corps qui avance sans se blesser. On prend soin de tes appuis. 🌿',
+  intention: "🦵 On renforce un bas du corps fort et stable — pour porter tes kilomètres, mais aussi pour le plaisir d'un corps qui bouge avec puissance. Pousse fort, mais écoute-le, il te porte depuis toujours. 🌿",
   exercices: [
     ex('Split squat KB (ou fentes arrières)',   4, '8-10/jambe',  '2min'),
     ex('Soulevé de terre roumain 1 jambe',      3, '8-10/jambe',  '1min30'),
@@ -70,11 +68,10 @@ const B1_S2 = {
 
 const B1_S3 = {
   jour: 3,
-  nom: 'Séance 3',
-  nom_complet: 'Haut du corps B — Volume & Handstand',
+  nom: 'Séance 3 — Haut du corps B',
   duree: 55,
   type: 'Calisthenics & Volume',
-  intention: '🤸‍♀️ On apprivoise l\'équilibre, un essai à la fois. Ton corps apprend, sois patiente avec lui. 🌿',
+  intention: "🤸‍♀️ Le format EMOM construit du volume progressivement — c'est exactement ce qui va te faire gagner en tractions et en pompes. Chaque minute compte, donne ce que tu peux aujourd'hui. 🌿",
   exercices: [
     ex('Chest-to-wall handstand hold',                 4,  '25-35sec',  '1min30'),
     ex('EMOM 10min — Tractions poids de corps',        10, '3/min',     '1min'),
@@ -86,11 +83,10 @@ const B1_S3 = {
 
 const B1_S4 = {
   jour: 4,
-  nom: 'Séance 4',
-  nom_complet: 'Bonus bas du corps — Isométrie & Prévention',
+  nom: 'Séance 4 — Bonus bas du corps',
   duree: 40,
   type: 'Prévention & Isométrie',
-  intention: '🛡️ Cette séance protège tes articulations pour que tu puisses continuer à courir et grimper longtemps. Un vrai cadeau à ton corps. 🌿',
+  intention: "🛡️ Cette séance ne se voit pas dans le miroir, mais elle te protège pour continuer à tout donner ailleurs. Prends-la au sérieux, elle fait partie de ta force globale. 🌿",
   exercices: [
     ex('Chaise isométrique 1 jambe',               4, '30-45sec/jambe', '1min15'),
     ex('Renforcement tibial antérieur',             3, '15-20',          '1min'),
@@ -104,11 +100,10 @@ const B1_S4 = {
 
 const B2_S1 = {
   jour: 1,
-  nom: 'Séance 1',
-  nom_complet: 'Haut du corps A — Force pure & Surcharge',
+  nom: 'Séance 1 — Haut du corps A',
   duree: 60,
   type: 'Force — Haut du corps',
-  intention: '🔥 Tu es prête pour plus. Cette charge en plus, c\'est la preuve de tout le chemin parcouru. 🌿',
+  intention: "🔥 On commence à lester un peu plus — l'intensité augmente parce que tu es prête pour ça. Continue de faire confiance au processus. 🌿",
   exercices: [
     ex('Tractions lestées (+2,5 à +5kg)',      4, '3-4',        '2min30'),
     ex('Développé militaire debout',            4, '4-6',        '2min30'),
@@ -120,11 +115,10 @@ const B2_S1 = {
 
 const B2_S2 = {
   jour: 2,
-  nom: 'Séance 2',
-  nom_complet: 'Bas du corps — Charge & Poussée',
+  nom: 'Séance 2 — Bas du corps',
   duree: 60,
   type: 'Force — Bas du corps',
-  intention: '💥 Ta chaîne postérieure devient ta plus grande alliée. On pousse plus fort, ensemble. 🌿',
+  intention: '💥 Ta chaîne postérieure devient ta plus grande alliée. Pousse fort, reste toi-même. 🌿',
   exercices: [
     ex('Bulgarian split squat',                    4, '8/jambe',       '2min'),
     ex('Soulevé de terre roumain barre ou 2 DB',   4, '8-10',          '1min30'),
@@ -136,11 +130,10 @@ const B2_S2 = {
 
 const B2_S3 = {
   jour: 3,
-  nom: 'Séance 3',
-  nom_complet: 'Haut du corps B — Test de volume & Kick Handstand',
+  nom: 'Séance 3 — Haut du corps B',
   duree: 55,
   type: 'Calisthenics & Volume',
-  intention: '🏆 C\'est le moment de voir ce que tu as construit. Fais-toi confiance, tu es prête. 🌿',
+  intention: "🏆 On change de format pour aller chercher encore plus — tes tractions, tes pompes, ton handstand. Donne tout ce que tu as, l'intensité est méritée aujourd'hui. 🌿",
   exercices: [
     ex('Handstand kick-up au mur',             5,  '3-5 essais', '1min30'),
     ex('Tractions poids de corps (test)',       4,  '8-10',       '2min'),
@@ -154,12 +147,7 @@ const B2_S4 = { ...B1_S4, jour: 4 }  // Même contenu prévention
 
 /* ── Construire un objet semaine complet ────────────────────────── */
 function makeSemaine(num, theme, intention, seances) {
-  return {
-    semaine: num,
-    theme,
-    intention,
-    jours: seances.map(({ nom_complet: _, ...s }) => s),
-  }
+  return { semaine: num, theme, intention, jours: seances }
 }
 
 const NOUVELLES_SEMAINES = [
@@ -240,7 +228,7 @@ for (const sem of NOUVELLES_SEMAINES) {
   console.log(`\n📅 Semaine ${sem.semaine} — "${sem.theme}"`)
   console.log(`${SEP}💬 ${sem.intention}`)
   for (const jour of sem.jours) {
-    console.log(`\n${SEP}🏋️  ${jour.nom} — ${jour.nom_complet ?? jour.nom} (${jour.duree}min)`)
+    console.log(`\n${SEP}🏋️  ${jour.nom} (${jour.duree}min)`)
     console.log(`${SEP}   ${jour.intention}`)
     console.log(LINE)
     for (const ex of jour.exercices) {
@@ -250,11 +238,6 @@ for (const sem of NOUVELLES_SEMAINES) {
   }
 }
 
-// Note: jours built via makeSemaine strip nom_complet, but we preview using the raw seance objects
-// Let's re-add nom_complet to preview by using the BLOC arrays directly
-// Actually makeSemaine spreads the seance without nom_complet, which is fine for DB
-// The preview above uses the semaine object which already has jours without nom_complet
-// We need to re-map for preview — let's use a separate preview pass
 console.log('\n─────────────────────────────────────────────────────')
 console.log(`✅ Semaine 1 : INTACTE (${sem1.jours?.length ?? 0} jours préservés)`)
 console.log(`📝 Semaines 2-8 : REMPLACEMENT (${NOUVELLES_SEMAINES.length} semaines × 4 séances)`)
