@@ -20,6 +20,7 @@ const DEFAULT_INTAKE = {
   vision_8_semaines: '', bloquee_jusquici: '', coaching_avant: '', coaching_avant_detail: '',
   mouvement_representation: '', pratique_passee: '', mouvements_evites: '',
   niveau_pratique: '', frequence_semaine: '', duree_seance: '', lieux_entrainement: [], materiel: '',
+  charges_reference: '', exercices_maitrises: '', objectif_precis_chiffre: '',
   relation_corps: '', histoire_corps: '', craintes_programme: '',
   douleurs: '', douleurs_detail: '', antecedents: '', zones_eviter: '', sommeil: '', stress: '',
   contraception: '', contraception_autre: '', cycle_regularite: '', duree_cycle: '', duree_regles: '',
@@ -465,6 +466,27 @@ export default function IntakeQuestionnaire({ intake, setIntake, userEmail, onBa
           <div>
             <QLabel>Matériel disponible</QLabel>
             <TA value={d.materiel} onChange={v => set('materiel', v)} placeholder="Haltères, élastiques, tapis, barbell…" rows={2} />
+          </div>
+
+          <div>
+            <QLabel hint="Ça m'aide à calibrer les charges de départ au plus près de ta réalité — pas d'inventions de ma part.">
+              Si tu as des repères de charge sur certains exercices (squat, soulevé de terre, développé…), indique-les ici — ça m'aide à calibrer ton programme (facultatif)
+            </QLabel>
+            <TA value={d.charges_reference} onChange={v => set('charges_reference', v)} placeholder="Ex: Squat 40kg, Développé couché 20kg…" rows={2} />
+          </div>
+
+          <div>
+            <QLabel>
+              Y a-t-il des exercices que tu maîtrises déjà et que tu aimerais qu'on intègre ? (facultatif)
+            </QLabel>
+            <TA value={d.exercices_maitrises} onChange={v => set('exercices_maitrises', v)} placeholder="Ex: Tractions, soulevé de terre roumain…" rows={2} />
+          </div>
+
+          <div>
+            <QLabel>
+              As-tu un objectif précis en tête ? (perdre X kg, courir X km, soulever un certain poids…) (facultatif)
+            </QLabel>
+            <TA value={d.objectif_precis_chiffre} onChange={v => set('objectif_precis_chiffre', v)} placeholder="Ex: Perdre 5kg, faire mon premier tirage 50kg au soulevé de terre…" rows={2} />
           </div>
 
         </div>

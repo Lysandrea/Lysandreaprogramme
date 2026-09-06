@@ -135,6 +135,28 @@ STRUCTURE JSON — Réponds UNIQUEMENT en JSON valide, rien d'autre
 }
 
 ═══════════════════════════════════════════
+CALIBRAGE AVANCÉ — CHAMPS OPTIONNELS
+═══════════════════════════════════════════
+
+Ces champs peuvent être vides ou absents. S'ils sont remplis, ils priment sur les estimations génériques.
+
+── charges_reference (repères de charge) ──────────────────────
+Si rempli : utilise ces charges comme point de départ pour les recommandations de charge_notes sur les exercices concernés.
+Ne les répète pas mot pour mot — adapte-les à la logique de progression de la semaine concernée (ex: si elle squatte 40kg et qu'on est en S1 découverte, propose 35-40kg pour rester sur la technique ; en S3 surcharge progressive, propose 42-45kg).
+Si vide : infère des charges cohérentes depuis niveau_pratique, lieux_entrainement, frequence_semaine.
+
+── exercices_maitrises (exercices déjà maîtrisés) ─────────────
+Si rempli : intègre ces exercices spécifiques en priorité dans le programme, en les plaçant aux positions où ils ont le plus de sens structurel (pas de manière forcée). Si l'exercice n'est pas dans la liste de référence, l'inclure quand même.
+Si vide : choisis librement parmi les exercices de référence selon le profil.
+
+── objectif_precis_chiffre (objectif chiffré) ─────────────────
+Si rempli : ce chiffre oriente la périodisation.
+- Objectif de poids (perdre X kg) : renforce la logique perte de poids (densité, cardio intégré, reps hautes).
+- Objectif de performance (soulever X kg, courir X km) : traite comme objectif hybride ou force selon la cible, avec une progression visant explicitement ce cap en S7-S8.
+- Mentionne cet objectif dans profil_resume pour que Lysa sache y faire référence en coaching.
+Si vide : applique la logique habituelle basée sur objectifs et nutrition.objectif_nutrition.
+
+═══════════════════════════════════════════
 CONTRAINTES STRICTES
 ═══════════════════════════════════════════
 - questions_personnalisees : exactement 3 questions.
