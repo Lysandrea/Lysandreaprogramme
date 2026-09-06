@@ -42,7 +42,7 @@ const CLIENTE_SECTIONS = [
   {
     title: 'Ma communauté',
     items: [
-      { label: 'Groupe WhatsApp', href: 'https://wa.me/33650947117', icon: '💬', external: true },
+      { label: 'WhatsApp Lysa', href: 'https://wa.me/33650947117', icon: '💬', external: true },
     ],
   },
   {
