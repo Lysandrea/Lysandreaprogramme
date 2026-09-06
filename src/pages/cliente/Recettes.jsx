@@ -208,7 +208,37 @@ export const RECETTES = [
       tip: '💡 Prépare-les la veille et conserve-les dans une boîte hermétique au réfrigérateur. Tu peux aussi ajouter un peu de sauce soja au moment de les manger pour une petite touche asiatique. 🤎',
     },
   },
-  { sem: 8, titre: 'Recette de la semaine 8' },
+  {
+    sem: 8,
+    titre: '🧁 Muffins salés œufs, feta & légumes',
+    content: {
+      photo: 'https://omcednuoxfmhyfwmrmmp.supabase.co/storage/v1/object/public/photo-recettes/MUFFIN%20SALE.png',
+      tagline: 'Des petits muffins salés moelleux, riches en protéines et remplis de légumes. Ils se préparent à l\'avance et se transportent facilement : parfaits pour une lunchbox ou un repas sur le pouce. 🥚🥒',
+      ingredients: [
+        '🥚 3 œufs',
+        '🥒 ½ courgette',
+        '🍅 6 tomates cerises',
+        '🧀 50 g de feta',
+        '🌾 30 g de flocons d\'avoine',
+        '🥛 50 ml de lait ou boisson végétale non sucrée',
+        '🌿 Herbes de Provence',
+        '🧂 Sel & poivre',
+        '🫒 1 c. à café d\'huile d\'olive',
+      ],
+      steps: [
+        'Préchauffe ton four à 180°C.',
+        'Râpe la courgette puis presse-la entre tes mains ou dans un torchon propre afin de retirer un maximum d\'eau.',
+        'Dans un saladier, bats les œufs avec le lait et l\'huile d\'olive.',
+        'Ajoute les flocons d\'avoine, la courgette râpée, les tomates cerises coupées en petits morceaux et la feta émiettée.',
+        'Assaisonne avec les herbes de Provence, un peu de poivre et très peu de sel, car la feta est déjà salée.',
+        'Mélange bien puis répartis la préparation dans 6 moules à muffins.',
+        'Enfourne pendant environ 20 à 25 minutes à 180°C, jusqu\'à ce que les muffins soient bien dorés et légèrement fermes au centre.',
+        'Laisse-les refroidir quelques minutes avant de les démouler.',
+      ],
+      note: 'À préparer à l\'avance, à glisser dans ton sac et à déguster où tu veux. 🤎',
+      tip: '💡 Ils se conservent facilement au réfrigérateur dans une boîte hermétique. Tu peux les manger froids ou les réchauffer quelques secondes avant de les déguster. Et pour varier les plaisirs, tu peux remplacer la courgette par des épinards, ajouter des poivrons ou remplacer la feta par de la mozzarella. 🌿',
+    },
+  },
 ]
 
 export function RecetteDetail({ sem, titre, content }) {
