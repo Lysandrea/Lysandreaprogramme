@@ -27,6 +27,7 @@ const CLIENTE_SECTIONS = [
       { label: 'Accueil',           to: '/dashboard',      icon: '🌿' },
       { label: 'Ma roue de la vie', to: '/roue-de-la-vie', icon: '📊' },
       { label: 'Ma progression',    to: '/progression',    icon: '📈' },
+      { label: 'Mes bilans',        to: '/mes-bilans',     icon: '📓' },
     ],
   },
   {

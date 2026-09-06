@@ -24,6 +24,7 @@ import ConseilsNutrition  from './pages/cliente/ConseilsNutrition.jsx'
 import PourquoiJaiMal    from './pages/cliente/PourquoiJaiMal.jsx'
 import PourquoiJaiMalZone from './pages/cliente/PourquoiJaiMalZone.jsx'
 import RoueFinale         from './pages/cliente/RoueFinale.jsx'
+import MesBilans          from './pages/cliente/MesBilans.jsx'
 import CoachDash      from './pages/coach/Dashboard.jsx'
 import ClienteDetail  from './pages/coach/ClienteDetail.jsx'
 import ListeAttente      from './pages/coach/ListeAttente.jsx'
@@ -128,6 +129,9 @@ export default function App() {
       } />
       <Route path="/pourquoi-jai-mal/:zone" element={
         <ProtectedRoute allow="cliente"><PourquoiJaiMalZone /></ProtectedRoute>
+      } />
+      <Route path="/mes-bilans" element={
+        <ProtectedRoute allow="cliente"><MesBilans /></ProtectedRoute>
       } />
 
       {/* Coach (protected) */}
