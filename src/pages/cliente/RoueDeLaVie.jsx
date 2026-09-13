@@ -63,6 +63,13 @@ export default function RoueDeLaVie() {
             </p>
           </div>
 
+          {/* Explication */}
+          <div style={{ background: 'var(--sand)', border: '1px solid rgba(196,181,160,.4)', borderRadius: 'var(--r-md)', padding: 'var(--s4) var(--s5)', fontStyle: 'italic', fontSize: 'var(--tx-sm)', color: 'var(--bark)', lineHeight: 1.7 }}>
+            Pour chaque domaine, note ton niveau de satisfaction actuel sur une échelle de 1 à 10.<br />
+            Par exemple : 3 = très peu de satisfaction dans ce domaine, 9 = une bonne satisfaction dans ce domaine.<br />
+            Il n'y a pas de bonne réponse — juste ton ressenti honnête aujourd'hui. On refera cet exercice plus tard pour voir comment ça évolue.
+          </div>
+
           {/* Radar chart + tableau */}
           <div style={s.twoCol}>
             {/* Chart initial */}

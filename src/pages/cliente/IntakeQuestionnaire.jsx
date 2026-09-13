@@ -818,12 +818,11 @@ export default function IntakeQuestionnaire({ intake, setIntake, userEmail, onBa
           ════════════════════════════════ */}
       <div style={card}>
         <SectionHead num={8} emoji="🌀" title="Ta Roue de la Vie" sectionRef={el => sRefs.current[7] = el} />
-        <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--bark)', lineHeight: 1.6 }}>
-          Note chaque domaine de 1 à 10. Il n'y a pas de bonne réponse — juste ton ressenti honnête aujourd'hui.
-        </p>
-        <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', fontStyle: 'italic', marginTop: 4 }}>
-          On refait cet exercice à la fin des 8 semaines pour mesurer ton évolution.
-        </p>
+        <div style={{ background: 'var(--sand)', border: '1px solid rgba(196,181,160,.4)', borderRadius: 'var(--r-md)', padding: 'var(--s4) var(--s5)', fontStyle: 'italic', fontSize: 'var(--tx-sm)', color: 'var(--bark)', lineHeight: 1.7 }}>
+          Pour chaque domaine, note ton niveau de satisfaction actuel sur une échelle de 1 à 10.<br />
+          Par exemple : 3 = très peu de satisfaction dans ce domaine, 9 = une bonne satisfaction dans ce domaine.<br />
+          Il n'y a pas de bonne réponse — juste ton ressenti honnête aujourd'hui. On refera cet exercice plus tard pour voir comment ça évolue.
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s5)', marginTop: 'var(--s4)' }}>
           {ROUE_KEYS.map((key, i) => (
