@@ -38,9 +38,13 @@ function buildDayDataFromProgramme(programme) {
   return map
 }
 
-function computeUnlockedWeeks(bilansJourNums) {
+function computeUnlockedWeeks(bilansJourNums, currentDay = 1) {
+  const currentWeekFloor = Math.min(Math.ceil(currentDay / 7), 8)
   const weeks = new Set([1])
   for (let w = 2; w <= 8; w++) {
+    // current_day is the authoritative floor — if she's reached this week, unlock it
+    if (w <= currentWeekFloor) { weeks.add(w); continue }
+    // otherwise fall back to bilan count for future weeks
     const from  = (w - 2) * 7 + 1
     const to    = (w - 1) * 7
     const count = bilansJourNums.filter(n => n >= from && n <= to).length
@@ -49,8 +53,8 @@ function computeUnlockedWeeks(bilansJourNums) {
   return weeks
 }
 
-function buildDays(bilansJourNums = [], aiDayData = {}) {
-  const unlocked = computeUnlockedWeeks(bilansJourNums)
+function buildDays(bilansJourNums = [], aiDayData = {}, currentDay = 1) {
+  const unlocked = computeUnlockedWeeks(bilansJourNums, currentDay)
   return Array.from({ length: 56 }, (_, i) => {
     const jour    = i + 1
     const semaine = Math.ceil(jour / 7)
@@ -94,7 +98,7 @@ export default function ClienteDashboard() {
         if (aiProg?.statut === 'publie') {
           setProgrammePublie(aiProg)
           const aiDayData = buildDayDataFromProgramme(aiProg.programme ?? [])
-          setDays(buildDays(bilansJourNums, aiDayData))
+          setDays(buildDays(bilansJourNums, aiDayData, profile?.current_day ?? 1))
         }
         setLoading(false)
       })
