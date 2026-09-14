@@ -18,6 +18,21 @@ import { MOCK_CLIENTES, MOCK_DAYS, MOCK_BILANS } from '../../lib/mockData.js'
 
 const BODY_EMOJIS = ['😫', '😕', '😐', '🙂', '💪']
 
+const MIN_BILANS_TO_UNLOCK = 5
+
+function computeUnlockedWeeks(bilansJourNums, currentDay = 1) {
+  const currentWeekFloor = Math.min(Math.ceil(currentDay / 7), 8)
+  const weeks = new Set([1])
+  for (let w = 2; w <= 8; w++) {
+    if (w <= currentWeekFloor) { weeks.add(w); continue }
+    const from  = (w - 2) * 7 + 1
+    const to    = (w - 1) * 7
+    const count = bilansJourNums.filter(n => n >= from && n <= to).length
+    if (count >= MIN_BILANS_TO_UNLOCK) weeks.add(w)
+  }
+  return weeks
+}
+
 export default function ClienteDetail() {
   const { id }       = useParams()
   const navigate     = useNavigate()
@@ -205,6 +220,12 @@ export default function ClienteDetail() {
                 </div>
               </Card>
 
+              {/* Diagnostic déverrouillage */}
+              <UnlockDebugPanel
+                currentDay={currentDay}
+                bilansJourNums={bilans.map(b => b.jour_num).filter(Boolean)}
+              />
+
               {/* Bilans récents (5 derniers) */}
               <Card title="Bilans récents">
                 {bilans.length === 0 ? (
@@ -248,6 +269,87 @@ export default function ClienteDetail() {
       </div>
     </div>
   )
+}
+
+/* ── Unlock diagnostic panel ── */
+function UnlockDebugPanel({ currentDay, bilansJourNums }) {
+  const currentWeek    = Math.min(Math.ceil(currentDay / 7), 8)
+  const unlockedWeeks  = [...computeUnlockedWeeks(bilansJourNums, currentDay)].sort((a, b) => a - b)
+  const sortedBilans   = [...bilansJourNums].sort((a, b) => a - b)
+
+  return (
+    <div style={{
+      background: 'var(--white)', border: '1px solid var(--sand)',
+      borderRadius: 'var(--r-lg)', padding: 'var(--s5)',
+      boxShadow: 'var(--sh-sm)',
+    }}>
+      <p style={{ fontSize: 'var(--tx-xs)', fontWeight: 700, color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 'var(--s4)' }}>
+        🔍 Diagnostic déverrouillage — vue cliente
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
+
+        {/* Summary row */}
+        <div style={{ display: 'flex', gap: 'var(--s6)', flexWrap: 'wrap' }}>
+          <div>
+            <span style={dg.label}>Jour actuel</span>
+            <span style={dg.value}>J{currentDay} → Sem. {currentWeek}</span>
+          </div>
+          <div>
+            <span style={dg.label}>Semaines débloquées</span>
+            <span style={{ ...dg.value, color: 'var(--moss)' }}>{unlockedWeeks.join(', ')} / 8</span>
+          </div>
+          <div>
+            <span style={dg.label}>Bilans complétés ({bilansJourNums.length})</span>
+            <span style={dg.value}>{sortedBilans.length > 0 ? sortedBilans.join(', ') : '—'}</span>
+          </div>
+        </div>
+
+        {/* Per-week table */}
+        <div style={{ overflowX: 'auto', marginTop: 'var(--s2)' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--tx-xs)' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--sand)' }}>
+                {['Semaine', 'Jours', 'Bilans', 'Seuil', 'Statut'].map(h => (
+                  <th key={h} style={{ textAlign: 'left', padding: '5px 10px', color: 'var(--stone)', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: 8 }, (_, i) => {
+                const w      = i + 1
+                const from   = (w - 1) * 7 + 1
+                const to     = w * 7
+                const count  = bilansJourNums.filter(n => n >= from && n <= to).length
+                const isUnlocked = unlockedWeeks.includes(w)
+                const byDay  = w <= currentWeek
+                return (
+                  <tr key={w} style={{ borderBottom: '1px solid var(--sand)', background: isUnlocked ? 'rgba(107,127,94,.04)' : undefined }}>
+                    <td style={{ padding: '6px 10px', fontWeight: 600, color: 'var(--earth)' }}>Sem. {w}</td>
+                    <td style={{ padding: '6px 10px', color: 'var(--stone)' }}>J{from}–{to}</td>
+                    <td style={{ padding: '6px 10px', fontWeight: 600, color: count >= MIN_BILANS_TO_UNLOCK ? 'var(--moss)' : 'var(--bark)' }}>{count}</td>
+                    <td style={{ padding: '6px 10px', color: 'var(--stone)' }}>{w === 1 ? '—' : `${MIN_BILANS_TO_UNLOCK}/7`}</td>
+                    <td style={{ padding: '6px 10px' }}>
+                      {isUnlocked
+                        ? <span style={dg.badgeOk}>{byDay && w > 1 ? '✓ current_day' : '✓ débloquée'}</span>
+                        : <span style={dg.badgeLocked}>🔒 verrouillée</span>}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const dg = {
+  label:       { display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 3 },
+  value:       { display: 'block', fontSize: 'var(--tx-sm)', fontWeight: 600, color: 'var(--earth)', fontFamily: 'var(--sans)' },
+  badgeOk:     { fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: 'rgba(107,127,94,.12)', color: 'var(--moss)' },
+  badgeLocked: { fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: 'rgba(192,120,96,.1)', color: 'var(--terracotta)' },
 }
 
 /* ── Read-only helpers ── */
