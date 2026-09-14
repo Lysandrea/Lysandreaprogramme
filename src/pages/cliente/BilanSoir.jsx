@@ -1,10 +1,16 @@
-import { useState, useEffect }    from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useAuth }                from '../../contexts/AuthContext.jsx'
+import { useState, useEffect }              from 'react'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useAuth }                           from '../../contexts/AuthContext.jsx'
 import { IS_MOCK, saveBilan, fetchAiProgramme } from '../../lib/supabase.js'
 import Sidebar from '../../components/Sidebar.jsx'
 import Topbar  from '../../components/Topbar.jsx'
 import Button  from '../../components/Button.jsx'
+
+function parseAbsoluteDay(abs) {
+  const semaine    = Math.ceil(abs / 7)
+  const jourInWeek = abs - (semaine - 1) * 7
+  return { semaine, jourInWeek }
+}
 
 const QUESTIONS = [
   {
@@ -47,8 +53,11 @@ const QUESTIONS = [
 export default function BilanSoir() {
   const { id }   = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuth()
 
+  /* isReposDay: seeded from navigation state (fast, no flash), confirmed by programme fetch */
+  const [isReposDay,        setIsReposDay]        = useState(location.state?.isRepos ?? false)
   const [seanceFaite,       setSeanceFaite]       = useState(null)   // 'faite' | 'pas-faite'
   const [raisonNonSeance,   setRaisonNonSeance]   = useState('')
   const [answers,           setAnswers]           = useState({})
@@ -60,17 +69,23 @@ export default function BilanSoir() {
 
   useEffect(() => {
     if (!user || IS_MOCK) return
+    const { semaine, jourInWeek } = parseAbsoluteDay(Number(id))
     fetchAiProgramme(user.id)
       .then(prog => {
         if (prog?.statut === 'publie' && Array.isArray(prog.questions_personnalisees)) {
           setCustomQuestions(prog.questions_personnalisees)
+        }
+        if (prog?.programme) {
+          const sem  = prog.programme.find(s => Number(s.semaine) === semaine)
+          const jour = sem?.jours?.find(j => Number(j.jour) === jourInWeek)
+          setIsReposDay(!jour)
         }
       })
       .catch(() => {})
   }, [user]) // eslint-disable-line
 
   const isComplete = (
-    seanceFaite !== null &&
+    (isReposDay || seanceFaite !== null) &&
     QUESTIONS.every(q =>
       q.type === 'emoji'
         ? answers[q.id] !== undefined
@@ -93,8 +108,8 @@ export default function BilanSoir() {
           user.id,
           Number(id),
           {
-            seance_faite_bilan:      seanceFaite === 'faite',
-            raison_non_seance:       seanceFaite !== 'faite' ? (raisonNonSeance || null) : null,
+            seance_faite_bilan:      isReposDay ? null : seanceFaite === 'faite',
+            raison_non_seance:       (!isReposDay && seanceFaite !== 'faite') ? (raisonNonSeance || null) : null,
             gratitude:               answers.gratitude ?? '',
             lecon:                   answers.lecon     ?? '',
             corps:                   answers.corps     ?? null,
@@ -102,7 +117,7 @@ export default function BilanSoir() {
             lacher:                  answers.lacher    ?? '',
             reponses_personnalisees: repersonnalisees,
           },
-          seanceFaite === 'faite'
+          isReposDay ? false : seanceFaite === 'faite'
         )
       } else {
         await new Promise(r => setTimeout(r, 600))
@@ -135,53 +150,55 @@ export default function BilanSoir() {
             <p style={s.introSub}>Prends 5 minutes pour toi.</p>
           </div>
 
-          {/* SECTION 1 — Séance */}
-          <div style={s.section}>
-            <h3 style={s.sectionTitle}>Ma séance aujourd'hui</h3>
-            <div style={{ display: 'flex', gap: 'var(--s3)', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setSeanceFaite('faite')}
-                style={{
-                  ...s.toggleBtn,
-                  flex: 1, minWidth: 140,
-                  background: seanceFaite === 'faite' ? 'var(--moss)' : 'transparent',
-                  color:      seanceFaite === 'faite' ? 'var(--cream)' : 'var(--bark)',
-                  border:     seanceFaite === 'faite' ? '2px solid var(--moss)' : '2px solid var(--sand)',
-                }}
-              >
-                ✅ Séance faite
-              </button>
-              <button
-                onClick={() => setSeanceFaite('pas-faite')}
-                style={{
-                  ...s.toggleBtn,
-                  flex: 1, minWidth: 140,
-                  background: seanceFaite === 'pas-faite' ? 'var(--sand)' : 'transparent',
-                  color:      'var(--bark)',
-                  border:     seanceFaite === 'pas-faite' ? '2px solid var(--stone)' : '2px solid var(--sand)',
-                }}
-              >
-                💛 J'ai pas pu aujourd'hui
-              </button>
-            </div>
-
-            {seanceFaite === 'pas-faite' && (
-              <div style={{ marginTop: 'var(--s3)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)' }}>
-                <label style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)', fontStyle: 'italic' }}>
-                  Tu veux me dire pourquoi ? (pas obligatoire)
-                </label>
-                <textarea
-                  value={raisonNonSeance}
-                  onChange={e => setRaisonNonSeance(e.target.value)}
-                  placeholder="Pas besoin de te justifier…"
-                  rows={2}
-                  style={s.textarea}
-                  onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                  onBlur={e  => { e.target.style.borderColor = 'var(--sand)'  }}
-                />
+          {/* SECTION 1 — Séance (masquée les jours de repos) */}
+          {!isReposDay && (
+            <div style={s.section}>
+              <h3 style={s.sectionTitle}>Ma séance aujourd'hui</h3>
+              <div style={{ display: 'flex', gap: 'var(--s3)', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => setSeanceFaite('faite')}
+                  style={{
+                    ...s.toggleBtn,
+                    flex: 1, minWidth: 140,
+                    background: seanceFaite === 'faite' ? 'var(--moss)' : 'transparent',
+                    color:      seanceFaite === 'faite' ? 'var(--cream)' : 'var(--bark)',
+                    border:     seanceFaite === 'faite' ? '2px solid var(--moss)' : '2px solid var(--sand)',
+                  }}
+                >
+                  ✅ Séance faite
+                </button>
+                <button
+                  onClick={() => setSeanceFaite('pas-faite')}
+                  style={{
+                    ...s.toggleBtn,
+                    flex: 1, minWidth: 140,
+                    background: seanceFaite === 'pas-faite' ? 'var(--sand)' : 'transparent',
+                    color:      'var(--bark)',
+                    border:     seanceFaite === 'pas-faite' ? '2px solid var(--stone)' : '2px solid var(--sand)',
+                  }}
+                >
+                  💛 J'ai pas pu aujourd'hui
+                </button>
               </div>
-            )}
-          </div>
+
+              {seanceFaite === 'pas-faite' && (
+                <div style={{ marginTop: 'var(--s3)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)' }}>
+                  <label style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)', fontStyle: 'italic' }}>
+                    Tu veux me dire pourquoi ? (pas obligatoire)
+                  </label>
+                  <textarea
+                    value={raisonNonSeance}
+                    onChange={e => setRaisonNonSeance(e.target.value)}
+                    placeholder="Pas besoin de te justifier…"
+                    rows={2}
+                    style={s.textarea}
+                    onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                    onBlur={e  => { e.target.style.borderColor = 'var(--sand)'  }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* SECTION 2 — 5 Questions fixes */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
@@ -242,7 +259,7 @@ export default function BilanSoir() {
 
           {!isComplete && (
             <p style={{ textAlign: 'center', fontSize: 'var(--tx-xs)', color: 'var(--stone)', marginTop: -16 }}>
-              {seanceFaite === null
+              {!isReposDay && seanceFaite === null
                 ? 'Indique si tu as fait ta séance, puis réponds aux 5 questions.'
                 : 'Réponds à toutes les questions pour valider.'}
             </p>

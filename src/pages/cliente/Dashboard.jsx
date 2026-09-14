@@ -178,7 +178,11 @@ export default function ClienteDashboard() {
                   key={day.jour}
                   day={day}
                   isCurrent={day.jour === nextAvailable?.jour}
-                  onSelect={id => navigate(`/jour/${id}`)}
+                  onSelect={id => {
+                    const d = days.find(d => d.jour === id)
+                    if (d?.isRest) navigate(`/bilan/${id}`, { state: { isRepos: true } })
+                    else navigate(`/jour/${id}`)
+                  }}
                 />
               ))}
             </div>
@@ -265,7 +269,7 @@ function DayCell({ day, isCurrent, onSelect }) {
   const done    = day.status === 'done'
   const locked  = day.status === 'locked'
   const isRest  = day.isRest
-  const clickable = !locked && !isRest
+  const clickable = !locked
 
   /* ── Visual state ── */
   let bg, border, opacity, numColor, titleColor, icon
@@ -276,9 +280,9 @@ function DayCell({ day, isCurrent, onSelect }) {
     bg = 'rgba(107,127,94,.13)'; border = '1px solid var(--sage)'; opacity = 1
     numColor = 'var(--moss)'; titleColor = 'var(--earth)'; icon = '✓'
   } else if (isRest) {
-    /* Repos actif — full opacity, clearly neutral, NOT locked */
+    /* Repos actif — clickable, leads to bilan only */
     bg = 'var(--cream)'; border = '1px solid var(--sand)'; opacity = 1
-    numColor = 'var(--stone)'; titleColor = 'var(--stone)'; icon = '—'
+    numColor = 'var(--stone)'; titleColor = 'var(--stone)'; icon = '✦'
   } else if (locked) {
     /* Future locked week — clearly faded */
     bg = 'rgba(196,181,160,.10)'; border = '1px solid var(--sand)'; opacity = 0.4
