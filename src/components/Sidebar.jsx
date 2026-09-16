@@ -74,6 +74,13 @@ export default function Sidebar() {
   }, [role, user, location.pathname])
 
   useEffect(() => {
+    if (IS_MOCK || role !== 'coach' || !user) return
+    const refresh = () => fetchUnreadNotificationsCount(user.id).then(setUnreadCount).catch(() => {})
+    window.addEventListener('notifications-read', refresh)
+    return () => window.removeEventListener('notifications-read', refresh)
+  }, [role, user]) // eslint-disable-line
+
+  useEffect(() => {
     if (IS_MOCK || role !== 'cliente' || !user) return
     fetchAiProgramme(user.id)
       .then(prog => setAiPublie(prog?.statut === 'publie'))

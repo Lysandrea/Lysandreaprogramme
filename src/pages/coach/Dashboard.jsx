@@ -35,20 +35,21 @@ export default function CoachDashboard() {
 
   const clienteMap  = Object.fromEntries(clientes.map(c => [c.id, c.prenom ?? 'Cliente']))
 
-  /* Group notifications by cliente — keep most recent, track count */
+  /* Group notifications by cliente — keep most recent, count unread */
   const groupedNotifs = Object.values(
     notifications.reduce((acc, n) => {
       const key = n.cliente_id
+      const prevUnread = acc[key]?.unreadCount ?? 0
       if (!acc[key] || n.created_at > acc[key].created_at) {
-        acc[key] = { ...n, count: (acc[key]?.count ?? 0) + 1 }
+        acc[key] = { ...n, unreadCount: prevUnread + (n.read ? 0 : 1) }
       } else {
-        acc[key] = { ...acc[key], count: acc[key].count + 1 }
+        acc[key] = { ...acc[key], unreadCount: prevUnread + (n.read ? 0 : 1) }
       }
       return acc
     }, {})
   ).sort((a, b) => b.created_at.localeCompare(a.created_at))
 
-  const unreadNotifs = groupedNotifs.filter(n => !n.read)
+  const unreadNotifs = groupedNotifs.filter(n => n.unreadCount > 0)
 
   function handleMarkRead(notifId) {
     /* Mark all notifications from same cliente read */
@@ -56,6 +57,7 @@ export default function CoachDashboard() {
     const ids = clienteId ? notifications.filter(n => n.cliente_id === clienteId).map(n => n.id) : [notifId]
     ids.forEach(id => markNotificationRead(id).catch(console.error))
     setNotifications(prev => prev.map(n => ids.includes(n.id) ? { ...n, read: true } : n))
+    window.dispatchEvent(new CustomEvent('notifications-read'))
   }
 
   const actives    = clientes.filter(c => c.status === 'active').length
@@ -131,33 +133,33 @@ function NotifRow({ n, prenom, isLast, onRead, onView }) {
   const dateStr = new Date(n.created_at).toLocaleDateString('fr-FR', {
     day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
   })
-  const count = n.count ?? 1
+  const isUnread = (n.unreadCount ?? 0) > 0
 
   return (
     <div style={{
       display: 'flex', alignItems: 'flex-start', gap: 'var(--s4)',
       padding: 'var(--s4) var(--s3)',
       borderBottom: isLast ? 'none' : '1px solid var(--sand)',
-      background: n.read ? 'transparent' : 'rgba(192,120,96,.04)',
+      background: isUnread ? 'rgba(192,120,96,.04)' : 'transparent',
     }}>
-      {!n.read && (
-        <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--terracotta)', flexShrink: 0, marginTop: 6 }} />
-      )}
-      {n.read && <div style={{ width: 8, flexShrink: 0 }} />}
+      {isUnread
+        ? <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--terracotta)', flexShrink: 0, marginTop: 6 }} />
+        : <div style={{ width: 8, flexShrink: 0 }} />
+      }
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', fontWeight: n.read ? 400 : 500 }}>
-          <span style={{ fontWeight: 600 }}>{prenom}</span>
-          {count > 1
-            ? ` — ${count} soumissions`
-            : ' a soumis son questionnaire'}
+        <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--earth)', fontWeight: isUnread ? 500 : 400 }}>
+          {n.message}
+          {n.unreadCount > 1 && (
+            <span style={{ color: 'var(--stone)', fontWeight: 400 }}> · {n.unreadCount} non lues</span>
+          )}
         </p>
         <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)', marginTop: 2 }}>{dateStr}</p>
       </div>
       <div style={{ display: 'flex', gap: 'var(--s2)', flexShrink: 0, flexWrap: 'wrap' }}>
         <Button size="sm" variant="secondary" onClick={onView}>
-          Voir le questionnaire →
+          Voir le profil →
         </Button>
-        {!n.read && (
+        {isUnread && (
           <Button size="sm" variant="ghost" onClick={() => onRead(n.id)}>
             Marquer comme lu
           </Button>

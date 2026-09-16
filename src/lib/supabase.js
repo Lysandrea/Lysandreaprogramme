@@ -254,6 +254,16 @@ export async function markNotificationRead(notificationId) {
   if (error) throw error
 }
 
+export async function markClienteNotificationsRead(coachId, clienteId) {
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read: true })
+    .eq('coach_id', coachId)
+    .eq('cliente_id', clienteId)
+    .eq('read', false)
+  if (error) throw error
+}
+
 export async function fetchUnreadNotificationsCount(coachId) {
   const { count, error } = await supabase
     .from('notifications')

@@ -1,5 +1,6 @@
 import { useState, useEffect }                    from 'react'
 import { useParams, useNavigate, useLocation }    from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import {
   IS_MOCK, supabase,
   fetchClienteProfile, fetchJours, fetchBilans,
@@ -7,6 +8,7 @@ import {
   fetchAiProgramme, publishAiProgramme, saveAiProgrammeExercices,
   publishNutritionConseils,
   generateSemaineExercices,
+  markClienteNotificationsRead,
 } from '../../lib/supabase.js'
 import Sidebar   from '../../components/Sidebar.jsx'
 import Topbar    from '../../components/Topbar.jsx'
@@ -37,6 +39,7 @@ export default function ClienteDetail() {
   const { id }       = useParams()
   const navigate     = useNavigate()
   const { state: navState } = useLocation()
+  const { user }     = useAuth()
 
   const [tab,           setTab]           = useState(navState?.tab ?? 'progression')
   const [cliente,       setCliente]       = useState(null)
@@ -73,6 +76,13 @@ export default function ClienteDetail() {
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => {
+    if (IS_MOCK || !user?.id) return
+    markClienteNotificationsRead(user.id, id)
+      .then(() => window.dispatchEvent(new CustomEvent('notifications-read')))
+      .catch(console.error)
+  }, [id, user?.id]) // eslint-disable-line
 
   async function handleUnlock() {
     if (!cliente) return
