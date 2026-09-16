@@ -26,15 +26,16 @@ function formatDate(dateStr) {
 
 export default function MesBilans() {
   const { user } = useAuth()
-  const [bilans,   setBilans]   = useState([])
-  const [loading,  setLoading]  = useState(true)
-  const [openId,   setOpenId]   = useState(null)
+  const [bilans,     setBilans]     = useState([])
+  const [loading,    setLoading]    = useState(true)
+  const [openId,     setOpenId]     = useState(null)
+  const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
     if (!user || IS_MOCK) { setLoading(false); return }
     fetchBilans(user.id)
       .then(setBilans)
-      .catch(() => {})
+      .catch(() => setFetchError(true))
       .finally(() => setLoading(false))
   }, [user])
 
@@ -51,7 +52,16 @@ export default function MesBilans() {
             <p style={s.muted}>Chargement…</p>
           )}
 
-          {!loading && bilans.length === 0 && (
+          {!loading && fetchError && (
+            <div style={{ padding: 'var(--s5)', background: 'rgba(192,120,96,.08)', border: '1px solid rgba(192,120,96,.2)', borderRadius: 'var(--r-md)', marginTop: 'var(--s2)' }}>
+              <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--terracotta)', lineHeight: 1.6 }}>
+                Impossible de charger tes bilans. Réessaie ou{' '}
+                <a href="https://wa.me/33650947117" target="_blank" rel="noreferrer" style={{ color: 'var(--terracotta)', fontWeight: 600 }}>contacte Lysa sur WhatsApp</a>.
+              </p>
+            </div>
+          )}
+
+          {!loading && !fetchError && bilans.length === 0 && (
             <div style={s.empty}>
               <p style={s.emptyText}>
                 Ton carnet est encore vide. Il se remplira au fil de tes journées. 🌿
@@ -59,7 +69,7 @@ export default function MesBilans() {
             </div>
           )}
 
-          {!loading && bilans.length > 0 && (
+          {!loading && !fetchError && bilans.length > 0 && (
             <div style={s.list}>
               {bilans.map(bilan => {
                 const isOpen   = openId === bilan.id

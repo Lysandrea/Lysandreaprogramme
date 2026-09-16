@@ -81,7 +81,7 @@ export default function BilanSoir() {
           setIsReposDay(!jour)
         }
       })
-      .catch(() => {})
+      .catch(err => console.error('[BilanSoir] fetchAiProgramme:', err?.message))
   }, [user]) // eslint-disable-line
 
   const isComplete = (

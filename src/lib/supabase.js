@@ -86,6 +86,9 @@ export async function saveBilan(clienteId, jourNum, answers, seanceFaite = true)
           message:    `${prenom} entame sa semaine 4 — pense à caler son appel de suivi 📞`,
           type:       'semaine_4',
         })
+      supabase.functions
+        .invoke('notify-coach-semaine4', { body: { prenom, clienteId } })
+        .catch(e => console.error('[saveBilan] notify-coach-semaine4:', e?.message))
     }
   }
 }

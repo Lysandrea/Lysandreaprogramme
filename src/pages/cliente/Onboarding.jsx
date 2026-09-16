@@ -113,7 +113,7 @@ export default function Onboarding() {
   async function persistIntake(data) {
     lsSave({ intake: data })                                   // backup local systématique
     if (!user) return
-    try { await saveIntakeResponses(user.id, data) } catch {} // Supabase, erreurs silencieuses
+    try { await saveIntakeResponses(user.id, data) } catch (e) { console.error('[Onboarding] saveIntakeResponses:', e?.message) }
   }
 
   async function goToStep(next) {
@@ -121,14 +121,14 @@ export default function Onboarding() {
     setEtape(next)
     lsSave({ etape: next, checklist })
     if (!user) return
-    try { await saveOnboardingStep(user.id, next, checklist) } catch {}
+    try { await saveOnboardingStep(user.id, next, checklist) } catch (e) { console.error('[Onboarding] saveOnboardingStep:', e?.message) }
   }
 
   function toggleCheck(key) {
     const next = { ...checklist, [key]: !checklist[key] }
     setChecklist(next)
     lsSave({ checklist: next })
-    if (user) saveOnboardingStep(user.id, etape, next).catch(() => {})
+    if (user) saveOnboardingStep(user.id, etape, next).catch(e => console.error('[Onboarding] toggleCheck save:', e?.message))
   }
 
   async function handleComplete() {
@@ -146,7 +146,7 @@ export default function Onboarding() {
               `${prenom} a terminé son onboarding.`
             )
           }
-        } catch {}                       // erreur Supabase → on continue quand même
+        } catch (e) { console.error('[Onboarding] completeOnboarding:', e?.message) }
       }
       navigate('/attente')
     } catch (e) {
@@ -226,7 +226,7 @@ export default function Onboarding() {
                     await supabase.functions.invoke('notify-coach-questionnaire', {
                       body: { clienteId: user.id, clienteName: prenom },
                     })
-                  } catch {}
+                  } catch (e) { console.error('[Onboarding] notify-coach-questionnaire:', e?.message) }
                   if (profile?.coach_id) {
                     try {
                       await createCoachNotification(
@@ -235,7 +235,7 @@ export default function Onboarding() {
                         `${prenom} a soumis son questionnaire.`,
                         'questionnaire_submitted'
                       )
-                    } catch {}
+                    } catch (e) { console.error('[Onboarding] createCoachNotification questionnaire:', e?.message) }
                   }
                 }
                 // Génération IA via Edge Function (fire & forget)
@@ -250,7 +250,7 @@ export default function Onboarding() {
                           user.id,
                           `Programme IA de ${prenom} généré — en attente de validation ✦`,
                           'programme_generated'
-                        ).catch(() => {})
+                        ).catch(e => console.error('[Onboarding] createCoachNotification programme:', e?.message))
                       }
                     })
                     .catch(err => {

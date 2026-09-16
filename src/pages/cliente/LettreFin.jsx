@@ -7,11 +7,12 @@ export default function LettreFin() {
   const currentSem = Math.ceil((profile?.current_day ?? 1) / 7)
   const locked     = currentSem < 8
 
-  const [contenu,  setContenu]  = useState('')
-  const [savedAt,  setSavedAt]  = useState(null)
-  const [saving,   setSaving]   = useState(false)
-  const [saved,    setSaved]    = useState(false)
-  const [error,    setError]    = useState(null)
+  const [contenu,    setContenu]    = useState('')
+  const [savedAt,    setSavedAt]    = useState(null)
+  const [saving,     setSaving]     = useState(false)
+  const [saved,      setSaved]      = useState(false)
+  const [error,      setError]      = useState(null)
+  const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
     if (!user || locked) return
@@ -20,7 +21,7 @@ export default function LettreFin() {
         setContenu(data.contenu)
         setSavedAt(data.updated_at)
       }
-    }).catch(() => {})
+    }).catch(() => setFetchError(true))
   }, [user, locked])
 
   async function handleSave() {
@@ -59,6 +60,15 @@ export default function LettreFin() {
         Félicitations pour avoir terminé tes 8 semaines. Écris ici une lettre à toi-même :
         ce que tu retiens, ce qui a changé, les promesses que tu te fais pour la suite.
       </p>
+
+      {fetchError && (
+        <div style={{ padding: 'var(--s4)', background: 'rgba(192,120,96,.08)', border: '1px solid rgba(192,120,96,.2)', borderRadius: 'var(--r-md)', marginBottom: 'var(--s4)' }}>
+          <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--terracotta)', lineHeight: 1.6 }}>
+            Impossible de charger ta lettre précédente — si tu en avais une, ne sauvegarde pas avant d'avoir actualisé la page. En cas de problème,{' '}
+            <a href="https://wa.me/33650947117" target="_blank" rel="noreferrer" style={{ color: 'var(--terracotta)', fontWeight: 600 }}>contacte Lysa sur WhatsApp</a>.
+          </p>
+        </div>
+      )}
 
       <div style={s.card}>
         <textarea

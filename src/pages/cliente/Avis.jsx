@@ -22,7 +22,7 @@ export default function Avis() {
         setCommentaire(data.commentaire ?? '')
         setAlreadySent(true)
       }
-    }).catch(() => {})
+    }).catch(err => console.error('[Avis] fetchAvis:', err?.message))
   }, [user, locked])
 
   async function handleSave() {

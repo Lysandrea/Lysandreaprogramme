@@ -18,18 +18,31 @@ export default function PourquoiJaiMal() {
   const { user } = useAuth()
   const navigate  = useNavigate()
 
-  const [publie,  setPublie]  = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [publie,     setPublie]     = useState(false)
+  const [loading,    setLoading]    = useState(true)
+  const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
     if (!user || IS_MOCK) { setLoading(false); return }
     fetchAiProgramme(user.id)
       .then(prog => setPublie(prog?.statut === 'publie'))
-      .catch(() => {})
+      .catch(() => setFetchError(true))
       .finally(() => setLoading(false))
   }, [user])
 
   if (loading) return <div style={s.page}><p style={{ color: 'var(--stone)', fontSize: 'var(--tx-sm)' }}>Chargement…</p></div>
+
+  if (fetchError) return (
+    <div style={s.page}>
+      <h1 style={s.title}>🩹 Pourquoi j'ai mal</h1>
+      <div style={{ padding: 'var(--s5)', background: 'rgba(192,120,96,.08)', border: '1px solid rgba(192,120,96,.2)', borderRadius: 'var(--r-md)' }}>
+        <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--terracotta)', lineHeight: 1.6 }}>
+          Impossible de vérifier le statut de ton programme. Réessaie ou{' '}
+          <a href="https://wa.me/33650947117" target="_blank" rel="noreferrer" style={{ color: 'var(--terracotta)', fontWeight: 600 }}>contacte Lysa sur WhatsApp</a>.
+        </p>
+      </div>
+    </div>
+  )
 
   if (!publie) return (
     <div style={s.page}>

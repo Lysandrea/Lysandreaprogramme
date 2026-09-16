@@ -234,8 +234,12 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  let clienteId, clienteData
+
   try {
-    const { clienteData, clienteId } = await req.json()
+    const body = await req.json()
+    clienteId   = body.clienteId
+    clienteData = body.clienteData
 
     if (!clienteId) {
       return new Response(
@@ -345,6 +349,23 @@ Deno.serve(async (req) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erreur inconnue'
     console.error('[generate-programme] ERREUR:', message)
+
+    const prenom = clienteData?.prenom ?? clienteData?.prenom_surnom ?? clienteId ?? 'Inconnue'
+    const resendKey = Deno.env.get('RESEND_API_KEY')
+    if (resendKey) {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Lysa Andréa <hello@lysaandrea.com>',
+          to: ['lysaandreacoaching@gmail.com'],
+          subject: `⚠️ Échec génération programme — ${prenom}`,
+          text: `La génération automatique du programme a échoué pour ${prenom}. Erreur : ${message}. Va vérifier son profil et relance la génération manuellement si besoin.`,
+          html: `<p>La génération automatique du programme a échoué pour <strong>${prenom}</strong>.</p><p>Erreur : <code>${message}</code></p><p>Va vérifier son profil et relance la génération manuellement si besoin.</p>`,
+        }),
+      }).catch(emailErr => console.error('[generate-programme] email notification failed:', emailErr?.message))
+    }
+
     return new Response(
       JSON.stringify({ error: message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -25,7 +25,7 @@ export default function Documents() {
     if (!user) return
     fetchOnboardingProgress(user.id)
       .then(setProgress)
-      .catch(() => {})
+      .catch(err => console.error('[Documents] fetchOnboardingProgress:', err?.message))
       .finally(() => setLoading(false))
   }, [user])
 

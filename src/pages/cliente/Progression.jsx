@@ -4,9 +4,10 @@ import { fetchJours, fetchBilansJourNums } from '../../lib/supabase.js'
 
 export default function Progression() {
   const { user, profile } = useAuth()
-  const [jours,   setJours]   = useState([])
-  const [bilans,  setBilans]  = useState([])
-  const [loading, setLoading] = useState(true)
+  const [jours,      setJours]      = useState([])
+  const [bilans,     setBilans]     = useState([])
+  const [loading,    setLoading]    = useState(true)
+  const [fetchError, setFetchError] = useState(false)
 
   const currentDay    = profile?.current_day ?? 1
   const currentSem    = Math.ceil(currentDay / 7)
@@ -19,7 +20,7 @@ export default function Progression() {
     ]).then(([j, b]) => {
       setJours(j)
       setBilans(b)
-    }).catch(() => {}).finally(() => setLoading(false))
+    }).catch(() => setFetchError(true)).finally(() => setLoading(false))
   }, [user])
 
   const doneSet    = new Set(jours.filter(j => j.seance_faite).map(j => j.jour_num))
@@ -45,6 +46,20 @@ export default function Progression() {
 
   if (loading) {
     return <div style={s.page}><p style={s.meta}>Chargement…</p></div>
+  }
+
+  if (fetchError) {
+    return (
+      <div style={s.page}>
+        <h1 style={s.title}>Ma progression</h1>
+        <div style={{ padding: 'var(--s5)', background: 'rgba(192,120,96,.08)', border: '1px solid rgba(192,120,96,.2)', borderRadius: 'var(--r-md)' }}>
+          <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--terracotta)', lineHeight: 1.6 }}>
+            Impossible de charger ta progression. Réessaie ou{' '}
+            <a href="https://wa.me/33650947117" target="_blank" rel="noreferrer" style={{ color: 'var(--terracotta)', fontWeight: 600 }}>contacte Lysa sur WhatsApp</a>.
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
