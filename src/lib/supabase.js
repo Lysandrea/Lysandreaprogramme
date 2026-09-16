@@ -124,12 +124,24 @@ export async function fetchBilans(clienteId, limit = null) {
 export async function fetchClientes(coachId) {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*, jours(jour_num, seance_faite, date_completion)')
+    .select('*, jours(jour_num, seance_faite, date_completion), bilans(jour_num, created_at)')
     .eq('coach_id', coachId)
     .eq('role', 'cliente')
     .order('created_at')
   if (error) throw error
-  return data ?? []
+
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  return (data ?? []).map(c => {
+    const day    = c.current_day ?? 1
+    const bilans = c.bilans ?? []
+    const sorted = bilans.slice().sort((a, b) => b.created_at.localeCompare(a.created_at))
+    return {
+      ...c,
+      status:            day >= 57 ? 'done' : day > 1 ? 'active' : 'onboarding',
+      derniereBilanDate: sorted[0]?.created_at ?? null,
+      bilansEnAttente:   bilans.filter(b => b.created_at >= weekAgo).length,
+    }
+  })
 }
 
 /** Récupère le profil d'une cliente (pour le coach) */

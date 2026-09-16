@@ -15,9 +15,10 @@ export default function CoachDashboard() {
   const { user }  = useAuth()
   const navigate  = useNavigate()
 
-  const [clientes,       setClientes]       = useState(MOCK_CLIENTES)
+  const [clientes,       setClientes]       = useState(IS_MOCK ? MOCK_CLIENTES : [])
   const [notifications,  setNotifications]  = useState([])
   const [loading,        setLoading]        = useState(!IS_MOCK)
+  const [showHistorique, setShowHistorique] = useState(false)
 
   useEffect(() => {
     if (IS_MOCK || !user) return
@@ -50,6 +51,7 @@ export default function CoachDashboard() {
   ).sort((a, b) => b.created_at.localeCompare(a.created_at))
 
   const unreadNotifs = groupedNotifs.filter(n => n.unreadCount > 0)
+  const readNotifs   = groupedNotifs.filter(n => n.unreadCount === 0)
 
   function handleMarkRead(notifId) {
     /* Mark all notifications from same cliente read */
@@ -74,22 +76,48 @@ export default function CoachDashboard() {
           {/* Notifications */}
           {!IS_MOCK && (
             <Card title={`🔔 Notifications${unreadNotifs.length > 0 ? ` · ${unreadNotifs.length} non lue${unreadNotifs.length > 1 ? 's' : ''}` : ''}`}>
-              {groupedNotifs.length === 0 ? (
+              {unreadNotifs.length === 0 ? (
                 <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--stone)', padding: 'var(--s2) 0' }}>
                   Tout est à jour ✓
                 </p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {groupedNotifs.map((n, i) => (
+                  {unreadNotifs.map((n, i) => (
                     <NotifRow
                       key={n.id}
                       n={n}
                       prenom={clienteMap[n.cliente_id] ?? 'Cliente'}
-                      isLast={i === groupedNotifs.length - 1}
+                      isLast={i === unreadNotifs.length - 1}
                       onRead={handleMarkRead}
                       onView={() => { handleMarkRead(n.id); navigate(`/coach/cliente/${n.cliente_id}`, { state: { tab: 'questionnaire' } }) }}
                     />
                   ))}
+                </div>
+              )}
+              {readNotifs.length > 0 && (
+                <div style={{ borderTop: unreadNotifs.length > 0 ? '1px solid var(--sand)' : 'none', paddingTop: 'var(--s2)' }}>
+                  <button
+                    onClick={() => setShowHistorique(h => !h)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'var(--tx-xs)', color: 'var(--stone)', padding: 'var(--s1) var(--s2)', borderRadius: 'var(--r-sm)' }}
+                  >
+                    {showHistorique
+                      ? "Masquer l'historique ↑"
+                      : `Voir l'historique (${readNotifs.length} traitée${readNotifs.length > 1 ? 's' : ''}) ↓`}
+                  </button>
+                  {showHistorique && (
+                    <div style={{ display: 'flex', flexDirection: 'column', marginTop: 'var(--s1)' }}>
+                      {readNotifs.map((n, i) => (
+                        <NotifRow
+                          key={n.id}
+                          n={n}
+                          prenom={clienteMap[n.cliente_id] ?? 'Cliente'}
+                          isLast={i === readNotifs.length - 1}
+                          onRead={handleMarkRead}
+                          onView={() => navigate(`/coach/cliente/${n.cliente_id}`)}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </Card>
