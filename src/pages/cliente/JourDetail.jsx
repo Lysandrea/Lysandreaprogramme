@@ -175,14 +175,25 @@ export default function JourDetail() {
           {exercices.length > 0 && (
             <Card title="Exercices de la séance">
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
-                {exercices.map((ex, i) => (
-                  <ExerciceRow
-                    key={i}
-                    ex={ex}
-                    state={exState[i] ?? { fait: false, charge_notes: '', commentaire: '' }}
-                    onChange={(field, value) => setEx(i, field, value)}
-                  />
-                ))}
+                {groupSegments(exercices).map((seg, segIdx) =>
+                  seg.type === 'normal' ? (
+                    <ExerciceRow
+                      key={seg.index}
+                      ex={exercices[seg.index]}
+                      state={exState[seg.index] ?? { fait: false, charge_notes: '', commentaire: '' }}
+                      onChange={(field, value) => setEx(seg.index, field, value)}
+                    />
+                  ) : (
+                    <CircuitBlock
+                      key={`circuit-${segIdx}`}
+                      indices={seg.indices}
+                      exercices={exercices}
+                      circuit={seance.circuit}
+                      exState={exState}
+                      setEx={setEx}
+                    />
+                  )
+                )}
               </div>
               <p style={{
                 marginTop: 'var(--s5)',
@@ -232,6 +243,22 @@ export default function JourDetail() {
       </div>
     </div>
   )
+}
+
+/* ── Groups consecutive circuit exercises into segments ── */
+function groupSegments(exercices) {
+  const segs = []
+  let i = 0
+  while (i < exercices.length) {
+    if (exercices[i].groupe === 'circuit') {
+      const indices = []
+      while (i < exercices.length && exercices[i].groupe === 'circuit') indices.push(i++)
+      segs.push({ type: 'circuit', indices })
+    } else {
+      segs.push({ type: 'normal', index: i++ })
+    }
+  }
+  return segs
 }
 
 /* ── Exercise row with repos badge, charge input, checkbox, comment ── */
@@ -341,6 +368,179 @@ function ExerciceRow({ ex, state, onChange }) {
               style={{
                 marginTop: 'var(--s2)', width: '100%', boxSizing: 'border-box',
                 padding: '6px var(--s3)',
+                border: '1px solid var(--sand)', borderRadius: 'var(--r-sm)',
+                background: 'var(--cream)', color: 'var(--earth)',
+                fontSize: 'var(--tx-xs)', resize: 'vertical', outline: 'none',
+                fontFamily: 'var(--sans)', transition: 'border-color var(--ease-fast)',
+              }}
+              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Circuit block: groups consecutive circuit exercises in one card ── */
+function CircuitBlock({ indices, exercices, circuit, exState, setEx }) {
+  const tours = circuit?.tours ?? 3
+  const repos = circuit?.repos ?? '2min'
+
+  return (
+    <div style={{
+      background: 'var(--sand)',
+      border: '1.5px solid var(--forest)',
+      borderRadius: 'var(--r-md)',
+      overflow: 'hidden',
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: 'var(--s3) var(--s4)',
+        background: 'rgba(61,79,60,.07)',
+        borderBottom: '1px solid rgba(61,79,60,.18)',
+      }}>
+        <p style={{
+          fontFamily: 'var(--serif)',
+          fontSize: 'var(--tx-base)',
+          fontWeight: 400,
+          color: 'var(--forest)',
+        }}>
+          🔁 Circuit : {tours} tours, {repos} de repos entre chaque tour
+        </p>
+      </div>
+
+      {/* Exercises */}
+      <div style={{ padding: 'var(--s3) var(--s4)', display: 'flex', flexDirection: 'column' }}>
+        {indices.map((origIdx, num) => (
+          <div key={origIdx}>
+            <CircuitExRow
+              num={num + 1}
+              ex={exercices[origIdx]}
+              state={exState[origIdx] ?? { fait: false, charge_notes: '', commentaire: '' }}
+              onChange={(field, value) => setEx(origIdx, field, value)}
+            />
+            {num < indices.length - 1 && (
+              <div style={{
+                textAlign: 'center', color: 'var(--stone)',
+                fontSize: 'var(--tx-xs)', padding: '3px 0', lineHeight: 1,
+              }}>↓</div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        padding: 'var(--s3) var(--s4)',
+        borderTop: '1px solid rgba(61,79,60,.18)',
+        background: 'rgba(61,79,60,.04)',
+      }}>
+        <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--forest)', fontStyle: 'italic' }}>
+          ↩️ {repos} de repos, puis recommence
+        </p>
+      </div>
+    </div>
+  )
+}
+
+/* ── Single exercise row inside a circuit ── */
+function CircuitExRow({ num, ex, state, onChange }) {
+  const { fait, charge_notes, commentaire } = state
+  const [showComment, setShowComment] = useState(!!commentaire)
+
+  return (
+    <div style={{
+      border: `1px solid ${fait ? 'var(--sage)' : 'rgba(61,79,60,.15)'}`,
+      borderRadius: 'var(--r-sm)',
+      background: fait ? 'rgba(107,127,94,.08)' : 'var(--white)',
+      transition: 'background var(--ease-fast), border-color var(--ease-fast)',
+    }}>
+      <div style={{ padding: 'var(--s3)', display: 'flex', alignItems: 'flex-start', gap: 'var(--s3)' }}>
+
+        {/* Number / done toggle */}
+        <div
+          role="checkbox"
+          aria-checked={fait}
+          onClick={() => onChange('fait', !fait)}
+          style={{
+            width: 22, height: 22, borderRadius: '50%', flexShrink: 0, marginTop: 2,
+            border: `2px solid ${fait ? 'var(--moss)' : 'var(--stone)'}`,
+            background: fait ? 'var(--moss)' : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 10, fontWeight: 700,
+            color: fait ? 'var(--white)' : 'var(--stone)',
+            cursor: 'pointer', transition: 'all var(--ease-fast)',
+          }}
+        >
+          {fait ? '✓' : num}
+        </div>
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Name + reps only (no "series ×" for circuit exercises) */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--s2)', flexWrap: 'wrap', marginBottom: 'var(--s2)' }}>
+            <span style={{
+              fontSize: 'var(--tx-sm)', fontWeight: 600,
+              color: fait ? 'var(--moss)' : 'var(--earth)',
+              textDecoration: fait ? 'line-through' : 'none',
+              transition: 'color var(--ease-fast)',
+            }}>
+              {ex.nom}
+            </span>
+            <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--bark)', whiteSpace: 'nowrap' }}>
+              {ex.reps}
+            </span>
+          </div>
+
+          {ex.description && (
+            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 'var(--tx-xs)', color: 'var(--bark)', marginBottom: 'var(--s2)', lineHeight: 1.6, opacity: 0.85 }}>
+              {ex.description}
+            </p>
+          )}
+
+          {ex.commentaire && (
+            <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--sage)', marginBottom: 'var(--s2)', fontStyle: 'italic' }}>
+              💡 {ex.commentaire}
+            </p>
+          )}
+
+          <input
+            type="text"
+            value={charge_notes}
+            onChange={e => onChange('charge_notes', e.target.value)}
+            placeholder="Ma charge (ex: 10kg, poids du corps…)"
+            style={{
+              width: '100%', padding: '5px var(--s3)', boxSizing: 'border-box',
+              border: '1px solid var(--sand)', borderRadius: 'var(--r-sm)',
+              background: 'var(--cream)', color: 'var(--earth)',
+              fontSize: 'var(--tx-xs)', outline: 'none',
+              transition: 'border-color var(--ease-fast)',
+            }}
+            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+          />
+
+          <button
+            onClick={() => setShowComment(s => !s)}
+            style={{
+              marginTop: 5, background: 'none', border: 'none', padding: 0,
+              fontSize: 'var(--tx-xs)', color: 'var(--stone)', cursor: 'pointer',
+              textDecoration: 'underline', textUnderlineOffset: 2,
+            }}
+          >
+            {showComment ? 'Masquer la note' : '+ Ajouter une note'}
+          </button>
+
+          {showComment && (
+            <textarea
+              value={commentaire}
+              onChange={e => onChange('commentaire', e.target.value)}
+              placeholder="Notes sur cet exercice…"
+              rows={2}
+              style={{
+                marginTop: 'var(--s2)', width: '100%', boxSizing: 'border-box',
+                padding: '5px var(--s3)',
                 border: '1px solid var(--sand)', borderRadius: 'var(--r-sm)',
                 background: 'var(--cream)', color: 'var(--earth)',
                 fontSize: 'var(--tx-xs)', resize: 'vertical', outline: 'none',

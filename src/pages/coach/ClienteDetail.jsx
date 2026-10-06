@@ -920,6 +920,15 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
     })
   }
 
+  function updateCircuit(sIndex, jIndex, field, value) {
+    setProgramme(prev => {
+      const next = JSON.parse(JSON.stringify(prev))
+      const jour = next[sIndex].jours[jIndex]
+      jour.circuit = { tours: 3, repos: '2min', ...(jour.circuit ?? {}), [field]: value }
+      return next
+    })
+  }
+
   function updateSemaine(sIndex, field, value) {
     setProgramme(prev => {
       const next = JSON.parse(JSON.stringify(prev))
@@ -1169,9 +1178,37 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
 
                     {/* Exercices */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {/* Circuit editor — shown when at least one exercise has groupe: "circuit" */}
+                      {(jour.exercices ?? []).some(ex => ex.groupe === 'circuit') && (
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', padding: '6px 8px', background: 'rgba(61,79,60,.06)', borderRadius: 'var(--r-sm)', border: '1px solid rgba(61,79,60,.25)', marginBottom: 2 }}>
+                          <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--forest)', fontWeight: 600, flexShrink: 0 }}>🔁 Circuit :</span>
+                          <input
+                            type="number"
+                            value={jour.circuit?.tours ?? 3}
+                            onChange={e => updateCircuit(sIndex, jIndex, 'tours', Number(e.target.value))}
+                            style={{ ...sIA.input, width: 52 }}
+                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                          />
+                          <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>tours</span>
+                          <input
+                            type="text"
+                            value={jour.circuit?.repos ?? '2min'}
+                            onChange={e => updateCircuit(sIndex, jIndex, 'repos', e.target.value)}
+                            placeholder="2min"
+                            style={{ ...sIA.input, width: 72 }}
+                            onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                            onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                          />
+                          <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--stone)' }}>de repos entre chaque tour</span>
+                        </div>
+                      )}
                       {(jour.exercices ?? []).map((ex, eIndex) => (
-                        <div key={eIndex} style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '6px 8px', background: 'rgba(0,0,0,.02)', borderRadius: 'var(--r-sm)', border: '1px solid var(--sand)' }}>
+                        <div key={eIndex} style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '6px 8px', background: ex.groupe === 'circuit' ? 'rgba(61,79,60,.04)' : 'rgba(0,0,0,.02)', borderRadius: 'var(--r-sm)', border: ex.groupe === 'circuit' ? '1px solid rgba(61,79,60,.22)' : '1px solid var(--sand)' }}>
                           <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                            {ex.groupe === 'circuit' && (
+                              <span style={{ fontSize: 10, color: 'var(--forest)', fontWeight: 700, flexShrink: 0 }}>🔁</span>
+                            )}
                             <input
                               value={ex.nom ?? ''}
                               onChange={e => updateExercice(sIndex, jIndex, eIndex, 'nom', e.target.value)}
@@ -1180,15 +1217,17 @@ function ProgrammeIATab({ aiProgramme, clienteId, intake, onPublished }) {
                               onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
                               onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
                             />
-                            <input
-                              value={ex.series ?? ''}
-                              onChange={e => updateExercice(sIndex, jIndex, eIndex, 'series', Number(e.target.value))}
-                              type="number"
-                              placeholder="3"
-                              style={{ ...sIA.input, width: 52 }}
-                              onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
-                              onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
-                            />
+                            {ex.groupe !== 'circuit' && (
+                              <input
+                                value={ex.series ?? ''}
+                                onChange={e => updateExercice(sIndex, jIndex, eIndex, 'series', Number(e.target.value))}
+                                type="number"
+                                placeholder="3"
+                                style={{ ...sIA.input, width: 52 }}
+                                onFocus={e => { e.target.style.borderColor = 'var(--stone)' }}
+                                onBlur={e  => { e.target.style.borderColor = 'var(--sand)' }}
+                              />
+                            )}
                             <input
                               value={ex.reps ?? ''}
                               onChange={e => updateExercice(sIndex, jIndex, eIndex, 'reps', e.target.value)}
