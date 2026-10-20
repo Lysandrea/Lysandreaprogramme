@@ -20,19 +20,19 @@ export const PODCASTS = [
     description: `Il y a une différence entre se mettre la pression et se respecter assez pour tenir ce qu'on s'est promis. Dans cet épisode, on trouve ensemble la ligne entre les deux — et ce que la vraie exigence envers soi-même veut dire.`,
   },
   {
-    sem: 5, titre: 'La partie de toi qui...', audioUrl: null,
-    description: `Il y a une partie de toi qui doute. Une partie qui résiste. Une partie qui a peur d'aller jusqu'au bout. Dans cet épisode, on va la rencontrer — pas pour la combattre, mais pour comprendre ce qu'elle protège.`,
-  },
-  {
-    sem: 6, titre: 'Le corps comme allié', audioUrl: null,
+    sem: 5, titre: 'Le corps comme allié', audioUrl: '5_LE_CORPS_COMME_ALLIE.mp3',
     description: `On t'a appris à voir ton corps comme quelque chose à corriger. Dans cet épisode, on retourne cette idée complètement. Ton corps n'est pas ton ennemi. Il est ton allié le plus fidèle — et il t'attend.`,
   },
   {
-    sem: 7, titre: 'La régularité sans perfectionnisme', audioUrl: null,
+    sem: 6, titre: 'La partie de toi qui...', audioUrl: '6_LA_PARTIE_DE_TOI_QUI.mp3',
+    description: `Il y a une partie de toi qui doute. Une partie qui résiste. Une partie qui a peur d'aller jusqu'au bout. Dans cet épisode, on va la rencontrer — pas pour la combattre, mais pour comprendre ce qu'elle protège.`,
+  },
+  {
+    sem: 7, titre: 'La régularité sans perfectionnisme', audioUrl: '7_LA_REGULARITE.mp3',
     description: `Tu es presque au bout. Et c'est souvent là qu'on commence à vouloir tout faire parfaitement pour "bien finir". Dans cet épisode, on parle de ce que la vraie régularité veut dire — pas zéro raté, mais toujours revenir.`,
   },
   {
-    sem: 8, titre: 'Ce que tu as construit', audioUrl: null,
+    sem: 8, titre: 'Ce que tu as construit', audioUrl: '8_CE_QUE_TU_AS_CONSTRUIT.mp3',
     description: `C'est le dernier épisode. Pas une conclusion — un point de départ. Dans cet épisode, on regarde ensemble ce que ces huit semaines ont vraiment construit en toi. Et ce que tu emportes avec toi après.`,
   },
 ]
